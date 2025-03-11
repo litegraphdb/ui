@@ -1,0 +1,3886 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodesPage renders the nodes page 1`] = `
+<span
+  class="ant-typography css-dev-only-do-not-override-98ntnt"
+  data-testid="heading"
+  style="font-weight: 600; font-size: 16px;"
+>
+  Nodes
+</span>
+`;
+
+exports[`NodesPage should create a node and should be visible in the table: create node button 1`] = `
+<button
+  class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-link"
+  style="font-weight: 500;"
+  type="button"
+>
+  <span
+    class="ant-btn-icon"
+  >
+    <span
+      aria-label="plus-square"
+      class="anticon anticon-plus-square"
+      role="img"
+    >
+      <svg
+        aria-hidden="true"
+        data-icon="plus-square"
+        fill="currentColor"
+        focusable="false"
+        height="1em"
+        viewBox="64 64 896 896"
+        width="1em"
+      >
+        <path
+          d="M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"
+        />
+        <path
+          d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z"
+        />
+      </svg>
+    </span>
+  </span>
+  <span>
+    Create Node
+  </span>
+</button>
+`;
+
+exports[`NodesPage should create a node and should be visible in the table: create node form with values 1`] = `
+<div
+  aria-labelledby="test-id"
+  aria-modal="true"
+  class="ant-modal css-dev-only-do-not-override-98ntnt ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
+  role="dialog"
+  style="width: 800px;"
+>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+  <div
+    style="outline: none;"
+    tabindex="-1"
+  >
+    <div
+      class="ant-modal-content"
+    >
+      <button
+        aria-label="Close"
+        class="ant-modal-close"
+        type="button"
+      >
+        <span
+          class="ant-modal-close-x"
+        >
+          <span
+            aria-label="close"
+            class="anticon anticon-close ant-modal-close-icon"
+            role="img"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="close"
+              fill="currentColor"
+              fill-rule="evenodd"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"
+              />
+            </svg>
+          </span>
+        </span>
+      </button>
+      <div
+        class="ant-modal-header"
+      >
+        <div
+          class="ant-modal-title"
+          id="test-id"
+        >
+          Create Node
+        </div>
+      </div>
+      <div
+        class="ant-modal-body"
+      >
+        <form
+          class="ant-form ant-form-vertical css-dev-only-do-not-override-98ntnt"
+        >
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="graphName"
+                  title="Graph Name"
+                >
+                  Graph Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      class="ant-input ant-input-disabled css-dev-only-do-not-override-98ntnt ant-input-outlined"
+                      disabled=""
+                      id="graphName"
+                      readonly=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt ant-form-item-is-validating"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class="ant-form-item-required"
+                  for="name"
+                  title="Name"
+                >
+                  Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      aria-required="true"
+                      class="ant-input css-dev-only-do-not-override-98ntnt ant-input-outlined ant-input-status-validating"
+                      data-testid="node-name-input"
+                      id="name"
+                      placeholder="Enter node name"
+                      type="text"
+                      value="My updated test node"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Labels"
+                >
+                  Labels
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Label
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Tags"
+                >
+                  Tags
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Tag
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Vectors"
+                >
+                  Vectors
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Vector
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="data"
+                  title="Data"
+                >
+                  Data
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div>
+                      <div
+                        class="jsoneditor jsoneditor-mode-code"
+                      >
+                        <div
+                          class="jsoneditor-menu"
+                        >
+                          <button
+                            class="jsoneditor-format"
+                            title="Format JSON data, with proper indentation and line feeds (Ctrl+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-compact"
+                            title="Compact JSON data, remove all whitespaces (Ctrl+Shift+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-repair"
+                            title="Repair JSON: fix quotes and escape characters, remove comments and JSONP notation, turn JavaScript objects into JSON."
+                            type="button"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-outer has-main-menu-bar has-status-bar"
+                          style="margin-bottom: -1px; padding-bottom: 1px;"
+                        >
+                          <textarea
+                            class="jsoneditor-text"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-validation-errors-container"
+                        >
+                          <div
+                            class="jsoneditor-additional-errors fadein"
+                            style="display: none;"
+                          >
+                            Scroll for more ▿
+                          </div>
+                        </div>
+                        <div
+                          class="jsoneditor-statusbar"
+                        >
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-icon"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-parse-error-icon"
+                            style="display: none;"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="ant-modal-footer"
+      >
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-default"
+          type="button"
+        >
+          <span>
+            Cancel
+          </span>
+        </button>
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
+          data-testid="add-node-submit-button"
+          disabled=""
+          type="button"
+        >
+          <span>
+            Create
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+</div>
+`;
+
+exports[`NodesPage should create a node and should be visible in the table: create node modal 1`] = `
+<div
+  aria-labelledby="test-id"
+  aria-modal="true"
+  class="ant-modal css-dev-only-do-not-override-98ntnt ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
+  role="dialog"
+  style="width: 800px;"
+>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+  <div
+    style="outline: none;"
+    tabindex="-1"
+  >
+    <div
+      class="ant-modal-content"
+    >
+      <button
+        aria-label="Close"
+        class="ant-modal-close"
+        type="button"
+      >
+        <span
+          class="ant-modal-close-x"
+        >
+          <span
+            aria-label="close"
+            class="anticon anticon-close ant-modal-close-icon"
+            role="img"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="close"
+              fill="currentColor"
+              fill-rule="evenodd"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"
+              />
+            </svg>
+          </span>
+        </span>
+      </button>
+      <div
+        class="ant-modal-header"
+      >
+        <div
+          class="ant-modal-title"
+          id="test-id"
+        >
+          Create Node
+        </div>
+      </div>
+      <div
+        class="ant-modal-body"
+      >
+        <form
+          class="ant-form ant-form-vertical css-dev-only-do-not-override-98ntnt"
+        >
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="graphName"
+                  title="Graph Name"
+                >
+                  Graph Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      class="ant-input ant-input-disabled css-dev-only-do-not-override-98ntnt ant-input-outlined"
+                      disabled=""
+                      id="graphName"
+                      readonly=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class="ant-form-item-required"
+                  for="name"
+                  title="Name"
+                >
+                  Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      aria-required="true"
+                      class="ant-input css-dev-only-do-not-override-98ntnt ant-input-outlined"
+                      data-testid="node-name-input"
+                      id="name"
+                      placeholder="Enter node name"
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Labels"
+                >
+                  Labels
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Label
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Tags"
+                >
+                  Tags
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Tag
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Vectors"
+                >
+                  Vectors
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Vector
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="data"
+                  title="Data"
+                >
+                  Data
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div>
+                      <div
+                        class="jsoneditor jsoneditor-mode-code"
+                      >
+                        <div
+                          class="jsoneditor-menu"
+                        >
+                          <button
+                            class="jsoneditor-format"
+                            title="Format JSON data, with proper indentation and line feeds (Ctrl+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-compact"
+                            title="Compact JSON data, remove all whitespaces (Ctrl+Shift+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-repair"
+                            title="Repair JSON: fix quotes and escape characters, remove comments and JSONP notation, turn JavaScript objects into JSON."
+                            type="button"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-outer has-main-menu-bar has-status-bar"
+                          style="margin-bottom: -1px; padding-bottom: 1px;"
+                        >
+                          <textarea
+                            class="jsoneditor-text"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-validation-errors-container"
+                        >
+                          <div
+                            class="jsoneditor-additional-errors fadein"
+                            style="display: none;"
+                          >
+                            Scroll for more ▿
+                          </div>
+                        </div>
+                        <div
+                          class="jsoneditor-statusbar"
+                        >
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-icon"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-parse-error-icon"
+                            style="display: none;"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="ant-modal-footer"
+      >
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-default"
+          type="button"
+        >
+          <span>
+            Cancel
+          </span>
+        </button>
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
+          data-testid="add-node-submit-button"
+          disabled=""
+          type="button"
+        >
+          <span>
+            Create
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+</div>
+`;
+
+exports[`NodesPage should create a node and should be visible in the table: final table state 1`] = `
+<div
+  class="ant-table css-dev-only-do-not-override-98ntnt"
+>
+  <div
+    class="ant-table-container"
+  >
+    <div
+      class="ant-table-content"
+    >
+      <table
+        style="table-layout: auto;"
+      >
+        <colgroup>
+          <col
+            style="width: 250px;"
+          />
+          <col
+            style="width: 150px;"
+          />
+          <col
+            style="width: 250px;"
+          />
+        </colgroup>
+        <thead
+          class="ant-table-thead"
+        >
+          <tr>
+            <th
+              aria-label="Name"
+              class="ant-table-cell ant-table-column-has-sorters react-resizable"
+              scope="col"
+              tabindex="0"
+            >
+              <div
+                class="ant-table-column-sorters"
+              >
+                <span
+                  class="ant-table-column-title"
+                >
+                  Name
+                </span>
+                <span
+                  class="ant-table-column-sorter ant-table-column-sorter-full"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="ant-table-column-sorter-inner"
+                  >
+                    <span
+                      aria-label="caret-up"
+                      class="anticon anticon-caret-up ant-table-column-sorter-up"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-up"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M858.9 689L530.5 308.2c-9.4-10.9-27.5-10.9-37 0L165.1 689c-12.2 14.2-1.2 35 18.5 35h656.8c19.7 0 30.7-20.8 18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      aria-label="caret-down"
+                      class="anticon anticon-caret-down ant-table-column-sorter-down"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-down"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Labels
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Tags
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell"
+              scope="col"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="ant-table-tbody"
+        >
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="3fc519b1-5f78-4fc7-810b-c18fade549db"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  My updated test node
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  test sas
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NodesPage should create a node and should be visible in the table: initial table state 1`] = `
+<div
+  class="ant-table css-dev-only-do-not-override-98ntnt"
+>
+  <div
+    class="ant-table-container"
+  >
+    <div
+      class="ant-table-content"
+    >
+      <table
+        style="table-layout: auto;"
+      >
+        <colgroup>
+          <col
+            style="width: 250px;"
+          />
+          <col
+            style="width: 150px;"
+          />
+          <col
+            style="width: 250px;"
+          />
+        </colgroup>
+        <thead
+          class="ant-table-thead"
+        >
+          <tr>
+            <th
+              aria-label="Name"
+              class="ant-table-cell ant-table-column-has-sorters react-resizable"
+              scope="col"
+              tabindex="0"
+            >
+              <div
+                class="ant-table-column-sorters"
+              >
+                <span
+                  class="ant-table-column-title"
+                >
+                  Name
+                </span>
+                <span
+                  class="ant-table-column-sorter ant-table-column-sorter-full"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="ant-table-column-sorter-inner"
+                  >
+                    <span
+                      aria-label="caret-up"
+                      class="anticon anticon-caret-up ant-table-column-sorter-up"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-up"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M858.9 689L530.5 308.2c-9.4-10.9-27.5-10.9-37 0L165.1 689c-12.2 14.2-1.2 35 18.5 35h656.8c19.7 0 30.7-20.8 18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      aria-label="caret-down"
+                      class="anticon anticon-caret-down ant-table-column-sorter-down"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-down"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Labels
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Tags
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell"
+              scope="col"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="ant-table-tbody"
+        >
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="3fc519b1-5f78-4fc7-810b-c18fade549db"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  My updated test node
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  test sas
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NodesPage should delete node successfully: delete confirmation modal 1`] = `
+<div
+  aria-labelledby="test-id"
+  aria-modal="true"
+  class="ant-modal css-dev-only-do-not-override-98ntnt ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
+  role="dialog"
+  style="width: 520px;"
+>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+  <div
+    style="outline: none;"
+    tabindex="-1"
+  >
+    <div
+      class="ant-modal-content"
+    >
+      <button
+        aria-label="Close"
+        class="ant-modal-close"
+        type="button"
+      >
+        <span
+          class="ant-modal-close-x"
+        >
+          <span
+            aria-label="close"
+            class="anticon anticon-close ant-modal-close-icon"
+            role="img"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="close"
+              fill="currentColor"
+              fill-rule="evenodd"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"
+              />
+            </svg>
+          </span>
+        </span>
+      </button>
+      <div
+        class="ant-modal-header"
+      >
+        <div
+          class="ant-modal-title"
+          id="test-id"
+        >
+          Are you sure you want to delete "My updated test node" node?
+        </div>
+      </div>
+      <div
+        class="ant-modal-body"
+      >
+        <div
+          class="ant-typography css-dev-only-do-not-override-98ntnt"
+        >
+          This action will delete node.
+        </div>
+      </div>
+      <div
+        class="ant-modal-footer"
+      >
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
+          type="button"
+        >
+          <span>
+            Confirm
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+</div>
+`;
+
+exports[`NodesPage should delete node successfully: final table state after deletion 1`] = `
+<div
+  class="ant-table css-dev-only-do-not-override-98ntnt"
+>
+  <div
+    class="ant-table-container"
+  >
+    <div
+      class="ant-table-content"
+    >
+      <table
+        style="table-layout: auto;"
+      >
+        <colgroup>
+          <col
+            style="width: 250px;"
+          />
+          <col
+            style="width: 150px;"
+          />
+          <col
+            style="width: 250px;"
+          />
+        </colgroup>
+        <thead
+          class="ant-table-thead"
+        >
+          <tr>
+            <th
+              aria-label="Name"
+              class="ant-table-cell ant-table-column-has-sorters react-resizable"
+              scope="col"
+              tabindex="0"
+            >
+              <div
+                class="ant-table-column-sorters"
+              >
+                <span
+                  class="ant-table-column-title"
+                >
+                  Name
+                </span>
+                <span
+                  class="ant-table-column-sorter ant-table-column-sorter-full"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="ant-table-column-sorter-inner"
+                  >
+                    <span
+                      aria-label="caret-up"
+                      class="anticon anticon-caret-up ant-table-column-sorter-up"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-up"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M858.9 689L530.5 308.2c-9.4-10.9-27.5-10.9-37 0L165.1 689c-12.2 14.2-1.2 35 18.5 35h656.8c19.7 0 30.7-20.8 18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      aria-label="caret-down"
+                      class="anticon anticon-caret-down ant-table-column-sorter-down"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-down"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Labels
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Tags
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell"
+              scope="col"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="ant-table-tbody"
+        >
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="3fc519b1-5f78-4fc7-810b-c18fade549db"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  My updated test node
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  test sas
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NodesPage should delete node successfully: initial table state before delete 1`] = `
+<div
+  class="ant-table css-dev-only-do-not-override-98ntnt"
+>
+  <div
+    class="ant-table-container"
+  >
+    <div
+      class="ant-table-content"
+    >
+      <table
+        style="table-layout: auto;"
+      >
+        <colgroup>
+          <col
+            style="width: 250px;"
+          />
+          <col
+            style="width: 150px;"
+          />
+          <col
+            style="width: 250px;"
+          />
+        </colgroup>
+        <thead
+          class="ant-table-thead"
+        >
+          <tr>
+            <th
+              aria-label="Name"
+              class="ant-table-cell ant-table-column-has-sorters react-resizable"
+              scope="col"
+              tabindex="0"
+            >
+              <div
+                class="ant-table-column-sorters"
+              >
+                <span
+                  class="ant-table-column-title"
+                >
+                  Name
+                </span>
+                <span
+                  class="ant-table-column-sorter ant-table-column-sorter-full"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="ant-table-column-sorter-inner"
+                  >
+                    <span
+                      aria-label="caret-up"
+                      class="anticon anticon-caret-up ant-table-column-sorter-up"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-up"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M858.9 689L530.5 308.2c-9.4-10.9-27.5-10.9-37 0L165.1 689c-12.2 14.2-1.2 35 18.5 35h656.8c19.7 0 30.7-20.8 18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      aria-label="caret-down"
+                      class="anticon anticon-caret-down ant-table-column-sorter-down"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-down"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Labels
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Tags
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell"
+              scope="col"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="ant-table-tbody"
+        >
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="3fc519b1-5f78-4fc7-810b-c18fade549db"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  My updated test node
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  test sas
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NodesPage should update node successfully: final table state after update 1`] = `
+<div
+  class="ant-table css-dev-only-do-not-override-98ntnt"
+>
+  <div
+    class="ant-table-container"
+  >
+    <div
+      class="ant-table-content"
+    >
+      <table
+        style="table-layout: auto;"
+      >
+        <colgroup>
+          <col
+            style="width: 250px;"
+          />
+          <col
+            style="width: 150px;"
+          />
+          <col
+            style="width: 250px;"
+          />
+        </colgroup>
+        <thead
+          class="ant-table-thead"
+        >
+          <tr>
+            <th
+              aria-label="Name"
+              class="ant-table-cell ant-table-column-has-sorters react-resizable"
+              scope="col"
+              tabindex="0"
+            >
+              <div
+                class="ant-table-column-sorters"
+              >
+                <span
+                  class="ant-table-column-title"
+                >
+                  Name
+                </span>
+                <span
+                  class="ant-table-column-sorter ant-table-column-sorter-full"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="ant-table-column-sorter-inner"
+                  >
+                    <span
+                      aria-label="caret-up"
+                      class="anticon anticon-caret-up ant-table-column-sorter-up"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-up"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M858.9 689L530.5 308.2c-9.4-10.9-27.5-10.9-37 0L165.1 689c-12.2 14.2-1.2 35 18.5 35h656.8c19.7 0 30.7-20.8 18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      aria-label="caret-down"
+                      class="anticon anticon-caret-down ant-table-column-sorter-down"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-down"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Labels
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Tags
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell"
+              scope="col"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="ant-table-tbody"
+        >
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="3fc519b1-5f78-4fc7-810b-c18fade549db"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  My updated test node
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  test sas
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NodesPage should update node successfully: initial table state before update 1`] = `
+<div
+  class="ant-table css-dev-only-do-not-override-98ntnt"
+>
+  <div
+    class="ant-table-container"
+  >
+    <div
+      class="ant-table-content"
+    >
+      <table
+        style="table-layout: auto;"
+      >
+        <colgroup>
+          <col
+            style="width: 250px;"
+          />
+          <col
+            style="width: 150px;"
+          />
+          <col
+            style="width: 250px;"
+          />
+        </colgroup>
+        <thead
+          class="ant-table-thead"
+        >
+          <tr>
+            <th
+              aria-label="Name"
+              class="ant-table-cell ant-table-column-has-sorters react-resizable"
+              scope="col"
+              tabindex="0"
+            >
+              <div
+                class="ant-table-column-sorters"
+              >
+                <span
+                  class="ant-table-column-title"
+                >
+                  Name
+                </span>
+                <span
+                  class="ant-table-column-sorter ant-table-column-sorter-full"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="ant-table-column-sorter-inner"
+                  >
+                    <span
+                      aria-label="caret-up"
+                      class="anticon anticon-caret-up ant-table-column-sorter-up"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-up"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M858.9 689L530.5 308.2c-9.4-10.9-27.5-10.9-37 0L165.1 689c-12.2 14.2-1.2 35 18.5 35h656.8c19.7 0 30.7-20.8 18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                    <span
+                      aria-label="caret-down"
+                      class="anticon anticon-caret-down ant-table-column-sorter-down"
+                      role="img"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        data-icon="caret-down"
+                        fill="currentColor"
+                        focusable="false"
+                        height="1em"
+                        viewBox="0 0 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M840.4 300H183.6c-19.7 0-30.7 20.8-18.5 35l328.4 380.8c9.4 10.9 27.5 10.9 37 0L858.9 335c12.2-14.2 1.2-35-18.5-35z"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Labels
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell react-resizable"
+              scope="col"
+            >
+              Tags
+              <span
+                class="react-resizable-handle"
+              />
+            </th>
+            <th
+              class="ant-table-cell"
+              scope="col"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="ant-table-tbody"
+        >
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="3fc519b1-5f78-4fc7-810b-c18fade549db"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  My updated test node
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+          <tr
+            class="ant-table-row ant-table-row-level-0"
+            data-row-key="6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c"
+          >
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  test sas
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  N/A
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <div>
+                <div>
+                  {}
+                </div>
+              </div>
+            </td>
+            <td
+              class="ant-table-cell"
+            >
+              <button
+                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only ant-dropdown-trigger"
+                role="node-action-menu"
+                type="button"
+              >
+                <span
+                  class="ant-btn-icon"
+                >
+                  <span
+                    aria-label="more"
+                    class="anticon anticon-more"
+                    role="img"
+                    style="font-size: 20px;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="more"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M456 231a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0zm0 280a56 56 0 10112 0 56 56 0 10-112 0z"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`NodesPage should update node successfully: update node form with values 1`] = `
+<div
+  aria-labelledby="test-id"
+  aria-modal="true"
+  class="ant-modal css-dev-only-do-not-override-98ntnt ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
+  role="dialog"
+  style="width: 800px;"
+>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+  <div
+    style="outline: none;"
+    tabindex="-1"
+  >
+    <div
+      class="ant-modal-content"
+    >
+      <button
+        aria-label="Close"
+        class="ant-modal-close"
+        type="button"
+      >
+        <span
+          class="ant-modal-close-x"
+        >
+          <span
+            aria-label="close"
+            class="anticon anticon-close ant-modal-close-icon"
+            role="img"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="close"
+              fill="currentColor"
+              fill-rule="evenodd"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"
+              />
+            </svg>
+          </span>
+        </span>
+      </button>
+      <div
+        class="ant-modal-header"
+      >
+        <div
+          class="ant-modal-title"
+          id="test-id"
+        >
+          Edit Node
+        </div>
+      </div>
+      <div
+        class="ant-modal-body"
+      >
+        <form
+          class="ant-form ant-form-vertical css-dev-only-do-not-override-98ntnt"
+        >
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="graphName"
+                  title="Graph Name"
+                >
+                  Graph Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      class="ant-input ant-input-disabled css-dev-only-do-not-override-98ntnt ant-input-outlined"
+                      disabled=""
+                      id="graphName"
+                      readonly=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt ant-form-item-is-validating"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class="ant-form-item-required"
+                  for="name"
+                  title="Name"
+                >
+                  Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      aria-required="true"
+                      class="ant-input css-dev-only-do-not-override-98ntnt ant-input-outlined ant-input-status-validating"
+                      data-testid="node-name-input"
+                      id="name"
+                      placeholder="Enter node name"
+                      type="text"
+                      value="Updated Node Name"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Labels"
+                >
+                  Labels
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Label
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Tags"
+                >
+                  Tags
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Tag
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Vectors"
+                >
+                  Vectors
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Vector
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="data"
+                  title="Data"
+                >
+                  Data
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div>
+                      <div
+                        class="jsoneditor jsoneditor-mode-code"
+                      >
+                        <div
+                          class="jsoneditor-menu"
+                        >
+                          <button
+                            class="jsoneditor-format"
+                            title="Format JSON data, with proper indentation and line feeds (Ctrl+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-compact"
+                            title="Compact JSON data, remove all whitespaces (Ctrl+Shift+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-repair"
+                            title="Repair JSON: fix quotes and escape characters, remove comments and JSONP notation, turn JavaScript objects into JSON."
+                            type="button"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-outer has-main-menu-bar has-status-bar"
+                          style="margin-bottom: -1px; padding-bottom: 1px;"
+                        >
+                          <textarea
+                            class="jsoneditor-text"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-validation-errors-container"
+                        >
+                          <div
+                            class="jsoneditor-additional-errors fadein"
+                            style="display: none;"
+                          >
+                            Scroll for more ▿
+                          </div>
+                        </div>
+                        <div
+                          class="jsoneditor-statusbar"
+                        >
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-icon"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-parse-error-icon"
+                            style="display: none;"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="ant-modal-footer"
+      >
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-default"
+          type="button"
+        >
+          <span>
+            Cancel
+          </span>
+        </button>
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
+          data-testid="add-node-submit-button"
+          type="button"
+        >
+          <span>
+            Update
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+</div>
+`;
+
+exports[`NodesPage should update node successfully: update node modal 1`] = `
+<div
+  aria-labelledby="test-id"
+  aria-modal="true"
+  class="ant-modal css-dev-only-do-not-override-98ntnt ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
+  role="dialog"
+  style="width: 800px;"
+>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+  <div
+    style="outline: none;"
+    tabindex="-1"
+  >
+    <div
+      class="ant-modal-content"
+    >
+      <button
+        aria-label="Close"
+        class="ant-modal-close"
+        type="button"
+      >
+        <span
+          class="ant-modal-close-x"
+        >
+          <span
+            aria-label="close"
+            class="anticon anticon-close ant-modal-close-icon"
+            role="img"
+          >
+            <svg
+              aria-hidden="true"
+              data-icon="close"
+              fill="currentColor"
+              fill-rule="evenodd"
+              focusable="false"
+              height="1em"
+              viewBox="64 64 896 896"
+              width="1em"
+            >
+              <path
+                d="M799.86 166.31c.02 0 .04.02.08.06l57.69 57.7c.04.03.05.05.06.08a.12.12 0 010 .06c0 .03-.02.05-.06.09L569.93 512l287.7 287.7c.04.04.05.06.06.09a.12.12 0 010 .07c0 .02-.02.04-.06.08l-57.7 57.69c-.03.04-.05.05-.07.06a.12.12 0 01-.07 0c-.03 0-.05-.02-.09-.06L512 569.93l-287.7 287.7c-.04.04-.06.05-.09.06a.12.12 0 01-.07 0c-.02 0-.04-.02-.08-.06l-57.69-57.7c-.04-.03-.05-.05-.06-.07a.12.12 0 010-.07c0-.03.02-.05.06-.09L454.07 512l-287.7-287.7c-.04-.04-.05-.06-.06-.09a.12.12 0 010-.07c0-.02.02-.04.06-.08l57.7-57.69c.03-.04.05-.05.07-.06a.12.12 0 01.07 0c.03 0 .05.02.09.06L512 454.07l287.7-287.7c.04-.04.06-.05.09-.06a.12.12 0 01.07 0z"
+              />
+            </svg>
+          </span>
+        </span>
+      </button>
+      <div
+        class="ant-modal-header"
+      >
+        <div
+          class="ant-modal-title"
+          id="test-id"
+        >
+          Edit Node
+        </div>
+      </div>
+      <div
+        class="ant-modal-body"
+      >
+        <form
+          class="ant-form ant-form-vertical css-dev-only-do-not-override-98ntnt"
+        >
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="graphName"
+                  title="Graph Name"
+                >
+                  Graph Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      class="ant-input ant-input-disabled css-dev-only-do-not-override-98ntnt ant-input-outlined"
+                      disabled=""
+                      id="graphName"
+                      readonly=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt ant-form-item-has-success"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class="ant-form-item-required"
+                  for="name"
+                  title="Name"
+                >
+                  Name
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <input
+                      aria-required="true"
+                      class="ant-input css-dev-only-do-not-override-98ntnt ant-input-outlined ant-input-status-success"
+                      data-testid="node-name-input"
+                      id="name"
+                      placeholder="Enter node name"
+                      type="text"
+                      value="My updated test node"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Labels"
+                >
+                  Labels
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Label
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Tags"
+                >
+                  Tags
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Tag
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  title="Vectors"
+                >
+                  Vectors
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div
+                      class="ant-form-item css-dev-only-do-not-override-98ntnt"
+                    >
+                      <div
+                        class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+                      >
+                        <div
+                          class="ant-col ant-form-item-control css-dev-only-do-not-override-98ntnt"
+                        >
+                          <div
+                            class="ant-form-item-control-input"
+                          >
+                            <div
+                              class="ant-form-item-control-input-content"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-dashed"
+                                style="width: 100%;"
+                                type="button"
+                              >
+                                <span
+                                  class="ant-btn-icon"
+                                >
+                                  <span
+                                    aria-label="plus"
+                                    class="anticon anticon-plus"
+                                    role="img"
+                                  >
+                                    <svg
+                                      aria-hidden="true"
+                                      data-icon="plus"
+                                      fill="currentColor"
+                                      focusable="false"
+                                      height="1em"
+                                      viewBox="64 64 896 896"
+                                      width="1em"
+                                    >
+                                      <path
+                                        d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"
+                                      />
+                                      <path
+                                        d="M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"
+                                      />
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span>
+                                  Add Vector
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="ant-form-item css-dev-only-do-not-override-98ntnt"
+          >
+            <div
+              class="ant-row ant-form-item-row css-dev-only-do-not-override-98ntnt"
+            >
+              <div
+                class="ant-col ant-form-item-label ant-col-xs-5 ant-col-md-5 ant-col-lg-4 css-dev-only-do-not-override-98ntnt"
+              >
+                <label
+                  class=""
+                  for="data"
+                  title="Data"
+                >
+                  Data
+                </label>
+              </div>
+              <div
+                class="ant-col ant-col-24 ant-form-item-control css-dev-only-do-not-override-98ntnt"
+              >
+                <div
+                  class="ant-form-item-control-input"
+                >
+                  <div
+                    class="ant-form-item-control-input-content"
+                  >
+                    <div>
+                      <div
+                        class="jsoneditor jsoneditor-mode-code"
+                      >
+                        <div
+                          class="jsoneditor-menu"
+                        >
+                          <button
+                            class="jsoneditor-format"
+                            title="Format JSON data, with proper indentation and line feeds (Ctrl+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-compact"
+                            title="Compact JSON data, remove all whitespaces (Ctrl+Shift+I)"
+                            type="button"
+                          />
+                          <button
+                            class="jsoneditor-repair"
+                            title="Repair JSON: fix quotes and escape characters, remove comments and JSONP notation, turn JavaScript objects into JSON."
+                            type="button"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-outer has-main-menu-bar has-status-bar"
+                          style="margin-bottom: -1px; padding-bottom: 1px;"
+                        >
+                          <textarea
+                            class="jsoneditor-text"
+                          />
+                        </div>
+                        <div
+                          class="jsoneditor-validation-errors-container"
+                        >
+                          <div
+                            class="jsoneditor-additional-errors fadein"
+                            style="display: none;"
+                          >
+                            Scroll for more ▿
+                          </div>
+                        </div>
+                        <div
+                          class="jsoneditor-statusbar"
+                        >
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-val"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-curserinfo-label"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-count"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-validation-error-icon"
+                            style="display: none;"
+                          />
+                          <span
+                            class="jsoneditor-parse-error-icon"
+                            style="display: none;"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="ant-modal-footer"
+      >
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-default"
+          type="button"
+        >
+          <span>
+            Cancel
+          </span>
+        </button>
+        <button
+          class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
+          data-testid="add-node-submit-button"
+          type="button"
+        >
+          <span>
+            Update
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    aria-hidden="true"
+    style="width: 0px; height: 0px; overflow: hidden; outline: none;"
+    tabindex="0"
+  />
+</div>
+`;

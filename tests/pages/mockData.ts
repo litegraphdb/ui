@@ -1,0 +1,288 @@
+import { GraphData } from '@/lib/store/graph/types';
+import CredentialMetadata from 'litegraphdb/types/models/CredentialMetadata';
+import Edge from 'litegraphdb/types/models/Edge';
+import LabelMetadata from 'litegraphdb/types/models/LabelMetadata';
+import Node from 'litegraphdb/types/models/Node';
+import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
+import UserMetadata from 'litegraphdb/types/models/UserMetadata';
+
+export const mockGraphData: GraphData[] = [
+  {
+    GUID: 'e6d4294e-6f49-4d67-8260-5e44c2b077a6',
+    name: 'Test Demo Graph',
+    createdUtc: '2024-12-23T15:36:07.816289Z' as any,
+    data: {
+      name: 'value',
+    },
+    gexfContent: `<?xml version="1.0" encoding="utf-8"?> <gexf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.gexf.net/1.3 http://www.gexf.net/1.3/gexf.xsd" version="1.3" xmlns="http://www.gexf.net/1.3"> <meta lastmodifieddate="2025-01-02T07:37:34.9191749Z"> <creator>LiteGraph</creator> <description>Graph from LiteGraph https://github.com/jchristn/litegraph</description> </meta> <graph defaultedgetype="directed"> <attributes class="node"> <attribute id="0" title="props" type="string" /> </attributes> <nodes> <node id="3897b459-a197-48e0-bb8d-e54255675713" label="new one 2"> <attvalues> <attvalue for="Name" value="new one 2" /> </attvalues> </node> <node id="0be10847-040f-4ce5-8694-72da08824f1e" label="new one"> <attvalues> <attvalue for="Name" value="new one" /> </attvalues> </node> <node id="ada1be94-0272-45bb-84fd-75e14f56ffe8" label="test"> <attvalues> <attvalue for="Name" value="test" /> </attvalues> </node> <node id="976e0552-2462-494b-82bc-fd113f89409c" label="My test node 121"> <attvalues> <attvalue for="Name" value="My test node 121" /> </attvalues> </node> </nodes> <edges> <edge id="7b665c02-249a-4029-b782-92526f50d357" source="0be10847-040f-4ce5-8694-72da08824f1e" target="ada1be94-0272-45bb-84fd-75e14f56ffe8"> <attvalues> <attvalue for="Name" value="new test 23" /> <attvalue for="Cost" value="2" /> </attvalues> </edge> <edge id="d35bea13-f548-43be-b005-c79191117334" source="976e0552-2462-494b-82bc-fd113f89409c" target="ada1be94-0272-45bb-84fd-75e14f56ffe8"> <attvalues> <attvalue for="Name" value="test edge" /> <attvalue for="Cost" value="5" /> </attvalues> </edge> </edges> </graph> </gexf>`,
+    labels: [],
+    tags: {},
+    vectors: [],
+  },
+  {
+    GUID: 'd52aeab4-4de7-4076-98dd-461d4a61ac88',
+    name: 'testttt 2',
+    createdUtc: '2024-12-18T07:28:53.965316Z' as any,
+    data: {},
+    labels: [],
+    tags: {},
+    vectors: [],
+  },
+];
+
+export const mockEdgeData: Edge[] = [
+  {
+    GUID: '7b665c02-249a-4029-b782-92526f50d357',
+    GraphGUID: 'd52e9587-f9a8-4348-9cfe-b860ab13ba54',
+    name: 'new test 23',
+    from: '3fc519b1-5f78-4fc7-810b-c18fade549db',
+    to: '6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c',
+    cost: 2,
+    createdUtc: '2024-12-24T07:34:47.695616Z' as any,
+    data: {},
+    lastUpdateUtc: '2024-12-24T07:34:47.695616Z' as any,
+    labels: [],
+    tags: {},
+    vectors: [],
+  },
+  {
+    GUID: 'd35bea13-f548-43be-b005-c79191117334',
+    GraphGUID: 'd52e9587-f9a8-4348-9cfe-b860ab13ba54',
+    name: 'test edge',
+    from: '976e0552-2462-494b-82bc-fd113f89409c',
+    to: 'ada1be94-0272-45bb-84fd-75e14f56ffe8',
+    cost: 5,
+    createdUtc: '2024-12-17T09:24:39.806284Z' as any,
+    data: {},
+    lastUpdateUtc: '2024-12-17T09:24:39.806284Z' as any,
+    labels: [],
+    tags: {},
+    vectors: [],
+  },
+];
+
+export const mockNodeData: Node[] = [
+  {
+    GUID: '3fc519b1-5f78-4fc7-810b-c18fade549db',
+    GraphGUID: '01010101-0101-0101-0101-010101010101',
+    name: 'My updated test node',
+    data: {},
+    createdUtc: '2024-12-18T07:27:58.206132Z' as any,
+    lastUpdateUtc: '2024-12-18T07:27:58.206132Z' as any,
+    labels: [],
+    tags: {},
+    vectors: [],
+  },
+  {
+    GUID: '6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c',
+    GraphGUID: '01010101-0101-0101-0101-010101010101',
+    name: 'test sas',
+    data: {
+      Hello: 'world',
+    },
+    createdUtc: '2024-12-16T08:27:17.639147Z' as any,
+    lastUpdateUtc: '2024-12-16T08:27:17.639147Z' as any,
+    labels: [],
+    tags: {},
+    vectors: [],
+  },
+];
+
+export const graphListingData = {
+  count: Object.values(mockGraphData).length,
+  results: Object.values(mockGraphData),
+};
+
+export const nodeListingData = {
+  count: Object.values(mockNodeData).length,
+  results: Object.values(mockNodeData),
+};
+
+export const mockTagData = {
+  allTags: [
+    {
+      GUID: 'tag-1',
+      TenantGUID: '00000000-0000-0000-0000-000000000000',
+      GraphGUID: 'd52aeab4-4de7-4076-98dd-461d4a61ac88',
+      NodeGUID: '3fc519b1-5f78-4fc7-810b-c18fade549db',
+      EdgeGUID: '',
+      Key: 'Category',
+      Value: 'Important',
+      CreatedUtc: '2024-01-30T10:00:00.000Z',
+      LastUpdateUtc: '2024-01-30T10:00:00.000Z',
+    },
+    {
+      GUID: 'tag-2',
+      TenantGUID: '00000000-0000-0000-0000-000000000000',
+      GraphGUID: 'd52aeab4-4de7-4076-98dd-461d4a61ac88',
+      NodeGUID: '6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c',
+      EdgeGUID: '',
+      Key: 'Priority',
+      Value: 'High',
+      CreatedUtc: '2024-01-30T10:00:00.000Z',
+      LastUpdateUtc: '2024-01-30T10:00:00.000Z',
+    },
+  ],
+  tags: [
+    {
+      'd52aeab4-4de7-4076-98dd-461d4a61ac88': [
+        {
+          GUID: 'tag-1',
+          TenantGUID: '00000000-0000-0000-0000-000000000000',
+          GraphGUID: 'd52aeab4-4de7-4076-98dd-461d4a61ac88',
+          NodeGUID: '3fc519b1-5f78-4fc7-810b-c18fade549db',
+          EdgeGUID: '',
+          Key: 'Category',
+          Value: 'Important',
+          CreatedUtc: '2024-01-30T10:00:00.000Z',
+          LastUpdateUtc: '2024-01-30T10:00:00.000Z',
+        },
+        {
+          GUID: 'tag-2',
+          TenantGUID: '00000000-0000-0000-0000-000000000000',
+          GraphGUID: 'd52aeab4-4de7-4076-98dd-461d4a61ac88',
+          NodeGUID: '6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c',
+          EdgeGUID: '',
+          Key: 'Priority',
+          Value: 'High',
+          CreatedUtc: '2024-01-30T10:00:00.000Z',
+          LastUpdateUtc: '2024-01-30T10:00:00.000Z',
+        },
+      ],
+    },
+  ],
+};
+
+//tenant data
+export const tagListingData = {
+  count: mockTagData.allTags.length,
+  results: mockTagData.allTags,
+};
+
+export const mockTenantData: TenantMetaData[] = [
+  {
+    GUID: '00000000-0000-0000-0000-000000000001',
+    Name: 'Test Tenant',
+    Active: true,
+    CreatedUtc: '2024-01-01T00:00:00Z' as any,
+    LastUpdateUtc: '2024-01-01T00:00:00Z' as any,
+  },
+  {
+    GUID: '00000000-0000-0000-0000-000000000002',
+    Name: 'Test Tenant 2',
+    Active: true,
+    CreatedUtc: '2024-01-02T00:00:00Z' as any,
+    LastUpdateUtc: '2024-01-02T00:00:00Z' as any,
+  },
+];
+
+//user data
+export const mockUserData: UserMetadata[] = [
+  {
+    GUID: '00000000-0000-0000-0000-000000000001',
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    FirstName: 'Test',
+    LastName: 'User',
+    Email: 'test@example.com',
+    Password: 'password',
+    Active: true,
+    CreatedUtc: '2024-01-01T00:00:00Z' as any,
+    LastUpdateUtc: '2024-01-01T00:00:00Z' as any,
+  },
+  {
+    GUID: '00000000-0000-0000-0000-000000000002',
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    FirstName: 'Test',
+    LastName: 'User 2',
+    Email: 'test2@example.com',
+    Password: 'password',
+    Active: true,
+    CreatedUtc: '2024-01-02T00:00:00Z' as any,
+    LastUpdateUtc: '2024-01-02T00:00:00Z' as any,
+  },
+];
+
+//credential data
+export const mockCredentialData: CredentialMetadata[] = [
+  {
+    GUID: '00000000-0000-0000-0000-000000000003',
+    UserGUID: mockUserData[0].GUID,
+    Name: 'Test Credential',
+    BearerToken: 'test-bearer-token',
+    Active: true,
+    CreatedUtc: '2024-01-01T00:00:00Z' as any,
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    LastUpdateUtc: '2024-01-01T00:00:00Z' as any,
+  },
+  {
+    GUID: '00000000-0000-0000-0000-000000000004',
+    UserGUID: mockUserData[1].GUID,
+    Name: 'Test Credential 2',
+    BearerToken: 'test-bearer-token-2',
+    Active: true,
+    CreatedUtc: '2024-01-02T00:00:00Z' as any,
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    LastUpdateUtc: '2024-01-02T00:00:00Z' as any,
+  },
+];
+
+export const userListingData = {
+  count: mockUserData.length,
+  results: mockUserData.map((user) => ({
+    ...user,
+    fullName: `${user.FirstName} ${user.LastName}`,
+  })),
+};
+
+export const credentialListingData = {
+  count: mockCredentialData.length,
+  results: mockCredentialData,
+};
+
+//label data
+export const mockLabelData: LabelMetadata[] = [
+  {
+    GUID: '00000000-0000-0000-0000-000000000005',
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    GraphGUID: mockGraphData[0].GUID,
+    NodeGUID: mockNodeData[0].GUID,
+    EdgeGUID: mockEdgeData[0].GUID,
+    Label: 'Test Label',
+    CreatedUtc: '2024-01-01T00:00:00Z' as any,
+    LastUpdateUtc: '2024-01-01T00:00:00Z' as any,
+  },
+];
+
+//vector data
+export const mockVectorData = [
+  {
+    GUID: '00000000-0000-0000-0000-000000000005',
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    GraphGUID: mockGraphData[0].GUID,
+    NodeGUID: mockNodeData[0].GUID,
+    EdgeGUID: mockEdgeData[0].GUID,
+    Model: 'test-model',
+    Dimensionality: 3,
+    Content: 'Test vector content',
+    Vectors: [1.0, 2.0, 3.0],
+    CreatedUtc: '2024-01-01T00:00:00Z',
+    LastUpdateUtc: '2024-01-01T00:00:00Z',
+  },
+  {
+    GUID: '00000000-0000-0000-0000-000000000006',
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    GraphGUID: mockGraphData[0].GUID,
+    NodeGUID: mockNodeData[1].GUID,
+    EdgeGUID: mockEdgeData[1].GUID,
+    Model: 'test-model-2',
+    Dimensionality: 2,
+    Content: 'Another test vector',
+    Vectors: [4.0, 5.0],
+    CreatedUtc: '2024-01-02T00:00:00Z',
+  },
+];
+
+export const vectorListingData = {
+  count: mockVectorData.length,
+  results: mockVectorData,
+};

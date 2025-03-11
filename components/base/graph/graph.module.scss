@@ -1,0 +1,14 @@
+.graphSelectorContainer {
+  :global {
+    .ant-form-item {
+      margin-bottom: var(--ant-margin-sm);
+    }
+  }
+}
+.graphContainer {
+  height: calc(100vh - 180px);
+  overflow: hidden;
+  border-radius: var(--ant-border-radius-sm);
+  background-color: var(--ant-color-white);
+  border: 1px solid var(--ant-color-border);
+}
