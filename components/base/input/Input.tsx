@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { LegacyRef } from 'react';
 import { Input } from 'antd';
-import { InputProps } from 'antd/es/input';
+import { InputProps, InputRef } from 'antd/es/input';
 
-const LitegraphInput = (props: InputProps) => {
+type LitegraphInputProps = InputProps;
+
+const LitegraphInput = React.forwardRef((props: LitegraphInputProps, ref?: LegacyRef<InputRef>) => {
   const { ...rest } = props;
-  return <Input {...rest} />;
-};
+  return <Input ref={ref} {...rest} />;
+});
 
+LitegraphInput.displayName = 'LitegraphInput';
 export default LitegraphInput;

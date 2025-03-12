@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { Form, Input } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { Form, Input, InputRef } from 'antd';
 import styles from './login.module.scss';
 import LitegraphInput from '@/components/base/input/Input';
 import LitegraphSelect from '@/components/base/select/Select';
@@ -10,11 +10,7 @@ import LitegraphButton from '@/components/base/button/Button';
 import { LightGraphTheme } from '@/theme/theme';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import Link from 'next/link';
-import {
-  useGenerateToken,
-  useGetTenants,
-  useGetTenantsForEmail,
-} from '@/lib/sdk/litegraph.service';
+import { useGenerateToken, useGetTenantsForEmail } from '@/lib/sdk/litegraph.service';
 
 import { useCredentialsToLogin } from '@/hooks/authHooks';
 import { useAppSelector } from '@/lib/store/hooks';
@@ -29,6 +25,7 @@ interface LoginFormData {
 }
 
 const LoginPage = () => {
+  const emailInputRef = useRef<InputRef | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [formData, setFormData] = useState<Partial<LoginFormData>>({});
   const [form] = Form.useForm();
@@ -44,6 +41,7 @@ const LoginPage = () => {
     })) || [];
 
   const handleNext = async () => {
+    console.log('handleNext');
     try {
       const values = await form.validateFields();
       setFormData((prev) => ({ ...prev, ...values }));
@@ -115,7 +113,7 @@ const LoginPage = () => {
               { type: 'email', message: 'Please enter a valid email!' },
             ]}
           >
-            <LitegraphInput placeholder="Email" size="large" />
+            <LitegraphInput placeholder="Email" size="large" ref={emailInputRef} />
           </Form.Item>
         );
       case 1:
@@ -150,6 +148,14 @@ const LoginPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (emailInputRef.current) {
+      emailInputRef.current.focus({
+        cursor: 'start',
+      });
+    }
+  }, [emailInputRef.current]);
+
   return (
     <div className={'h-screen pl-8 pr-8'}>
       <div className="mb-12 flex items-center justify-between border-b border-gray-300 pb-4 pt-4">
@@ -178,7 +184,7 @@ const LoginPage = () => {
             )}
             <LitegraphButton
               type="primary"
-              htmlType={currentStep === 2 ? 'submit' : 'button'}
+              htmlType={'submit'}
               loading={isGeneratingToken || isLoadingTenant}
               className={styles.loginButton}
               onClick={currentStep === 2 ? handleSubmit : handleNext}

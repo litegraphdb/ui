@@ -10,7 +10,7 @@ const nextConfig = {
     unoptimized: true,
   },
   env: {
-    PORT: '3002',
+    PORT: '3000',
   },
   reactStrictMode: false,
 };

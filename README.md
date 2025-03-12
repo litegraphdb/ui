@@ -7,7 +7,7 @@ A web interface for visualizing and managing network graphs, built with Next.js 
 ## Features
 
 Tenant Dashboard
-This can be accessed by logging in to `localhost:3002/login`
+This can be accessed by logging in to `localhost:3000/login`
 
 - **Home**: Main graph visualization interface
 - **Graphs**: Manage and edit graph definitions
@@ -18,7 +18,7 @@ This can be accessed by logging in to `localhost:3002/login`
 - **Vectors**: Manage and edit vectors
 
 Admin Dashboard
-This can be accessed by logging in to `localhost:3002/login/admin`
+This can be accessed by logging in to `localhost:3000/login/admin`
 
 - **Tenants**: Manage and edit tenants
 - **Users**: Manage and edit users
@@ -56,6 +56,7 @@ npm run build
 ```bash
 npm run start
 ```
+
 OR
 
 #### Start the development server (for development, can be used to test web ui locally as well):
@@ -64,7 +65,7 @@ OR
 npm run dev
 ```
 
-The application will be available at `http://localhost:3002`.
+The application will be available at `http://localhost:3000`.
 
 ### Testing
 
@@ -99,7 +100,7 @@ Start the built application:
 npm run start
 ```
 
-The app will be available at http://localhost:3002.
+The app will be available at http://localhost:3000.
 
 ### Code Quality
 
