@@ -17,8 +17,8 @@ jest.mock('@/hooks/entityHooks', () => ({
   useNodeAndEdge: () => ({
     nodesList: mockNodeData,
     edgesList: mockEdgeData,
-    nodeOptions: mockNodeData.map((node) => ({ label: node.name, value: node.GUID })),
-    edgeOptions: mockEdgeData.map((edge) => ({ label: edge.name, value: edge.GUID })),
+    nodeOptions: mockNodeData.map((node) => ({ label: node.Name, value: node.GUID })),
+    edgeOptions: mockEdgeData.map((edge) => ({ label: edge.Name, value: edge.GUID })),
     fetchNodesAndEdges: jest.fn().mockResolvedValue(true),
     isLoading: false,
     error: null,
@@ -83,7 +83,7 @@ describe('TagsPage', () => {
 
     // Wait for dropdown options and select the first node
     await waitFor(() => {
-      const option = screen.getByText(mockNodeData[0].name);
+      const option = screen.getByText(mockNodeData[0].Name);
       fireEvent.click(option);
     });
 
@@ -144,7 +144,7 @@ describe('TagsPage', () => {
 
     // Wait for dropdown options and select the first edge
     await waitFor(() => {
-      const option = screen.getByText(mockEdgeData[0].name);
+      const option = screen.getByText(mockEdgeData[0].Name);
       fireEvent.click(option);
     });
 

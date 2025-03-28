@@ -28,8 +28,8 @@ jest.mock('@/hooks/entityHooks', () => ({
   useNodeAndEdge: () => ({
     nodesList: mockNodeData,
     edgesList: mockEdgeData,
-    nodeOptions: mockNodeData.map((node) => ({ label: node.name, value: node.GUID })),
-    edgeOptions: mockEdgeData.map((edge) => ({ label: edge.name, value: edge.GUID })),
+    nodeOptions: mockNodeData.map((node) => ({ label: node.Name, value: node.GUID })),
+    edgeOptions: mockEdgeData.map((edge) => ({ label: edge.Name, value: edge.GUID })),
     fetchNodesAndEdges: jest.fn().mockResolvedValue(true),
     isLoading: false,
     error: null,
@@ -85,12 +85,12 @@ describe('LabelsPage', () => {
 
     // Fill in form fields using mock data
     const labelInput = screen.getByPlaceholderText(/enter label label/i);
-    const nodeCell = screen.getByText(mockNodeData[0].name);
-    const edgeCell = screen.getByText(mockEdgeData[0].name);
+    const nodeCell = screen.getByText(mockNodeData[0].Name);
+    const edgeCell = screen.getByText(mockEdgeData[0].Name);
 
     fireEvent.change(labelInput, { target: { value: mockLabelData[0].Label } });
-    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].name } });
-    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].name } });
+    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].Name } });
+    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].Name } });
 
     // Find and interact with the node select
     const nodeSelectContainer = screen.getByTitle('Node');
@@ -98,7 +98,7 @@ describe('LabelsPage', () => {
 
     // Wait for dropdown options and select the first node
     await waitFor(() => {
-      const option = screen.getByText(mockNodeData[0].name);
+      const option = screen.getByText(mockNodeData[0].Name);
       fireEvent.click(option);
     });
 
@@ -146,14 +146,14 @@ describe('LabelsPage', () => {
 
     // Find and update the form fields
     const labelInput = screen.getByPlaceholderText(/enter label label/i);
-    const nodeCell = screen.getByText(mockNodeData[0].name);
-    const edgeCell = screen.getByText(mockEdgeData[0].name);
+    const nodeCell = screen.getByText(mockNodeData[0].Name);
+    const edgeCell = screen.getByText(mockEdgeData[0].Name);
 
     // Use hardcoded values
     const updatedLabel = 'Updated Label';
     fireEvent.change(labelInput, { target: { value: updatedLabel } });
-    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].name } });
-    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].name } });
+    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].Name } });
+    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].Name } });
 
     // Find and interact with the edge select
     const edgeSelectContainer = screen.getByTitle('Edge');
@@ -161,7 +161,7 @@ describe('LabelsPage', () => {
 
     // Wait for dropdown options and select the first edge
     await waitFor(() => {
-      const option = screen.getByText(mockEdgeData[0].name);
+      const option = screen.getByText(mockEdgeData[0].Name);
       fireEvent.click(option);
     });
 

@@ -3,8 +3,6 @@
 exports[`NodesPage renders the nodes page 1`] = `
 <span
   class="ant-typography css-dev-only-do-not-override-98ntnt"
-  data-testid="heading"
-  style="font-weight: 600; font-size: 16px;"
 >
   Nodes
 </span>
@@ -3325,6 +3323,7 @@ exports[`NodesPage should update node successfully: update node form with values
         <button
           class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
           data-testid="add-node-submit-button"
+          disabled=""
           type="button"
         >
           <span>
@@ -3868,6 +3867,7 @@ exports[`NodesPage should update node successfully: update node modal 1`] = `
         <button
           class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-primary"
           data-testid="add-node-submit-button"
+          disabled=""
           type="button"
         >
           <span>

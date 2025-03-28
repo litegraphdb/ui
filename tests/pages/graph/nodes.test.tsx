@@ -19,6 +19,13 @@ jest.mock('@/hooks/entityHooks', () => ({
     error: null,
     fetchGraphs: jest.fn(),
   }),
+  useSearchNodeData: () => ({
+    searchNode: jest.fn(),
+    searchResults: [],
+    isLoading: false,
+    setSearchResults: jest.fn(),
+    refreshSearch: jest.fn(),
+  }),
 }));
 
 describe('NodesPage', () => {
@@ -58,7 +65,7 @@ describe('NodesPage', () => {
 
     const nameInput = screen.getByTestId('node-name-input');
 
-    fireEvent.change(nameInput, { target: { value: mockNodeData[0].name } });
+    fireEvent.change(nameInput, { target: { value: mockNodeData[0].Name } });
 
     // Take snapshot of filled form
     expect(createModal).toMatchSnapshot('create node form with values');

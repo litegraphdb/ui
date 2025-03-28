@@ -10,7 +10,7 @@ exports[`HomePage with Mock API renders the GraphViewer and select one graph 1`]
     style="min-height: 100vh;"
   >
     <aside
-      class="ant-layout-sider ant-layout-sider-light  border-r"
+      class="ant-layout-sider ant-layout-sider-light sidebarContainer"
       style="flex: 0 0 170px; max-width: 170px; min-width: 170px; width: 170px;"
     >
       <div
@@ -32,17 +32,17 @@ exports[`HomePage with Mock API renders the GraphViewer and select one graph 1`]
             width="30"
           />
           <h4
-            class="ant-typography headingCommonStyles mt-2 css-dev-only-do-not-override-98ntnt"
+            class="ant-typography headingCommonStyles mt-xs css-dev-only-do-not-override-98ntnt"
             style="font-weight: 600;"
           >
             LiteGraph
           </h4>
         </div>
         <div
-          class="px-2 ant-flex css-dev-only-do-not-override-98ntnt ant-flex-justify-flex-end"
+          class="pl-sm pr-sm pt-sm ant-flex css-dev-only-do-not-override-98ntnt ant-flex-justify-flex-end"
         >
           <button
-            class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-text ant-btn-icon-only"
+            class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-link ant-btn-icon-only"
             style="font-size: 16px; right: 8%;"
             type="button"
           >
@@ -363,7 +363,8 @@ exports[`HomePage with Mock API renders the GraphViewer and select one graph 1`]
           class="ant-flex css-dev-only-do-not-override-98ntnt ant-flex-align-stretch ant-flex-justify-center ant-flex-vertical"
         >
           <div
-            style="display: flex; align-items: center; gap: 8px;"
+            class="ant-flex css-dev-only-do-not-override-98ntnt ant-flex-align-center"
+            style="gap: 8px;"
           >
             <span>
               Graph:
