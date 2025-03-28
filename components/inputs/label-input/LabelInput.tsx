@@ -2,6 +2,7 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
 import { CloseCircleFilled, PlusOutlined } from '@ant-design/icons';
+import styles from './styles.module.scss';
 
 interface LabelInputProps {
   value?: string[];
@@ -28,7 +29,7 @@ const LabelInput: React.FC<LabelInputProps> = ({
                   value ? (
                     <CloseCircleFilled
                       onClick={() => remove(field.name)}
-                      className="cursor-pointer text-gray-500"
+                      className={styles.closeIcon}
                     />
                   ) : null
                 }

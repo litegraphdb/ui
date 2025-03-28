@@ -88,7 +88,7 @@ const DashboardLayout = ({
           <Header className={styles.header}>
             <LitegraphFlex vertical justify="center">
               {useGraphsSelector && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <LitegraphFlex align="center" gap={8}>
                   <span>Graph:</span>
                   <LitegraphSelect
                     placeholder="Select a graph"
@@ -99,10 +99,10 @@ const DashboardLayout = ({
                     loading={isGraphsLoading}
                     data-testid="litegraph-select"
                   />
-                </div>
+                </LitegraphFlex>
               )}
               {useTenantSelector && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <LitegraphFlex align="center" gap={8}>
                   <span>Tenant:</span>
                   <LitegraphSelect
                     placeholder="Select a tenant"
@@ -111,7 +111,7 @@ const DashboardLayout = ({
                     onChange={handleTenantSelect}
                     style={{ width: 200 }}
                   />
-                </div>
+                </LitegraphFlex>
               )}
             </LitegraphFlex>
 

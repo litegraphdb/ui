@@ -2,7 +2,7 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
 import { CloseCircleFilled, PlusOutlined } from '@ant-design/icons';
-
+import styles from './styles.module.scss';
 interface TagsInputProps {
   value?: Array<{ key: string; value: string }>;
   onChange?: (values: Record<string, string>) => void;
@@ -35,7 +35,7 @@ const TagsInput: React.FC<TagsInputProps> = ({ value = [], onChange, name }) => 
                     suffix={
                       <CloseCircleFilled
                         onClick={() => remove(field.name)}
-                        className="cursor-pointer text-gray-500"
+                        className={styles.closeIcon}
                       />
                     }
                   />

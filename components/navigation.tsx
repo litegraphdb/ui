@@ -24,11 +24,11 @@ const Navigation = ({
     <Sider
       theme="light"
       width={170}
-      className=" border-r"
       trigger={null}
       collapsible
       collapsed={collapsed}
       collapsedWidth={60}
+      className={styles.sidebarContainer}
     >
       <LitegraphFlex justify="center" gap={8} align="center" className={styles.logoContainer}>
         {collapsed ? (
@@ -36,15 +36,15 @@ const Navigation = ({
         ) : (
           <>
             <Image src={'/favicon.png'} alt="Litegraph logo" width={30} height={30} />
-            <LitegraphTitle level={4} className="mt-2" weight={600}>
+            <LitegraphTitle level={4} className="mt-xs" weight={600}>
               LiteGraph
             </LitegraphTitle>
           </>
         )}
       </LitegraphFlex>
-      <LitegraphFlex justify="flex-end" className="px-2">
+      <LitegraphFlex justify="flex-end" className="pl-sm pr-sm pt-sm">
         <Button
-          type="text"
+          type="link"
           icon={collapsed ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
           onClick={() => setCollapsed(!collapsed)}
           style={{

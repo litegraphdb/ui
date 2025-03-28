@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { PlusSquareOutlined } from '@ant-design/icons';
+import { useEffect, useMemo, useState } from 'react';
+import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
@@ -12,7 +12,14 @@ import AddEditEdge from './components/AddEditEdge';
 import DeleteEdge from './components/DeleteEdge';
 import { transformEdgeDataForTable } from './utils';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
-import { useNodeAndEdge } from '@/hooks/entityHooks';
+import { useNodeAndEdge, useSearchEdgeData } from '@/hooks/entityHooks';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import LitegraphText from '@/components/base/typograpghy/Text';
+import { SearchByVectorData, SearchData } from '@/components/search/type';
+import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
+import SearchByTLDModal from '@/components/search/SearchByTLDModal';
+import SearchByVectorModal from '@/components/search/SearchByVectorModal';
+import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
 
 const EdgePage = () => {
   const dispatch = useAppDispatch();
@@ -29,8 +36,27 @@ const EdgePage = () => {
 
   const [isAddEditEdgeVisible, setIsAddEditEdgeVisible] = useState<boolean>(false);
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [showSearchByTLDModal, setShowSearchByTLDModal] = useState(false);
+  const [showSearchByVectorModal, setShowSearchByVectorModal] = useState(false);
+  const {
+    searchEdge,
+    searchResults,
+    isLoading: isSearchLoading,
+    setSearchResults,
 
-  const transformedEdgesList = transformEdgeDataForTable(edgesList, nodesList);
+    refreshSearch,
+  } = useSearchEdgeData();
+
+  const transformedEdgesList = transformEdgeDataForTable(
+    isSearching ? searchResults || [] : edgesList,
+    nodesList
+  );
+
+  const hasScoreOrDistance = useMemo(
+    () => hasScoreOrDistanceInData(transformedEdgesList),
+    [transformedEdgesList]
+  );
 
   const handleCreateEdge = () => {
     setSelectedEdge(null);
@@ -46,32 +72,83 @@ const EdgePage = () => {
     setSelectedEdge(record);
     setIsDeleteModelVisisble(true);
   };
+  const onSearch = async (values: SearchData) => {
+    await searchEdge({
+      GraphGUID: selectedGraphRedux,
+      Ordering: 'CreatedDescending',
+      Labels: values.labels,
+      Expr: values.expr,
+      Tags: convertTagsToRecord(values.tags),
+    });
+  };
+  const onSearchByVector = async (values: SearchByVectorData) => {
+    await searchEdge({
+      GraphGUID: selectedGraphRedux,
+      Domain: 'Edge',
+      SearchType: 'CosineSimilarity',
+      Labels: [],
+      Tags: {},
+      Expr: null,
+      Embeddings: values.embeddings,
+    });
+  };
+
+  useEffect(() => {
+    setIsSearching(false);
+    setSearchResults(null);
+  }, [selectedGraphRedux]);
 
   return (
     <PageContainer
       id="edges"
-      pageTitle={'Edges'}
+      pageTitle={
+        <LitegraphFlex align="center" gap={10}>
+          <LitegraphText>{isSearching ? 'Search ' : 'Edges'}</LitegraphText>
+          {selectedGraphRedux &&
+            (isSearching ? (
+              <CloseOutlined className="cursor-pointer" onClick={() => setIsSearching(false)} />
+            ) : (
+              <SearchOutlined
+                className="cursor-pointer"
+                onClick={() => {
+                  setIsSearching(true);
+                  setSearchResults(null);
+                }}
+              />
+            ))}
+        </LitegraphFlex>
+      }
       pageTitleRightContent={
         <>
-          {selectedGraphRedux && (
-            <LitegraphButton
-              type="link"
-              icon={<PlusSquareOutlined />}
-              onClick={handleCreateEdge}
-              weight={500}
-            >
-              Create Edge
-            </LitegraphButton>
-          )}
+          {selectedGraphRedux &&
+            (isSearching ? (
+              <LitegraphFlex gap={20}>
+                <LitegraphButton type="link" onClick={() => setShowSearchByTLDModal(true)}>
+                  Search by labels, tags and data
+                </LitegraphButton>
+                <LitegraphButton type="link" onClick={() => setShowSearchByVectorModal(true)}>
+                  Search by vectors
+                </LitegraphButton>
+              </LitegraphFlex>
+            ) : (
+              <LitegraphButton
+                type="link"
+                icon={<PlusSquareOutlined />}
+                onClick={handleCreateEdge}
+                weight={500}
+              >
+                Create Edge
+              </LitegraphButton>
+            ))}
         </>
       }
     >
       {isEdgesError && <FallBack retry={fetchNodesAndEdges}>{'Something went wrong.'}</FallBack>}
       {!isEdgesError && (
         <LitegraphTable
-          columns={tableColumns(handleEditEdge, handleDelete)}
+          columns={tableColumns(handleEditEdge, handleDelete, hasScoreOrDistance)}
           dataSource={transformedEdgesList}
-          loading={isNodesAndEdgesLoading}
+          loading={isNodesAndEdgesLoading || isSearchLoading}
           rowKey={'GUID'}
         />
       )}
@@ -81,16 +158,29 @@ const EdgePage = () => {
         setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
         edge={selectedEdge ? selectedEdge : null}
         selectedGraph={selectedGraphRedux}
-        onEdgeUpdated={fetchNodesAndEdges}
+        onEdgeUpdated={async () => {
+          await fetchNodesAndEdges();
+          refreshSearch();
+        }}
       />
 
       <DeleteEdge
-        title={`Are you sure you want to delete "${selectedEdge?.name}" edge?`}
+        title={`Are you sure you want to delete "${selectedEdge?.Name}" edge?`}
         paragraphText={'This action will delete edge.'}
         isDeleteModelVisisble={isDeleteModelVisisble}
         setIsDeleteModelVisisble={setIsDeleteModelVisisble}
         selectedEdge={selectedEdge}
         setSelectedEdge={setSelectedEdge}
+      />
+      <SearchByTLDModal
+        setIsSearchModalVisible={setShowSearchByTLDModal}
+        isSearchModalVisible={showSearchByTLDModal}
+        onSearch={onSearch}
+      />
+      <SearchByVectorModal
+        isSearchModalVisible={showSearchByVectorModal}
+        setIsSearchModalVisible={setShowSearchByVectorModal}
+        onSearch={onSearchByVector}
       />
     </PageContainer>
   );

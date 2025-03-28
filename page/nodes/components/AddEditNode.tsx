@@ -7,11 +7,10 @@ import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
 import { useCreateNode, useUpdateNodeById } from '@/lib/sdk/litegraph.service';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { useAppDispatch } from '@/lib/store/hooks';
 import { validationRules } from './constant';
 import { NodeType } from '@/lib/store/node/types';
 import { updateNode, createNode } from '@/lib/store/node/actions';
-import { RootState } from '@/lib/store/store';
 import toast from 'react-hot-toast';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
@@ -72,7 +71,7 @@ const AddEditNode = ({
         const data = {
           GUID: node.GUID,
           GraphGUID: node.GraphGUID,
-          CreatedUtc: node.createdUtc,
+          CreatedUtc: node.CreatedUtc,
           Name: values.name,
           Data: values.data,
           Labels: values.labels,
@@ -122,14 +121,14 @@ const AddEditNode = ({
       form.resetFields();
       // Ensure form values are updated when editing
       form.setFieldsValue({
-        name: node.name || '',
-        data: node.data || {},
-        labels: node.labels || [],
-        tags: Object.entries(node.tags || {}).map(([key, value]) => ({
+        name: node.Name || '',
+        data: node.Data || {},
+        labels: node.Labels || [],
+        tags: Object.entries(node.Tags || {}).map(([key, value]) => ({
           key,
           value,
         })),
-        vectors: node.vectors || [],
+        vectors: node.Vectors || [],
       });
       setUniqueKey(v4());
     } else {
@@ -137,14 +136,16 @@ const AddEditNode = ({
       setUniqueKey(v4());
     }
     const data = graphsList?.find((graph) => graph.GUID === selectedGraph);
-    data && form.setFieldValue('graphName', data.name);
+    data?.Name && form.setFieldValue('graphName', data.Name);
+  }, [node?.GUID, selectedGraph, graphsList?.length]);
 
+  useEffect(() => {
     // Trigger initial validation
     form
       .validateFields({ validateOnly: true })
       .then(() => setFormValid(true))
       .catch(() => setFormValid(false));
-  }, [node, selectedGraph, graphsList, form]);
+  }, [form]);
 
   return (
     <LitegraphModal

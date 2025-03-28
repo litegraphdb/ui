@@ -4,19 +4,21 @@ import { GraphData } from '@/lib/store/graph/types';
 import { TableProps, Dropdown, Button, Menu } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
+import { isNumber } from 'lodash';
 
 export const tableColumns = (
   handleEdit: (record: GraphData) => void,
   handleDelete: (record: GraphData) => void,
-  handleExportGexf: (record: GraphData) => void
+  handleExportGexf: (record: GraphData) => void,
+  hasScoreOrDistance: boolean
 ): TableProps<GraphData>['columns'] => [
   {
     title: 'Name',
-    dataIndex: 'name',
+    dataIndex: 'Name',
     key: 'name',
     width: 350,
     responsive: ['sm'],
-    sorter: (a: GraphData, b: GraphData) => a.name.localeCompare(b.name),
+    sorter: (a: GraphData, b: GraphData) => a.Name.localeCompare(b.Name),
     render: (name: string) => (
       <div>
         <div>{name}</div>
@@ -37,7 +39,7 @@ export const tableColumns = (
   },
   {
     title: 'Labels',
-    dataIndex: 'labels' as keyof GraphData,
+    dataIndex: 'Labels' as keyof GraphData,
     key: 'labels',
     width: 350,
     responsive: ['sm'],
@@ -49,7 +51,7 @@ export const tableColumns = (
   },
   {
     title: 'Tags',
-    dataIndex: 'tags',
+    dataIndex: 'Tags',
     key: 'tags',
     width: 350,
     responsive: ['sm'],
@@ -66,20 +68,45 @@ export const tableColumns = (
     width: 150,
     responsive: ['sm'],
     render: (_: any, record: GraphData) => (
-      <div>{pluralize(record?.vectors?.length || 0, 'vector')}</div>
+      <div>{pluralize(record?.Vectors?.length || 0, 'vector')}</div>
     ),
   },
   {
     title: 'Created UTC',
-    dataIndex: 'createdUtc',
+    dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 350,
     responsive: ['sm'],
     sorter: (a: GraphData, b: GraphData) =>
-      new Date(a.createdUtc).getTime() - new Date(b.createdUtc).getTime(),
+      new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,
   },
-
+  ...(hasScoreOrDistance
+    ? [
+        {
+          title: 'Score',
+          dataIndex: 'Score',
+          key: 'Score',
+          width: 150,
+          render: (score: number) => (
+            <div>
+              <div>{isNumber(score) ? score : 'N/A'}</div>
+            </div>
+          ),
+        },
+        {
+          title: 'Distance',
+          dataIndex: 'Distance',
+          key: 'Distance',
+          width: 150,
+          render: (distance: number) => (
+            <div>
+              <div>{isNumber(distance) ? distance : 'N/A'}</div>
+            </div>
+          ),
+        },
+      ]
+    : []),
   {
     title: 'Actions',
     key: 'actions',

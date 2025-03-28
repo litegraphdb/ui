@@ -6,6 +6,8 @@ import { Toaster } from 'react-hot-toast';
 import { ConfigProvider } from 'antd';
 import { primaryTheme } from '@/theme/theme';
 import AuthLayout from '@/components/layout/AuthLayout';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { StyleProvider } from '@ant-design/cssinjs';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,10 +35,14 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <StoreProvider>
-          <ConfigProvider theme={primaryTheme}>
-            <AuthLayout>{children}</AuthLayout>
-            <Toaster />
-          </ConfigProvider>
+          <StyleProvider hashPriority="high">
+            <AntdRegistry>
+              <ConfigProvider theme={primaryTheme}>
+                <AuthLayout>{children}</AuthLayout>
+                <Toaster />
+              </ConfigProvider>
+            </AntdRegistry>
+          </StyleProvider>
         </StoreProvider>
       </body>
     </html>

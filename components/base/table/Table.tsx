@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableProps } from 'antd';
 import { Resizable } from 'react-resizable';
 
@@ -54,6 +54,11 @@ const LitegraphTable = (props: TableProps) => {
       onResize: handleResize(index),
     }),
   }));
+
+  useEffect(() => {
+    setColumnsState(columns);
+  }, [columns]);
+
   return (
     <Table
       {...rest}

@@ -4,12 +4,12 @@
 }
 
 .colorRed {
-  color: var(--ant-color-error);
+  color: var(--ant-color-error) !important;
 }
 
 .colorYellow {
-  color: var(--ant-color-warning);
+  color: var(--ant-color-warning) !important;
 }
 .colorBlue {
-  color: var(--ant-color-primary);
+  color: var(--ant-color-primary) !important;
 }

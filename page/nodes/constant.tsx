@@ -4,17 +4,19 @@ import { Button, Dropdown, TableProps } from 'antd';
 import { NodeType } from '@/lib/store/node/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
+import { isNumber } from 'lodash';
 
 export const tableColumns = (
   handleEdit: (record: NodeType) => void,
-  handleDelete: (record: NodeType) => void
+  handleDelete: (record: NodeType) => void,
+  hasScoreOrDistance: boolean
 ): TableProps<NodeType>['columns'] => [
   {
     title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
+    dataIndex: 'Name' as keyof NodeType,
+    key: 'Name',
     width: 250,
-    sorter: (a: NodeType, b: NodeType) => a.name.localeCompare(b.name),
+    sorter: (a: NodeType, b: NodeType) => a.Name.localeCompare(b.Name),
     render: (name: string) => (
       <div>
         <div>{name}</div>
@@ -23,7 +25,7 @@ export const tableColumns = (
   },
   {
     title: 'GUID',
-    dataIndex: 'GUID',
+    dataIndex: 'GUID' as keyof NodeType,
     key: 'GUID',
     width: 350,
     responsive: ['md'],
@@ -35,7 +37,7 @@ export const tableColumns = (
   },
   {
     title: 'Labels',
-    dataIndex: 'labels',
+    dataIndex: 'Labels' as keyof NodeType,
     key: 'Labels',
     width: 150,
     render: (label: string[]) => (
@@ -46,8 +48,8 @@ export const tableColumns = (
   },
   {
     title: 'Tags',
-    dataIndex: 'tags' as keyof NodeType,
-    key: 'tags',
+    dataIndex: 'Tags' as keyof NodeType,
+    key: 'Tags',
     width: 250,
     render: (tags: any) => (
       <div>
@@ -62,24 +64,49 @@ export const tableColumns = (
     width: 250,
     responsive: ['md'],
     render: (_: any, record: NodeType) => (
-      <div>{pluralize(record?.vectors?.length || 0, 'vector')}</div>
+      <div>{pluralize(record?.Vectors?.length || 0, 'vector')}</div>
     ),
   },
   {
     title: 'Created UTC',
-    dataIndex: 'createdUtc',
-    key: 'createdUtc',
+    dataIndex: 'CreatedUtc',
+    key: 'CreatedUtc',
     width: 250,
     responsive: ['md'],
     sorter: (a: NodeType, b: NodeType) =>
-      new Date(a.createdUtc).getTime() - new Date(b.createdUtc).getTime(),
-    render: (createdUtc: string) => (
+      new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
+    render: (CreatedUtc: string) => (
       <div>
-        <div>{formatDateTime(createdUtc)}</div>
+        <div>{formatDateTime(CreatedUtc)}</div>
       </div>
     ),
   },
-
+  ...(hasScoreOrDistance
+    ? [
+        {
+          title: 'Score',
+          dataIndex: 'Score' as keyof NodeType,
+          key: 'Score',
+          width: 150,
+          render: (score: number) => (
+            <div>
+              <div>{isNumber(score) ? score : 'N/A'}</div>
+            </div>
+          ),
+        },
+        {
+          title: 'Distance',
+          dataIndex: 'Distance' as keyof NodeType,
+          key: 'Distance',
+          width: 150,
+          render: (distance: number) => (
+            <div>
+              <div>{isNumber(distance) ? distance : 'N/A'}</div>
+            </div>
+          ),
+        },
+      ]
+    : []),
   {
     title: 'Actions',
     key: 'actions',

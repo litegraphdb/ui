@@ -69,17 +69,17 @@ const AddEditEdge = ({
     if (edge) {
       form.resetFields();
       form.setFieldsValue({
-        name: edge.name,
-        from: edge.from,
-        to: edge.to,
-        cost: edge.cost,
-        data: edge.data,
-        labels: edge.labels,
-        tags: Object.entries(edge.tags || {}).map(([key, value]) => ({
+        name: edge.Name,
+        from: edge.From,
+        to: edge.To,
+        cost: edge.Cost,
+        data: edge.Data,
+        labels: edge.Labels,
+        tags: Object.entries(edge.Tags || {}).map(([key, value]) => ({
           key,
           value,
         })),
-        vectors: edge.vectors,
+        vectors: edge.Vectors,
       });
       setUniqueKey(v4());
     } else {
@@ -88,7 +88,7 @@ const AddEditEdge = ({
       setUniqueKey(v4());
     }
     const data = graphsList?.find((graph) => graph.GUID === selectedGraph);
-    data && form.setFieldValue('graphName', data.name);
+    data && form.setFieldValue('graphName', data.Name);
 
     // Trigger initial validation
     form
@@ -106,7 +106,7 @@ const AddEditEdge = ({
         const data = {
           GUID: edge.GUID,
           GraphGUID: edge.GraphGUID,
-          CreatedUtc: edge.createdUtc,
+          CreatedUtc: edge.CreatedUtc,
           Name: values.name,
           From: values.from,
           To: values.to,
@@ -169,7 +169,7 @@ const AddEditEdge = ({
       okButtonProps={{ disabled: !formValid }}
     >
       <Form
-        initialValues={{ ...initialValues, from: edge?.from || fromNodeGUID || '' }}
+        initialValues={{ ...initialValues, from: edge?.From || fromNodeGUID || '' }}
         form={form}
         layout="vertical"
         labelCol={{ xs: 5, md: 5, lg: 4 }}

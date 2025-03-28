@@ -6,6 +6,7 @@ import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
+import styles from './styles.module.scss';
 
 interface VectorsInputProps {
   value?: any[];
@@ -27,11 +28,8 @@ const VectorsInput: React.FC<VectorsInputProps> = ({ value = [], onChange, name 
       {(fields, { add, remove }, { errors }) => (
         <>
           {fields.map((field, index) => (
-            <div key={field.key} className="relative mb-4 rounded-lg border p-4">
-              <CloseCircleFilled
-                onClick={() => remove(field.name)}
-                className="absolute right-2 top-2 cursor-pointer text-gray-500"
-              />
+            <div key={field.key} className={styles.vectorInput}>
+              <CloseCircleFilled onClick={() => remove(field.name)} className={styles.closeIcon} />
 
               <LitegraphFormItem
                 label="Model"

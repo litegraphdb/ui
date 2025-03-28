@@ -18,6 +18,8 @@ import { credentialLists } from '../store/credential/actions';
 import { userLists } from '../store/user/actions';
 import { tenantLists } from '../store/tenants/actions';
 import { storeUser } from '../store/litegraph/actions';
+import SearchResult from 'litegraphdb/types/models/SearchResult';
+import { EnumerationOrderEnum } from 'litegraphdb/types/enums/EnumerationOrderEnum';
 // Initialize the SDK once and reuse the instance
 
 let sdk = new LiteGraphSdk(liteGraphInstanceURL);
@@ -1275,4 +1277,117 @@ export const useGetTenantsById = () => {
   };
 
   return { fetchTenantById, isLoading, error };
+};
+
+// Search data by vector
+export const useSearchDataByVector = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const searchByVector = async (query: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.searchVectors(query);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      toast.error('Unable to search by vector.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { searchByVector, isLoading, error };
+};
+
+// Search TLD graphs
+export const useSearchGraphsByTLD = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const searchGraphsByTLD = async (query: {
+    GraphGUID?: string;
+    Labels: string[];
+    Tags: any;
+    Ordering: EnumerationOrderEnum;
+    Expr: any;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.searchGraphs(query);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      console.log(err, 'err');
+      toast.error('Unable to search graphs.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { searchGraphsByTLD, isLoading, error };
+};
+
+// Search TLD nodes
+export const useSearchNodesByTLD = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const searchNodesByTLD = async (query: {
+    GraphGUID: string;
+    Labels: string[];
+    Tags: any;
+    Ordering: EnumerationOrderEnum;
+    Expr: any;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.searchNodes(query);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      console.log(err, 'err');
+      toast.error('Unable to search nodes.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { searchNodesByTLD, isLoading, error };
+};
+
+// Search TLD edges
+export const useSearchEdgesByTLD = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const searchEdgesByTLD = async (query: {
+    GraphGUID: string;
+    Labels: string[];
+    Tags: any;
+    Ordering: EnumerationOrderEnum;
+    Expr: any;
+  }) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.searchEdges(query);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      console.log(err, 'err');
+      toast.error('Unable to search edges.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { searchEdgesByTLD, isLoading, error };
 };

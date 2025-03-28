@@ -4,17 +4,19 @@ import { Button, Dropdown, TableProps } from 'antd';
 import { EdgeType } from '@/lib/store/edge/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
+import { isNumber } from 'lodash';
 
 export const tableColumns = (
   handleEdit: (record: EdgeType) => void,
-  handleDelete: (record: EdgeType) => void
+  handleDelete: (record: EdgeType) => void,
+  hasScoreOrDistance: boolean
 ): TableProps<EdgeType>['columns'] => [
   {
     title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
+    dataIndex: 'Name' as keyof EdgeType,
+    key: 'Name',
     width: 250,
-    sorter: (a: EdgeType, b: EdgeType) => a.name.localeCompare(b.name),
+    sorter: (a: EdgeType, b: EdgeType) => a.Name.localeCompare(b.Name),
     render: (Name: string) => (
       <div>
         <div>{Name}</div>
@@ -35,8 +37,8 @@ export const tableColumns = (
   },
   {
     title: 'From',
-    dataIndex: 'fromName',
-    key: 'fromName',
+    dataIndex: 'FromName' as keyof EdgeType,
+    key: 'FromName',
     width: 250,
     responsive: ['md'],
     render: (FromName: string) => (
@@ -47,8 +49,8 @@ export const tableColumns = (
   },
   {
     title: 'To',
-    dataIndex: 'toName',
-    key: 'toName',
+    dataIndex: 'ToName' as keyof EdgeType,
+    key: 'ToName',
     width: 250,
     responsive: ['md'],
     render: (ToName: string) => (
@@ -59,10 +61,10 @@ export const tableColumns = (
   },
   {
     title: 'Cost',
-    dataIndex: 'cost',
-    key: 'cost',
+    dataIndex: 'Cost' as keyof EdgeType,
+    key: 'Cost',
     width: 150,
-    sorter: (a: EdgeType, b: EdgeType) => a.cost - b.cost,
+    sorter: (a: EdgeType, b: EdgeType) => a.Cost - b.Cost,
     render: (cost: number) => (
       <div>
         <div>{cost}</div>
@@ -71,46 +73,72 @@ export const tableColumns = (
   },
   {
     title: 'Labels',
-    dataIndex: 'labels',
-    key: 'labels',
+    dataIndex: 'Labels' as keyof EdgeType,
+    key: 'Labels',
     width: 150,
-    render: (labels: string[]) => (
+    render: (Labels: string[]) => (
       <div>
-        <div>{labels?.length ? labels?.join(', ') : 'N/A'}</div>
+        <div>{Labels?.length ? Labels?.join(', ') : 'N/A'}</div>
       </div>
     ),
   },
   {
     title: 'Tags',
-    dataIndex: 'tags',
-    key: 'tags',
+    dataIndex: 'Tags' as keyof EdgeType,
+    key: 'Tags',
     width: 150,
-    render: (tags: any) => (
+    render: (Tags: any) => (
       <div>
-        <div>{JSON.stringify(tags || {})}</div>
+        <div>{JSON.stringify(Tags || {})}</div>
       </div>
     ),
   },
   {
     title: 'Vectors',
-    dataIndex: 'Vectors',
+    dataIndex: 'Vectors' as keyof EdgeType,
     key: 'Vectors',
     width: 150,
     responsive: ['md'],
     render: (_: any, record: EdgeType) => (
-      <div>{pluralize(record?.vectors?.length || 0, 'vector')}</div>
+      <div>{pluralize(record?.Vectors?.length || 0, 'vector')}</div>
     ),
   },
   {
     title: 'Created UTC',
-    dataIndex: 'createdUtc',
+    dataIndex: 'CreatedUtc' as keyof EdgeType,
     key: 'CreatedUtc',
     width: 250,
     responsive: ['md'],
     sorter: (a: EdgeType, b: EdgeType) =>
-      new Date(a.createdUtc).getTime() - new Date(b.createdUtc).getTime(),
+      new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,
   },
+  ...(hasScoreOrDistance
+    ? [
+        {
+          title: 'Score',
+          dataIndex: 'Score' as keyof EdgeType,
+          key: 'Score',
+          width: 150,
+          render: (score: number) => (
+            <div>
+              <div>{isNumber(score) ? score : 'N/A'}</div>
+            </div>
+          ),
+        },
+        {
+          title: 'Distance',
+          dataIndex: 'Distance' as keyof EdgeType,
+          key: 'Distance',
+          width: 150,
+          render: (Distance: number) => (
+            <div>
+              <div>{isNumber(Distance) ? Distance : 'N/A'}</div>
+            </div>
+          ),
+        },
+      ]
+    : []),
   {
     title: 'Actions',
     key: 'actions',

@@ -5,7 +5,7 @@ import { NodeType } from '@/lib/store/node/types';
 export const getNodeNameByGUID = (guid: string, nodesList: NodeType[]) => {
   if (!guid) return 'N/A';
   const node = nodesList.find((n: NodeType) => n.GUID === guid);
-  return node ? node.name : guid;
+  return node ? node.Name : guid;
 };
 
 export const transformEdgeDataForTable = (edgesList: EdgeType[], nodesList: NodeType[]) => {
@@ -13,8 +13,8 @@ export const transformEdgeDataForTable = (edgesList: EdgeType[], nodesList: Node
     edgesList?.map((data: EdgeType) => {
       return {
         ...data,
-        fromName: getNodeNameByGUID(data.from, nodesList),
-        toName: getNodeNameByGUID(data.to, nodesList),
+        FromName: getNodeNameByGUID(data.From, nodesList),
+        ToName: getNodeNameByGUID(data.To, nodesList),
         key: data.GUID,
       } as EdgeType;
     }) || []

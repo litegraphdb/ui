@@ -51,8 +51,8 @@
 
 .header {
   border-bottom: 1px solid var(--ant-color-border);
-  background: #fff;
-  padding: 0 var(--ant-padding);
+  background: #fff !important;
+  padding: 0 var(--ant-padding) !important;
   height: 65px;
   display: flex;
   align-items: center;

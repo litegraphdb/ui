@@ -14,6 +14,8 @@ import { useAdminCredentialsToLogin } from '@/hooks/authHooks';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { storeTenant } from '@/lib/store/litegraph/actions';
 import LitegraphButton from '@/components/base/button/Button';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import classNames from 'classnames';
 
 interface AdminLoginFormData {
   accessKey: string;
@@ -40,14 +42,18 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="h-screen pl-8 pr-8">
-      <div className="mb-12 flex items-center justify-between border-b border-gray-300 pb-4 pt-4">
-        <img src="/favicon.png" alt="Litegraph Logo" className="h-8" />
+    <div className={styles.adminLoginPage}>
+      <LitegraphFlex
+        className={classNames(styles.adminLoginPageHeader, 'mb pb pt mr ml')}
+        align="center"
+        justify="space-between"
+      >
+        <img src="/favicon.png" alt="Litegraph Logo" height={40} />
         <Link href={paths.login}>
           <LitegraphText color={LightGraphTheme.primary}>Login as user</LitegraphText>
         </Link>
-      </div>
-      <div className={styles.loginTitle}>
+      </LitegraphFlex>
+      <div className={classNames(styles.loginTitle, 'mt')}>
         <LitegraphTitle fontSize={22} weight={600}>
           Administrator Login
         </LitegraphTitle>
@@ -83,7 +89,7 @@ const AdminLoginPage = () => {
             <LitegraphButton
               type="primary"
               htmlType="submit"
-              className="w-full"
+              className="w-100"
               loading={isLoading}
               disabled={isLoading}
             >

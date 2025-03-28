@@ -141,24 +141,24 @@ const NodeToolTip = ({
               <LitegraphFlex vertical className="card-details">
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {node?.name} {`[${node?.GUID}]`}
+                  {node?.Name} {`[${node?.GUID}]`}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Labels: </strong>
-                  {`${node?.labels?.length ? node?.labels?.join(', ') : 'N/A'}`}
+                  {`${node?.Labels?.length ? node?.Labels?.join(', ') : 'N/A'}`}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Vectors: </strong>
-                  {pluralize(node?.vectors?.length || 0, 'vector')}
+                  {pluralize(node?.Vectors?.length || 0, 'vector')}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Tags: </strong>
                   <JsonEditor
-                    key={JSON.stringify(node?.tags && JSON.parse(JSON.stringify(node.tags)))}
-                    value={(node?.tags && JSON.parse(JSON.stringify(node.tags))) || {}}
+                    key={JSON.stringify(node?.Tags && JSON.parse(JSON.stringify(node.Tags)))}
+                    value={(node?.Tags && JSON.parse(JSON.stringify(node.Tags))) || {}}
                     mode="view" // Use 'view' mode to make it read-only
                     mainMenuBar={false} // Hide the menu bar
                     statusBar={false} // Hide the status bar
@@ -171,8 +171,8 @@ const NodeToolTip = ({
                 <LitegraphText>
                   <strong>Data: </strong>
                   <JsonEditor
-                    key={JSON.stringify(node?.data && JSON.parse(JSON.stringify(node.data)))}
-                    value={(node?.data && JSON.parse(JSON.stringify(node.data))) || {}}
+                    key={JSON.stringify(node?.Data && JSON.parse(JSON.stringify(node.Data)))}
+                    value={(node?.Data && JSON.parse(JSON.stringify(node.Data))) || {}}
                     mode="view" // Use 'view' mode to make it read-only
                     mainMenuBar={false} // Hide the menu bar
                     statusBar={false} // Hide the status bar
@@ -235,7 +235,7 @@ const NodeToolTip = ({
 
       {/* DeleteNode Component On Delete*/}
       <DeleteNode
-        title={`Are you sure you want to delete "${selectedNode?.name}" node?`}
+        title={`Are you sure you want to delete "${selectedNode?.Name}" node?`}
         paragraphText={'This action will delete node.'}
         isDeleteModelVisible={isDeleteModelVisible}
         setIsDeleteModelVisible={setIsDeleteModelVisible}

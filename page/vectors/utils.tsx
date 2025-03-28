@@ -14,8 +14,8 @@ type VectorDisplayData = {
   Dimensionality: number;
   Content: string;
   Vectors: number[];
-  CreatedUtc: Date;
-  LastUpdateUtc: Date;
+  CreatedUtc: string;
+  LastUpdateUtc: string;
   NodeName: string;
   EdgeName: string;
   key: string;

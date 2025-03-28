@@ -7,7 +7,7 @@ import { EdgeType } from '@/lib/store/edge/types';
 export const getEdgeNameByGUID = (guid: string, edgesList: EdgeType[]) => {
   if (!guid) return 'N/A';
   const edge = edgesList.find((n: EdgeType) => n.GUID === guid);
-  return edge ? edge.name : guid;
+  return edge ? edge.Name : guid;
 };
 
 export const transformTagsDataForTable = (

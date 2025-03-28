@@ -122,14 +122,14 @@ const AddEditGraph = ({
     if (graph) {
       // Ensure form values are updated when editing
       form.setFieldsValue({
-        name: graph.name || '',
-        data: graph.data || {},
-        labels: graph.labels || [],
-        tags: Object.entries(graph.tags || {}).map(([key, value]) => ({
+        name: graph.Name || '',
+        data: graph.Data || {},
+        labels: graph.Labels || [],
+        tags: Object.entries(graph.Tags || {}).map(([key, value]) => ({
           key,
           value,
         })),
-        vectors: graph.vectors || [],
+        vectors: graph.Vectors || [],
       });
       setUniqueKey(v4());
     } else {

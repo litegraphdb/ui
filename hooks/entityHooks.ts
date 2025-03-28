@@ -9,10 +9,23 @@ import {
   useGetNodesList,
   useGetTagsList,
   useGetVectorsList,
+  useSearchGraphsByTLD,
+  useSearchDataByVector,
+  useSearchNodesByTLD,
+  useSearchEdgesByTLD,
 } from '@/lib/sdk/litegraph.service';
+import { EdgeType } from '@/lib/store/edge/types';
+import { GraphData } from '@/lib/store/graph/types';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { NodeType } from '@/lib/store/node/types';
 import { RootState } from '@/lib/store/store';
-import { useEffect } from 'react';
+import {
+  transformToEdgeData,
+  transformToGraphData,
+  transformToNodeData,
+} from '@/utils/transformers';
+import Graph from 'graphology';
+import { useEffect, useState } from 'react';
 
 export const useCurrentTenant = () => {
   const tenantFromRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
@@ -31,7 +44,7 @@ export const useGraphList = () => {
 
 export const useTenantList = () => {
   const tenantsList = useAppSelector((state: RootState) => state.tenants.tenantsList);
-  const tenantOptions = transformToOptions(tenantsList);
+  const tenantOptions = tenantsList ? transformToOptions(tenantsList) : [];
   return { tenantsList: tenantsList || [], tenantOptions };
 };
 
@@ -237,4 +250,131 @@ export const useTenants = () => {
   }, [tenantsList, tenant]);
 
   return { tenantsList: tenantsList || [], fetchTenantsList, isLoading, error };
+};
+
+export const useSearchGraphData = () => {
+  const [searchResults, setSearchResults] = useState<GraphData[] | null>(null);
+  const { searchGraphsByTLD, isLoading: isTLDLoading, error: tldError } = useSearchGraphsByTLD();
+  const {
+    searchByVector,
+    isLoading: isVectorLoading,
+    error: vectorError,
+  } = useSearchDataByVector();
+  const [lastSearchQuery, setLastSearchQuery] = useState<any>(null);
+
+  async function searchGraph(query: any) {
+    setLastSearchQuery(query);
+    let data: any;
+    if (query.Embeddings) {
+      const data = await searchByVector(query);
+      if (data) {
+        setSearchResults(transformToGraphData(data));
+      }
+    } else {
+      const data = await searchGraphsByTLD(query);
+      if (data?.Graphs) {
+        setSearchResults(data.Graphs);
+      }
+    }
+  }
+  const refreshSearch = () => {
+    if (lastSearchQuery) {
+      searchGraph(lastSearchQuery);
+    }
+  };
+
+  return {
+    searchGraph,
+    searchResults,
+    isLoading: isVectorLoading || isTLDLoading,
+    error: vectorError || tldError,
+    setSearchResults,
+    refreshSearch,
+  };
+};
+
+export const useSearchNodeData = () => {
+  const [searchResults, setSearchResults] = useState<NodeType[] | null>(null);
+  const { searchNodesByTLD, isLoading: isTLDLoading, error: tldError } = useSearchNodesByTLD();
+  const {
+    searchByVector,
+    isLoading: isVectorLoading,
+    error: vectorError,
+  } = useSearchDataByVector();
+  const [lastSearchQuery, setLastSearchQuery] = useState<any>(null);
+
+  async function searchNode(query: any) {
+    setLastSearchQuery(query);
+    let data: any;
+    if (query.Embeddings) {
+      const data = await searchByVector(query);
+      if (data) {
+        console.log(data);
+        setSearchResults(transformToNodeData(data));
+      }
+    } else {
+      const data = await searchNodesByTLD(query);
+      if (data?.Nodes) {
+        setSearchResults(data.Nodes);
+      }
+    }
+  }
+
+  const refreshSearch = () => {
+    if (lastSearchQuery) {
+      searchNode(lastSearchQuery);
+    }
+  };
+
+  return {
+    searchNode,
+    searchResults,
+    isLoading: isVectorLoading || isTLDLoading,
+    error: vectorError || tldError,
+    setSearchResults,
+    refreshSearch,
+  };
+};
+
+export const useSearchEdgeData = () => {
+  const [searchResults, setSearchResults] = useState<EdgeType[] | null>(null);
+  const { searchEdgesByTLD, isLoading: isTLDLoading, error: tldError } = useSearchEdgesByTLD();
+  const {
+    searchByVector,
+    isLoading: isVectorLoading,
+    error: vectorError,
+  } = useSearchDataByVector();
+  const [lastSearchQuery, setLastSearchQuery] = useState<any>(null);
+
+  async function searchEdge(query: any) {
+    setLastSearchQuery(query);
+    let data: any;
+    if (query.Embeddings) {
+      const data = await searchByVector(query);
+      if (data) {
+        console.log(data);
+        setSearchResults(transformToEdgeData(data));
+      }
+    } else {
+      const data = await searchEdgesByTLD(query);
+      if (data?.Edges) {
+        setSearchResults(data.Edges);
+      }
+    }
+  }
+
+  const refreshSearch = () => {
+    if (lastSearchQuery) {
+      searchEdge(lastSearchQuery);
+    }
+  };
+
+  return {
+    searchEdge,
+    searchResults,
+    isLoading: isVectorLoading || isTLDLoading,
+    error: vectorError || tldError,
+    setSearchResults,
+    refreshSearch,
+  };
 };

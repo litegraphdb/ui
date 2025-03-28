@@ -106,11 +106,11 @@ const GraphViewer = ({
         ) : (
           <>
             {!selectedGraphContext ? (
-              <FallBack className="mt-8" type={FallBackEnums.INFO}>
+              <FallBack className="mt-lg" type={FallBackEnums.INFO}>
                 Select a graph to visualize
               </FallBack>
             ) : !nodesList.length ? (
-              <FallBack className="mt-8" type={FallBackEnums.WARNING}>
+              <FallBack className="mt-lg" type={FallBackEnums.WARNING}>
                 This graph has no nodes.
               </FallBack>
             ) : (

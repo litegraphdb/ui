@@ -12,12 +12,12 @@ export function getNodeAtPosition(nodes: NodeData[], point: Point): NodeData | n
 
 export function transformToOptions<T extends { GUID: string; name?: string; Name?: string }>(
   data?: T[] | null,
-  labelField: keyof  T  = 'name' // Field to use for label in options
+  labelField: keyof T = 'name' // Field to use for label in options
 ) {
   return (
     data?.map((item) => ({
       value: item.GUID,
-      label: item[labelField] || item.Name || item.GUID,
+      label: (item[labelField] as string) || item.Name || item.GUID,
     })) || []
   );
 }

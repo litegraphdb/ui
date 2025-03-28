@@ -124,39 +124,39 @@ const EdgeToolTip = ({
               <LitegraphFlex vertical className="card-details">
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {edge?.name} {`[${edge?.GUID}]`}
+                  {edge?.Name} {`[${edge?.GUID}]`}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>From: </strong>
-                  {edge?.from ? getNodeNameByGUID(edge.from, nodesList) : edge?.from}
+                  {edge?.From ? getNodeNameByGUID(edge.From, nodesList) : edge?.From}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>To: </strong>
-                  {edge?.to ? getNodeNameByGUID(edge.to, nodesList) : edge?.to}
+                  {edge?.To ? getNodeNameByGUID(edge.To, nodesList) : edge?.To}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Cost: </strong>
-                  {edge?.cost}
+                  {edge?.Cost}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Labels: </strong>
-                  {`${edge?.labels?.length ? edge?.labels?.join(', ') : 'N/A'}`}
+                  {`${edge?.Labels?.length ? edge?.Labels?.join(', ') : 'N/A'}`}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Vectors: </strong>
-                  {pluralize(edge?.vectors?.length || 0, 'vector')}
+                  {pluralize(edge?.Vectors?.length || 0, 'vector')}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Tags: </strong>
                   <JsonEditor
-                    key={JSON.stringify(edge?.tags && JSON.parse(JSON.stringify(edge.tags)))}
-                    value={(edge?.tags && JSON.parse(JSON.stringify(edge.tags))) || {}}
+                    key={JSON.stringify(edge?.Tags && JSON.parse(JSON.stringify(edge.Tags)))}
+                    value={(edge?.Tags && JSON.parse(JSON.stringify(edge.Tags))) || {}}
                     mode="view" // Use 'view' mode to make it read-only
                     mainMenuBar={false} // Hide the menu bar
                     statusBar={false} // Hide the status bar
@@ -169,8 +169,8 @@ const EdgeToolTip = ({
                 <LitegraphText>
                   <strong>Data: </strong>
                   <JsonEditor
-                    key={JSON.stringify(edge?.data && JSON.parse(JSON.stringify(edge?.data)))}
-                    value={(edge?.data && JSON.parse(JSON.stringify(edge.data))) || {}}
+                    key={JSON.stringify(edge?.Data && JSON.parse(JSON.stringify(edge?.Data)))}
+                    value={(edge?.Data && JSON.parse(JSON.stringify(edge.Data))) || {}}
                     mode="view" // Use 'view' mode to make it read-only
                     mainMenuBar={false} // Hide the menu bar
                     statusBar={false} // Hide the status bar
@@ -222,7 +222,7 @@ const EdgeToolTip = ({
 
       {/* DeleteEdge Component On Delete*/}
       <DeleteEdge
-        title={`Are you sure you want to delete "${selectedEdge?.name}" edge?`}
+        title={`Are you sure you want to delete "${selectedEdge?.Name}" edge?`}
         paragraphText={'This action will delete edge.'}
         isDeleteModelVisisble={isDeleteModelVisisble}
         setIsDeleteModelVisisble={setIsDeleteModelVisisble}

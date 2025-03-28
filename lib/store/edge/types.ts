@@ -4,4 +4,9 @@ export type EdgeGroupWithGraph = {
   [GraphGUID: string]: EdgeType[];
 };
 
-export type EdgeType = Edge;
+export type EdgeType = Edge & {
+  Distance?: number;
+  Score?: number;
+  FromName?: string;
+  ToName?: string;
+};

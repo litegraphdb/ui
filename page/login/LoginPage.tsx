@@ -16,7 +16,8 @@ import { useCredentialsToLogin } from '@/hooks/authHooks';
 import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import { localStorageKeys, paths } from '@/constants/constant';
-
+import LitegraphFlex from '@/components/base/flex/Flex';
+import classNames from 'classnames';
 interface LoginFormData {
   email: string;
   tenant: string;
@@ -157,13 +158,17 @@ const LoginPage = () => {
   }, [emailInputRef.current]);
 
   return (
-    <div className={'h-screen pl-8 pr-8'}>
-      <div className="mb-12 flex items-center justify-between border-b border-gray-300 pb-4 pt-4">
-        <img src="/favicon.png" alt="Litegraph Logo" className="h-8" />
+    <div className={styles.userLoginPage}>
+      <LitegraphFlex
+        className={classNames(styles.userLoginPageHeader, 'mb pb pt pr pl')}
+        align="center"
+        justify="space-between"
+      >
+        <img src="/favicon.png" alt="Litegraph Logo" height={40} />
         <Link href={paths.adminLogin}>
           <LitegraphText color={LightGraphTheme.primary}>Login as Administrator</LitegraphText>
         </Link>
-      </div>
+      </LitegraphFlex>
       <div className={styles.loginTitle}>
         <LitegraphTitle fontSize={22} weight={600}>
           Login
