@@ -14,9 +14,7 @@ import PageContainer from '@/components/base/pageContainer/PageContainer';
 import { useNodes, useSearchNodeData } from '@/hooks/entityHooks';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
-import SearchByTLDModal from '@/components/search/SearchByTLDModal';
-import SearchByVectorModal from '@/components/search/SearchByVectorModal';
-import { SearchByVectorData } from '@/components/search/type';
+import SearchByTLDModal from '@/components/search/SearchModal';
 import { SearchData } from '@/components/search/type';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
@@ -35,8 +33,7 @@ const NodePage = () => {
 
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
-  const [showSearchByTLDModal, setShowSearchByTLDModal] = useState(false);
-  const [showSearchByVectorModal, setShowSearchByVectorModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const {
     searchNode,
     searchResults,
@@ -61,22 +58,14 @@ const NodePage = () => {
   };
   const onSearch = async (values: SearchData) => {
     await searchNode({
+      Domain: values.embeddings ? 'Node' : undefined,
+      SearchType: values.embeddings ? 'CosineSimilarity' : undefined,
+      Ordering: !values.embeddings ? 'CreatedDescending' : undefined,
       GraphGUID: selectedGraphRedux,
-      Ordering: 'CreatedDescending',
       Labels: values.labels,
       Expr: values.expr,
       Tags: convertTagsToRecord(values.tags),
-    });
-  };
-  const onSearchByVector = async (values: SearchByVectorData) => {
-    await searchNode({
-      GraphGUID: selectedGraphRedux,
-      Domain: 'Node',
-      SearchType: 'CosineSimilarity',
-      Labels: [],
-      Tags: {},
-      Expr: null,
-      Embeddings: values.embeddings,
+      Embeddings: values.embeddings ? values.embeddings : undefined,
     });
   };
 
@@ -114,11 +103,12 @@ const NodePage = () => {
           {selectedGraphRedux &&
             (isSearching ? (
               <LitegraphFlex gap={20}>
-                <LitegraphButton type="link" onClick={() => setShowSearchByTLDModal(true)}>
-                  Search by labels, tags and data
-                </LitegraphButton>
-                <LitegraphButton type="link" onClick={() => setShowSearchByVectorModal(true)}>
-                  Search by vectors
+                <LitegraphButton
+                  icon={<SearchOutlined />}
+                  type="link"
+                  onClick={() => setShowSearchModal(true)}
+                >
+                  Search by labels, tags, data and embeddings
                 </LitegraphButton>
               </LitegraphFlex>
             ) : (
@@ -166,14 +156,9 @@ const NodePage = () => {
         setSelectedNode={setSelectedNode}
       />
       <SearchByTLDModal
-        setIsSearchModalVisible={setShowSearchByTLDModal}
-        isSearchModalVisible={showSearchByTLDModal}
+        setIsSearchModalVisible={setShowSearchModal}
+        isSearchModalVisible={showSearchModal}
         onSearch={onSearch}
-      />
-      <SearchByVectorModal
-        isSearchModalVisible={showSearchByVectorModal}
-        setIsSearchModalVisible={setShowSearchByVectorModal}
-        onSearch={onSearchByVector}
       />
     </PageContainer>
   );

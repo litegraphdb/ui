@@ -19,10 +19,9 @@ import { useLayoutContext } from '@/components/layout/context';
 import { saveAs } from 'file-saver';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphFlex from '@/components/base/flex/Flex';
-import SearchByTLDModal from '@/components/search/SearchByTLDModal';
+import SearchByTLDModal from '@/components/search/SearchModal';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
-import { SearchByVectorData, SearchData } from '@/components/search/type';
-import SearchByVectorModal from '@/components/search/SearchByVectorModal';
+import { SearchData } from '@/components/search/type';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
 const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
   ssr: false,
@@ -32,10 +31,9 @@ const GraphPage = () => {
   const dispatch = useAppDispatch();
   const graphsList = useGraphList();
   const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [showSearchByTLDModal, setShowSearchByTLDModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
-  const [showSearchByVectorModal, setShowSearchByVectorModal] = useState(false);
   const [selectedGraph, setSelectedGraph] = useState<GraphData | null>(null);
   const { fetchGexfByGraphId } = useGetGexfByGraphId();
   const {
@@ -55,20 +53,13 @@ const GraphPage = () => {
   };
   const onSearch = async (values: SearchData) => {
     await searchGraph({
-      Ordering: 'CreatedDescending',
+      Domain: values.embeddings ? 'Graph' : undefined,
+      SearchType: values.embeddings ? 'CosineSimilarity' : undefined,
+      Ordering: !values.embeddings ? 'CreatedDescending' : undefined,
       Labels: values.labels,
       Expr: values.expr,
       Tags: convertTagsToRecord(values.tags),
-    });
-  };
-  const onSearchByVector = async (values: SearchByVectorData) => {
-    await searchGraph({
-      Domain: 'Graph',
-      SearchType: 'CosineSimilarity',
-      Labels: [],
-      Tags: {},
-      Expr: null,
-      Embeddings: values.embeddings,
+      Embeddings: values.embeddings ? values.embeddings : undefined,
     });
   };
   const handleEdit = async (data: GraphData) => {
@@ -138,11 +129,12 @@ const GraphPage = () => {
       pageTitleRightContent={
         isSearching ? (
           <LitegraphFlex gap={20}>
-            <LitegraphButton type="link" onClick={() => setShowSearchByTLDModal(true)}>
-              Search by labels, tags and data
-            </LitegraphButton>
-            <LitegraphButton type="link" onClick={() => setShowSearchByVectorModal(true)}>
-              Search by vector
+            <LitegraphButton
+              type="link"
+              icon={<SearchOutlined />}
+              onClick={() => setShowSearchModal(true)}
+            >
+              Search by labels, tags, data and embeddings
             </LitegraphButton>
           </LitegraphFlex>
         ) : (
@@ -198,14 +190,9 @@ const GraphPage = () => {
         <LitegraphParagraph>This action will delete graph.</LitegraphParagraph>
       </LitegraphModal>
       <SearchByTLDModal
-        setIsSearchModalVisible={setShowSearchByTLDModal}
-        isSearchModalVisible={showSearchByTLDModal}
+        setIsSearchModalVisible={setShowSearchModal}
+        isSearchModalVisible={showSearchModal}
         onSearch={onSearch}
-      />
-      <SearchByVectorModal
-        setIsSearchModalVisible={setShowSearchByVectorModal}
-        isSearchModalVisible={showSearchByVectorModal}
-        onSearch={onSearchByVector}
       />
     </PageContainer>
   );

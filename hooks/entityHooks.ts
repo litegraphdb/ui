@@ -26,6 +26,7 @@ import {
 } from '@/utils/transformers';
 import Graph from 'graphology';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 export const useCurrentTenant = () => {
   const tenantFromRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
@@ -269,11 +270,17 @@ export const useSearchGraphData = () => {
       const data = await searchByVector(query);
       if (data) {
         setSearchResults(transformToGraphData(data));
+        if (!data.length) {
+          toast.error('No results found');
+        }
       }
     } else {
       const data = await searchGraphsByTLD(query);
       if (data?.Graphs) {
         setSearchResults(data.Graphs);
+        if (!data.Graphs.length) {
+          toast.error('No results found');
+        }
       }
     }
   }
@@ -311,11 +318,17 @@ export const useSearchNodeData = () => {
       if (data) {
         console.log(data);
         setSearchResults(transformToNodeData(data));
+        if (!data.length) {
+          toast.error('No results found');
+        }
       }
     } else {
       const data = await searchNodesByTLD(query);
       if (data?.Nodes) {
         setSearchResults(data.Nodes);
+        if (!data.Nodes.length) {
+          toast.error('No results found');
+        }
       }
     }
   }
@@ -354,11 +367,17 @@ export const useSearchEdgeData = () => {
       if (data) {
         console.log(data);
         setSearchResults(transformToEdgeData(data));
+        if (!data.length) {
+          toast.error('No results found');
+        }
       }
     } else {
       const data = await searchEdgesByTLD(query);
       if (data?.Edges) {
         setSearchResults(data.Edges);
+        if (!data.Edges.length) {
+          toast.error('No results found');
+        }
       }
     }
   }

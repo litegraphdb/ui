@@ -19,7 +19,7 @@ interface SearchModalProps {
   onClose?: () => void;
 }
 
-const SearchByTLDModal = ({
+const SearchModal = ({
   isSearchModalVisible,
   setIsSearchModalVisible,
   onSearch,
@@ -45,6 +45,7 @@ const SearchByTLDModal = ({
         expr: values.expr || {},
         tags: values.tags || {},
         labels: values.labels || [],
+        embeddings: values.embeddings,
       });
       setIsSearchModalVisible(false);
       form.resetFields();
@@ -71,8 +72,12 @@ const SearchByTLDModal = ({
       <Form
         initialValues={initialSearchData}
         form={form}
+        clearOnDestroy={false}
         layout="vertical"
-        onValuesChange={(_, values) => setFormValues(values)}
+        onValuesChange={(_, values) => {
+          console.log('values', values);
+          setFormValues(values);
+        }}
       >
         <Form.Item label="Labels" rules={[{ validator: validateAtLeastOne(form) }]}>
           <LabelInput name="labels" />
@@ -111,9 +116,27 @@ const SearchByTLDModal = ({
             data-testid="node-data-input"
           />
         </LitegraphFormItem>
+
+        <LitegraphFormItem
+          label="Embeddings"
+          name="embeddings"
+          rules={[{ validator: validateAtLeastOne(form) }]}
+        >
+          <JsonEditor
+            key={uniqueKey.current}
+            value={form.getFieldValue('embeddings') || {}}
+            onChange={(json: any) => {
+              form.setFieldsValue({ embeddings: json });
+            }}
+            enableSort={false}
+            enableTransform={false}
+            mode="code"
+            data-testid="vector-search-input"
+          />
+        </LitegraphFormItem>
       </Form>
     </LitegraphModal>
   );
 };
 
-export default SearchByTLDModal;
+export default SearchModal;
