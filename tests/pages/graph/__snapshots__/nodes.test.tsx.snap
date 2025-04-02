@@ -1284,7 +1284,7 @@ exports[`NodesPage should create a node and should be visible in the table: fina
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -1350,7 +1350,7 @@ exports[`NodesPage should create a node and should be visible in the table: fina
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -1546,7 +1546,7 @@ exports[`NodesPage should create a node and should be visible in the table: init
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -1612,7 +1612,7 @@ exports[`NodesPage should create a node and should be visible in the table: init
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -1899,7 +1899,7 @@ exports[`NodesPage should delete node successfully: final table state after dele
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -1965,7 +1965,7 @@ exports[`NodesPage should delete node successfully: final table state after dele
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -2161,7 +2161,7 @@ exports[`NodesPage should delete node successfully: initial table state before d
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -2227,7 +2227,7 @@ exports[`NodesPage should delete node successfully: initial table state before d
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -2423,7 +2423,7 @@ exports[`NodesPage should update node successfully: final table state after upda
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -2489,7 +2489,7 @@ exports[`NodesPage should update node successfully: final table state after upda
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -2685,7 +2685,7 @@ exports[`NodesPage should update node successfully: initial table state before u
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>
@@ -2751,7 +2751,7 @@ exports[`NodesPage should update node successfully: initial table state before u
             >
               <div>
                 <div>
-                  {}
+                  None
                 </div>
               </div>
             </td>

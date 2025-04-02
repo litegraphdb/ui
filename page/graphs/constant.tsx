@@ -5,6 +5,7 @@ import { TableProps, Dropdown, Button, Menu } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';
+import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
 
 export const tableColumns = (
   handleEdit: (record: GraphData) => void,
@@ -45,7 +46,7 @@ export const tableColumns = (
     responsive: ['sm'],
     render: (labels: any) => (
       <div>
-        <div>{Array.isArray(labels) ? labels.join(', ') : ''}</div>
+        <div>{Array.isArray(labels) && labels.length > 0 ? labels.join(', ') : NOT_AVAILABLE}</div>
       </div>
     ),
   },
@@ -57,7 +58,7 @@ export const tableColumns = (
     responsive: ['sm'],
     render: (tags: any) => (
       <div>
-        <div>{JSON.stringify(tags)}</div>
+        <div>{Object.keys(tags).length > 0 ? JSON.stringify(tags) : NONE}</div>
       </div>
     ),
   },
@@ -68,7 +69,7 @@ export const tableColumns = (
     width: 150,
     responsive: ['sm'],
     render: (_: any, record: GraphData) => (
-      <div>{pluralize(record?.Vectors?.length || 0, 'vector')}</div>
+      <div>{record?.Vectors?.length > 0 ? pluralize(record?.Vectors?.length, 'vector') : NONE}</div>
     ),
   },
   {

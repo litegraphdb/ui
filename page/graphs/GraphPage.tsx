@@ -23,6 +23,7 @@ import SearchByTLDModal from '@/components/search/SearchModal';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { SearchData } from '@/components/search/type';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
+import { SEARCH_BUTTON_LABEL } from '@/constants/uiLabels';
 const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
   ssr: false,
 });
@@ -134,7 +135,7 @@ const GraphPage = () => {
               icon={<SearchOutlined />}
               onClick={() => setShowSearchModal(true)}
             >
-              Search by labels, tags, data and embeddings
+              {SEARCH_BUTTON_LABEL}
             </LitegraphButton>
           </LitegraphFlex>
         ) : (

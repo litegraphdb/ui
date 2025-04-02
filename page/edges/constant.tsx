@@ -5,6 +5,7 @@ import { EdgeType } from '@/lib/store/edge/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';
+import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
 
 export const tableColumns = (
   handleEdit: (record: EdgeType) => void,
@@ -78,7 +79,7 @@ export const tableColumns = (
     width: 150,
     render: (Labels: string[]) => (
       <div>
-        <div>{Labels?.length ? Labels?.join(', ') : 'N/A'}</div>
+        <div>{Labels?.length ? Labels?.join(', ') : NOT_AVAILABLE}</div>
       </div>
     ),
   },
@@ -89,7 +90,7 @@ export const tableColumns = (
     width: 150,
     render: (Tags: any) => (
       <div>
-        <div>{JSON.stringify(Tags || {})}</div>
+        <div>{Object.keys(Tags || {}).length > 0 ? JSON.stringify(Tags) : NONE}</div>
       </div>
     ),
   },
@@ -100,7 +101,7 @@ export const tableColumns = (
     width: 150,
     responsive: ['md'],
     render: (_: any, record: EdgeType) => (
-      <div>{pluralize(record?.Vectors?.length || 0, 'vector')}</div>
+      <div>{record?.Vectors?.length > 0 ? pluralize(record?.Vectors?.length, 'vector') : NONE}</div>
     ),
   },
   {

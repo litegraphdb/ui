@@ -5,6 +5,7 @@ import { NodeType } from '@/lib/store/node/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';
+import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
 
 export const tableColumns = (
   handleEdit: (record: NodeType) => void,
@@ -42,7 +43,7 @@ export const tableColumns = (
     width: 150,
     render: (label: string[]) => (
       <div>
-        <div>{label?.length ? label?.join(', ') : 'N/A'}</div>
+        <div>{label?.length ? label?.join(', ') : NOT_AVAILABLE}</div>
       </div>
     ),
   },
@@ -53,7 +54,7 @@ export const tableColumns = (
     width: 250,
     render: (tags: any) => (
       <div>
-        <div>{JSON.stringify(tags || {})}</div>
+        <div>{Object.keys(tags || {}).length > 0 ? JSON.stringify(tags) : NONE}</div>
       </div>
     ),
   },
@@ -64,7 +65,7 @@ export const tableColumns = (
     width: 250,
     responsive: ['md'],
     render: (_: any, record: NodeType) => (
-      <div>{pluralize(record?.Vectors?.length || 0, 'vector')}</div>
+      <div>{record?.Vectors?.length > 0 ? pluralize(record?.Vectors?.length, 'vector') : NONE}</div>
     ),
   },
   {
