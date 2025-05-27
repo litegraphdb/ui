@@ -1,4 +1,4 @@
-import Edge from 'litegraphdb/types/models/Edge';
+import { Edge } from 'litegraphdb/dist/types/types';
 
 export type EdgeGroupWithGraph = {
   [GraphGUID: string]: EdgeType[];

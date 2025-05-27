@@ -1,4 +1,4 @@
-import Graph from 'litegraphdb/types/models/Graph';
+import { Graph } from 'litegraphdb/dist/types/types';
 
 export interface GraphData extends Graph {
   gexfContent?: string;

@@ -34,6 +34,7 @@ export const handleLogout = (path?: string) => {
   localStorage.removeItem(localStorageKeys.tenant);
   localStorage.removeItem(localStorageKeys.user);
   localStorage.removeItem(localStorageKeys.adminAccessKey);
+  localStorage.removeItem(localStorageKeys.serverUrl);
   window.location.href = path ? path : paths.login;
 };
 

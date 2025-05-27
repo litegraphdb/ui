@@ -10,7 +10,12 @@ import LitegraphButton from '@/components/base/button/Button';
 import { LightGraphTheme } from '@/theme/theme';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import Link from 'next/link';
-import { useGenerateToken, useGetTenantsForEmail } from '@/lib/sdk/litegraph.service';
+import {
+  setEndpoint,
+  useGenerateToken,
+  useGetTenantsForEmail,
+  useValidateConnectivity,
+} from '@/lib/sdk/litegraph.service';
 
 import { useCredentialsToLogin } from '@/hooks/authHooks';
 import { useAppSelector } from '@/lib/store/hooks';
@@ -19,6 +24,7 @@ import { localStorageKeys, paths } from '@/constants/constant';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import classNames from 'classnames';
 interface LoginFormData {
+  url: string;
   email: string;
   tenant: string;
   username: string;
@@ -29,11 +35,13 @@ const LoginPage = () => {
   const emailInputRef = useRef<InputRef | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [formData, setFormData] = useState<Partial<LoginFormData>>({});
+  const [isServerValid, setIsServerValid] = useState<boolean>(false);
   const [form] = Form.useForm();
   const { generateToken, isLoading: isGeneratingToken } = useGenerateToken();
   const loginWithCredentials = useCredentialsToLogin();
   const { getTenantsForEmail, isLoading: isLoadingTenant } = useGetTenantsForEmail();
   const tenants = useAppSelector((state: RootState) => state.tenants.tenantsList);
+  const { validateConnectivity, isLoading: isValidatingConnectivity } = useValidateConnectivity();
 
   const tenantOptions =
     tenants?.map((tenant) => ({
@@ -48,29 +56,40 @@ const LoginPage = () => {
       setFormData((prev) => ({ ...prev, ...values }));
       switch (currentStep) {
         case 0:
+          setEndpoint(values.url);
+          const isValid = await validateConnectivity();
+          if (isValid) {
+            setIsServerValid(true);
+            setFormData((prev) => ({ ...prev, ...values }));
+            setCurrentStep(1);
+          }
+          break;
+        case 1:
+          setFormData((prev) => ({ ...prev, ...values }));
           if (values.email) {
             setCurrentStep(1);
             getTenantsForEmail(values.email)
               .then((res) => {
                 if (res) {
-                  if (res.length > 1) {
-                    setCurrentStep(1);
-                  } else {
+                  if (res && res.length > 1) {
+                    setCurrentStep(2);
+                  } else if (res?.length === 1) {
                     setFormData((prev) => ({ ...prev, tenant: res[0].GUID }));
                     form.setFieldValue('tenant', res[0].GUID);
-                    setCurrentStep(2);
+                    setCurrentStep(3);
                   }
                 } else {
-                  setCurrentStep(0);
+                  setCurrentStep(1);
                 }
               })
               .catch((err) => {
-                setCurrentStep(0);
+                setCurrentStep(1);
               });
           }
           break;
-        case 1:
-          setCurrentStep(2);
+        case 2:
+          setFormData((prev) => ({ ...prev, ...values }));
+          setCurrentStep(3);
           break;
 
         default:
@@ -95,6 +114,7 @@ const LoginPage = () => {
       if (token && selectedTenant) {
         localStorage.setItem(localStorageKeys.token, JSON.stringify(token));
         localStorage.setItem(localStorageKeys.tenant, JSON.stringify(selectedTenant));
+        localStorage.setItem(localStorageKeys.serverUrl, finalData.url);
         loginWithCredentials(token, selectedTenant);
       }
     } catch (error) {
@@ -106,6 +126,25 @@ const LoginPage = () => {
     switch (currentStep) {
       case 0:
         return (
+          <>
+            <Form.Item
+              label="LiteGraph Server URL"
+              name="url"
+              rules={[
+                { required: true, message: 'Please enter the LiteGraph Server URL!' },
+                { type: 'url', message: 'Please enter a valid URL!' },
+              ]}
+            >
+              <LitegraphInput
+                placeholder="https://your-litegraph-server.com"
+                size="large"
+                disabled={isValidatingConnectivity}
+              />
+            </Form.Item>
+          </>
+        );
+      case 1:
+        return (
           <Form.Item
             label="Email"
             name="email"
@@ -114,10 +153,16 @@ const LoginPage = () => {
               { type: 'email', message: 'Please enter a valid email!' },
             ]}
           >
-            <LitegraphInput placeholder="Email" size="large" ref={emailInputRef} />
+            <LitegraphInput
+              placeholder="Email"
+              size="large"
+              ref={emailInputRef}
+              disabled={!isServerValid}
+            />
           </Form.Item>
         );
-      case 1:
+
+      case 2:
         return (
           <Form.Item
             name="tenant"
@@ -133,7 +178,7 @@ const LoginPage = () => {
             />
           </Form.Item>
         );
-      case 2:
+      case 3:
         return (
           <>
             <Form.Item
@@ -190,17 +235,21 @@ const LoginPage = () => {
             <LitegraphButton
               type="primary"
               htmlType={'submit'}
-              loading={isGeneratingToken || isLoadingTenant}
+              loading={isGeneratingToken || isLoadingTenant || isValidatingConnectivity}
               className={styles.loginButton}
-              onClick={currentStep === 2 ? handleSubmit : handleNext}
+              onClick={currentStep === 3 ? handleSubmit : handleNext}
             >
-              {isLoadingTenant ? 'Loading...' : currentStep === 2 ? 'Login' : 'Next'}
+              {isLoadingTenant || isValidatingConnectivity
+                ? 'Loading...'
+                : currentStep === 3
+                  ? 'Login'
+                  : 'Next'}
             </LitegraphButton>
           </div>
         </Form>
       </div>
       <div className={styles.stepIndicatorContainer}>
-        {[0, 1, 2].map((step) => (
+        {[0, 1, 2, 3].map((step) => (
           <div
             key={step}
             className={styles.stepIndicator}
