@@ -23,4 +23,5 @@ export const paths = {
   credentials: `/admin/dashboard/credentials`,
   users: `/admin/dashboard/users`,
   tenants: `/admin/dashboard/tenants`,
+  backups: `/admin/dashboard/backups`,
 };

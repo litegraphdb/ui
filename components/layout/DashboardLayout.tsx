@@ -65,6 +65,7 @@ const DashboardLayout = ({
   };
 
   const handleTenantSelect = async (tenantId: any) => {
+    if (!useTenantSelector) return;
     dispatch(clearCredentials());
     dispatch(clearUsers());
     const tenant = tenantsList.find((tenant: TenantType) => tenant.GUID === tenantId);
@@ -110,9 +111,11 @@ const DashboardLayout = ({
                     value={selectedTenantRedux?.GUID || undefined}
                     onChange={handleTenantSelect}
                     style={{ width: 200 }}
+                    disabled={!useTenantSelector}
                   />
                 </LitegraphFlex>
               )}
+              {!useTenantSelector && !useGraphsSelector && <span></span>}
             </LitegraphFlex>
 
             <div className={styles.userSection}>

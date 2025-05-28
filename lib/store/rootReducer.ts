@@ -13,6 +13,7 @@ import credentialReducer from './credential/reducer';
 import userReducer from './user/reducer';
 import { tenantLists } from './tenants/actions';
 import vectorReducer from './vector/reducer';
+import backupReducer from './backup/reducer';
 const rootReducer = combineReducers({
   liteGraph: liteGraphReducer,
   graphsList: graphReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   credentialsList: credentialReducer,
   usersList: userReducer,
   tenantsList: tenantsReducer,
+  backupsList: backupReducer,
 });
 
 export const apiMiddleWares = [rtkQueryErrorLogger];

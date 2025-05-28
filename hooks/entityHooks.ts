@@ -13,6 +13,7 @@ import {
   useSearchDataByVector,
   useSearchNodesByTLD,
   useSearchEdgesByTLD,
+  useGetBackupsList,
 } from '@/lib/sdk/litegraph.service';
 import { EdgeType } from '@/lib/store/edge/types';
 import { GraphData } from '@/lib/store/graph/types';
@@ -215,6 +216,23 @@ export const useCredentials = () => {
   }, [credentialsList, tenant]);
 
   return { credentialsList: credentialsList || [], fetchCredentialsList, isLoading, error };
+};
+
+export const useBackups = () => {
+  const backupsList = useAppSelector((state: RootState) => state.backupsList.allBackups);
+  const { fetchBackups, isLoading, error } = useGetBackupsList();
+
+  const fetchBackupsList = async () => {
+    await fetchBackups();
+  };
+
+  useEffect(() => {
+    if (backupsList === null) {
+      fetchBackupsList();
+    }
+  }, [backupsList]);
+
+  return { backupsList: backupsList || [], fetchBackupsList, isLoading, error };
 };
 
 export const useUsers = () => {

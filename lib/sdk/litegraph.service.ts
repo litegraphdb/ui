@@ -19,6 +19,7 @@ import { tenantLists } from '../store/tenants/actions';
 import { storeUser } from '../store/litegraph/actions';
 import { Node } from 'litegraphdb/dist/types/types';
 import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
+import { backupLists } from '@/lib/store/backup/actions';
 // Initialize the SDK once and reuse the instance
 
 let sdk = new LiteGraphSdk(liteGraphInstanceURL);
@@ -1395,3 +1396,99 @@ export const useSearchEdgesByTLD = () => {
 
   return { searchEdgesByTLD, isLoading, error };
 };
+
+//region Backups
+
+export const useGetBackupsList = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+  const dispatch = useAppDispatch();
+
+  const fetchBackups = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.Backup.readAll();
+      if (data) {
+        dispatch(backupLists(data));
+      }
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      toast.error('Unable to fetch backups.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { fetchBackups, isLoading, error };
+};
+
+export const useGetBackupByFilename = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchBackupByFilename = async (backupFilename: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.Backup.read(backupFilename);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      toast.error('Unable to fetch backup.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { fetchBackupByFilename, isLoading, error };
+};
+
+export const useCreateBackup = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const createBackup = async (backup: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.Backup.create(backup);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      toast.error('Unable to create backup.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { createBackup, isLoading, error };
+};
+
+export const useDeleteBackupByFilename = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const deleteBackupByFilename = async (backupFilename: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await sdk.Backup.delete(backupFilename);
+      setIsLoading(false);
+      return true;
+    } catch (err) {
+      toast.error('Unable to delete backup.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { deleteBackupByFilename, isLoading, error };
+};
+
+//endregion
