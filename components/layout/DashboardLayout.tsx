@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogoutOutlined } from '@ant-design/icons';
 import { Layout } from 'antd';
 import Navigation from '../navigation';
@@ -54,6 +54,12 @@ const DashboardLayout = ({
   } = useGraphs(!useGraphsSelector);
 
   const { tenantOptions, tenantsList } = useTenantList();
+
+  useEffect(() => {
+    if (!selectedGraphRedux && graphOptions?.length > 0) {
+      dispatch(storeSelectedGraph({ graph: graphOptions[0].value }));
+    }
+  }, [selectedGraphRedux, graphOptions, dispatch]);
 
   const handleGraphSelect = async (graphId: any) => {
     dispatch(clearNodes());

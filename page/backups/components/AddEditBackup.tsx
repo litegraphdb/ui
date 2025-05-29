@@ -1,18 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Form, message } from 'antd';
+import { Form } from 'antd';
 import { useCreateBackup } from '@/lib/sdk/litegraph.service';
 import { globalToastId } from '@/constants/config';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphModal from '@/components/base/modal/Modal';
 
-import { createBackup } from '@/lib/store/backup/actions';
 import LitegraphInput from '@/components/base/input/Input';
 import { BackupType } from '@/lib/store/backup/types';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { v4 } from 'uuid';
 import { toast } from 'react-hot-toast';
+import { BackupMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditBackupProps {
   isAddEditBackupVisible: boolean;
@@ -27,14 +25,9 @@ const AddEditBackup = ({
   backup,
   onBackupUpdated,
 }: AddEditBackupProps) => {
-  const dispatch = useAppDispatch();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<BackupMetaDataCreateRequest>();
   const [formValid, setFormValid] = useState(false);
-  const {
-    createBackup: createBackupService,
-    isLoading: createBackupLoading,
-    error: createBackupError,
-  } = useCreateBackup();
+  const { createBackup: createBackupService, isLoading: createBackupLoading } = useCreateBackup();
   const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
@@ -47,22 +40,18 @@ const AddEditBackup = ({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const backupData = {
-        ...values,
-        GUID: v4(),
-        CreatedUtc: values.CreatedUtc.toISOString(),
-        LastUpdateUtc: values.LastUpdateUtc.toISOString(),
+      const backupData: BackupMetaDataCreateRequest = {
+        Filename: values.Filename,
       };
+      const success = await createBackupService(backupData);
 
-      const res = await createBackupService(backupData);
-      if (res) {
-        dispatch(createBackup(res));
+      if (success) {
         setIsAddEditBackupVisible(false);
         form.resetFields();
         onBackupUpdated && onBackupUpdated();
         toast.success('Backup created successfully', { id: globalToastId });
       } else {
-        message.error('Failed to create backup');
+        toast.error('Failed to create backup', { id: globalToastId });
       }
     } catch (error: unknown) {
       console.error('Failed to submit:', error);

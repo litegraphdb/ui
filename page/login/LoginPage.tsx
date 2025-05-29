@@ -158,6 +158,7 @@ const LoginPage = () => {
               size="large"
               ref={emailInputRef}
               disabled={!isServerValid}
+              autoFocus
             />
           </Form.Item>
         );
@@ -175,6 +176,7 @@ const LoginPage = () => {
               placeholder="Select tenant"
               options={tenantOptions}
               size="large"
+              autoFocus
             />
           </Form.Item>
         );
@@ -185,7 +187,7 @@ const LoginPage = () => {
               name="password"
               rules={[{ required: true, message: 'Please input your password!' }]}
             >
-              <Input.Password placeholder="Password" size="large" />
+              <Input.Password placeholder="Password" size="large" autoFocus />
             </Form.Item>
           </>
         );

@@ -8,44 +8,41 @@ import { useBackups } from '@/hooks/entityHooks';
 import FallBack from '@/components/base/fallback/FallBack';
 import { tableColumns } from './constant';
 import { BackupType } from '@/lib/store/backup/types';
-import { ViewBackup } from './components/ViewBackup';
 import DeleteBackup from './components/DeleteBackup';
 import AddEditBackup from './components/AddEditBackup';
-
-const mockBackupData: BackupType[] = [
-  {
-    GUID: '1',
-    Filename: 'my-backup.db',
-    CreatedUtc: '2021-01-01',
-    LastUpdateUtc: '2021-01-01',
-  },
-  {
-    GUID: '2',
-    Filename: 'my-backup-2.db',
-    CreatedUtc: '2021-01-02',
-    LastUpdateUtc: '2021-01-02',
-  },
-];
+import { downloadBase64File } from '@/utils/appUtils';
+import { useGetBackupByFilename } from '@/lib/sdk/litegraph.service';
+import { toast } from 'react-hot-toast';
+import { globalToastId } from '@/constants/config';
 
 const BackupPage = () => {
-  const [isViewBackupVisible, setIsViewBackupVisible] = useState(false);
   const [isDeleteBackupVisible, setIsDeleteBackupVisible] = useState(false);
   const [isAddEditBackupVisible, setIsAddEditBackupVisible] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState<BackupType | null>(null);
   const { backupsList, fetchBackupsList, isLoading, error } = useBackups();
+  const { fetchBackupByFilename, isLoading: isDownloading } = useGetBackupByFilename();
+
   const handleCreateBackup = () => {
     setSelectedBackup(null);
     setIsAddEditBackupVisible(true);
   };
 
-  const handleViewBackup = (backup: BackupType) => {
-    setSelectedBackup(backup);
-    setIsViewBackupVisible(true);
-  };
-
   const handleDeleteBackup = (backup: BackupType) => {
     setSelectedBackup(backup);
     setIsDeleteBackupVisible(true);
+  };
+
+  const handleDownload = async (backup: BackupType) => {
+    if (!backup.Filename) {
+      toast.error('Missing backup filename', { id: globalToastId });
+      return;
+    }
+    const data = await fetchBackupByFilename(backup.Filename);
+    if (data && data.Data) {
+      downloadBase64File(data.Data, backup.Filename);
+    } else {
+      toast.error('Unable to download backup', { id: globalToastId });
+    }
   };
 
   return (
@@ -63,23 +60,14 @@ const BackupPage = () => {
         </LitegraphButton>
       }
     >
-      {/* {error ? (
+      {error ? (
         <FallBack retry={fetchBackupsList}>Something went wrong.</FallBack>
-      ) : ( */}
-      <LitegraphTable
-        loading={isLoading}
-        columns={tableColumns(handleViewBackup, handleDeleteBackup)}
-        //   dataSource={backupsList}
-        dataSource={mockBackupData}
-        rowKey={'GUID'}
-      />
-      {/* )} */}
-
-      {isViewBackupVisible && (
-        <ViewBackup
-          isViewBackupVisible={isViewBackupVisible}
-          setIsViewBackupVisible={setIsViewBackupVisible}
-          backup={selectedBackup || null}
+      ) : (
+        <LitegraphTable
+          loading={isLoading}
+          columns={tableColumns(handleDeleteBackup, handleDownload, isDownloading)}
+          dataSource={backupsList}
+          rowKey={'GUID'}
         />
       )}
 
@@ -88,6 +76,7 @@ const BackupPage = () => {
           isAddEditBackupVisible={isAddEditBackupVisible}
           setIsAddEditBackupVisible={setIsAddEditBackupVisible}
           backup={selectedBackup || null}
+          onBackupUpdated={fetchBackupsList}
         />
       )}
 

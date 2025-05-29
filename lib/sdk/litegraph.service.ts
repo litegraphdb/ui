@@ -17,7 +17,7 @@ import { credentialLists } from '../store/credential/actions';
 import { userLists } from '../store/user/actions';
 import { tenantLists } from '../store/tenants/actions';
 import { storeUser } from '../store/litegraph/actions';
-import { Node } from 'litegraphdb/dist/types/types';
+import { BackupMetaDataCreateRequest, Node } from 'litegraphdb/dist/types/types';
 import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
 import { backupLists } from '@/lib/store/backup/actions';
 // Initialize the SDK once and reuse the instance
@@ -1451,18 +1451,18 @@ export const useCreateBackup = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const createBackup = async (backup: any) => {
+  const createBackup = async (backup: BackupMetaDataCreateRequest) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Backup.create(backup);
+      await sdk.Backup.create(backup);
       setIsLoading(false);
-      return data;
+      return true;
     } catch (err) {
       toast.error('Unable to create backup.', { id: globalToastId });
       setIsLoading(false);
       setError(err instanceof Error ? err : new Error(String(err)));
-      return null;
+      return false;
     }
   };
 

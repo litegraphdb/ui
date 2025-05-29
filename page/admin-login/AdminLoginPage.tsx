@@ -112,9 +112,11 @@ const AdminLoginPage = () => {
             rules={[{ required: true, message: 'Please input your access key!' }]}
           >
             <Input.Password
+              key={isServerValid ? 'enabled' : 'disabled'}
               placeholder="Enter your access key"
               onPressEnter={() => form.submit()}
               disabled={!isServerValid}
+              autoFocus
             />
           </Form.Item>
 
