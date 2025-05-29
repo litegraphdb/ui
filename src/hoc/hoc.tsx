@@ -12,8 +12,7 @@ import {
 } from '@/lib/sdk/litegraph.service';
 import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
-import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
-import Token from 'litegraphdb/types/models/Token';
+import { TenantMetaData, Token } from 'litegraphdb/dist/types/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 

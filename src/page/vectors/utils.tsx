@@ -2,7 +2,7 @@ import { NodeType } from '@/lib/store/node/types';
 import { getNodeNameByGUID } from '../edges/utils';
 import { EdgeType } from '@/lib/store/edge/types';
 import { getEdgeNameByGUID } from '../tags/utils';
-import { VectorMetadata } from 'litegraphdb/types/models/VectorMetadata';
+import { VectorMetadata } from 'litegraphdb/dist/types/types';
 
 type VectorDisplayData = {
   GUID: string;

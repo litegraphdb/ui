@@ -1,3 +1,3 @@
-import TenantMetadata from 'litegraphdb/types/models/TenantMetaData';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
 
-export type TenantType = TenantMetadata;
+export type TenantType = TenantMetaData;

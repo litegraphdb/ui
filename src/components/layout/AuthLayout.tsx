@@ -4,7 +4,7 @@ import { LiteGraphStore } from '@/lib/store/litegraph/reducer';
 import React, { useEffect, useState } from 'react';
 import PageLoading from '../base/loading/PageLoading';
 import { storeToken, storeTenant, storeAdminAccessKey } from '@/lib/store/litegraph/actions';
-import { setAccessKey, setAccessToken, setTenant } from '@/lib/sdk/litegraph.service';
+import { setAccessKey, setAccessToken, setEndpoint, setTenant } from '@/lib/sdk/litegraph.service';
 
 export const initializeAuthFromLocalStorage = () => {
   const auth: LiteGraphStore = {
@@ -19,6 +19,7 @@ export const initializeAuthFromLocalStorage = () => {
 
     const tenant = localStorage.getItem(localStorageKeys.tenant);
     const adminAccessKey = localStorage.getItem(localStorageKeys.adminAccessKey);
+    const url = localStorage.getItem(localStorageKeys.serverUrl);
     if (token) {
       // const permissions = localStorage.getItem('permissions');
       // auth.permissions = permissions && JSON.parse(permissions);
@@ -29,6 +30,9 @@ export const initializeAuthFromLocalStorage = () => {
     }
     if (adminAccessKey) {
       auth.adminAccessKey = adminAccessKey;
+    }
+    if (url) {
+      setEndpoint(url);
     }
     return auth;
   }

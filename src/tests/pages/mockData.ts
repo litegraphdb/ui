@@ -1,10 +1,12 @@
 import { GraphData } from '@/lib/store/graph/types';
-import CredentialMetadata from 'litegraphdb/types/models/CredentialMetadata';
-import Edge from 'litegraphdb/types/models/Edge';
-import LabelMetadata from 'litegraphdb/types/models/LabelMetadata';
-import Node from 'litegraphdb/types/models/Node';
-import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
-import UserMetadata from 'litegraphdb/types/models/UserMetadata';
+import {
+  CredentialMetadata,
+  Edge,
+  LabelMetadata,
+  Node,
+  TenantMetaData,
+  UserMetadata,
+} from 'litegraphdb/dist/types/types';
 
 export const mockGraphData: GraphData[] = [
   {

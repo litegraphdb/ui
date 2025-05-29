@@ -11,6 +11,7 @@ import {
   TeamOutlined,
   TagsOutlined,
   KeyOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 import { MenuItemProps } from '@/components/menu-item/types';
 
@@ -84,5 +85,11 @@ export const adminDashboardRoutes: MenuItemProps[] = [
     icon: <KeyOutlined />,
     label: 'Credentials',
     path: paths.credentials,
+  },
+  {
+    key: '/backups',
+    icon: <DatabaseOutlined />,
+    label: 'Backups',
+    path: paths.backups,
   },
 ];

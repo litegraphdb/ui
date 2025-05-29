@@ -1,7 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
-import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
-import Token from 'litegraphdb/types/models/Token';
-import UserMetadata from 'litegraphdb/types/models/UserMetadata';
+import { TenantMetaData, Token, UserMetadata } from 'litegraphdb/dist/types/types';
 
 export const LitegraphAction = {
   STORE_SELECTED_GRAPH: 'STORE_SELECTED_GRAPH',

@@ -3,6 +3,7 @@ export const localStorageKeys = {
   token: 'token',
   adminAccessKey: 'adminAccessKey',
   user: 'user',
+  serverUrl: 'serverUrl',
 };
 
 export const dynamicSlugs = {
@@ -22,5 +23,5 @@ export const paths = {
   credentials: `/admin/dashboard/credentials`,
   users: `/admin/dashboard/users`,
   tenants: `/admin/dashboard/tenants`,
-
+  backups: `/admin/dashboard/backups`,
 };

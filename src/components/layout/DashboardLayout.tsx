@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogoutOutlined } from '@ant-design/icons';
 import { Layout } from 'antd';
 import Navigation from '../navigation';
@@ -55,6 +55,12 @@ const DashboardLayout = ({
 
   const { tenantOptions, tenantsList } = useTenantList();
 
+  useEffect(() => {
+    if (!selectedGraphRedux && graphOptions?.length > 0) {
+      dispatch(storeSelectedGraph({ graph: graphOptions[0].value }));
+    }
+  }, [selectedGraphRedux, graphOptions, dispatch]);
+
   const handleGraphSelect = async (graphId: any) => {
     dispatch(clearNodes());
     dispatch(clearEdges());
@@ -65,6 +71,7 @@ const DashboardLayout = ({
   };
 
   const handleTenantSelect = async (tenantId: any) => {
+    if (!useTenantSelector) return;
     dispatch(clearCredentials());
     dispatch(clearUsers());
     const tenant = tenantsList.find((tenant: TenantType) => tenant.GUID === tenantId);
@@ -110,9 +117,11 @@ const DashboardLayout = ({
                     value={selectedTenantRedux?.GUID || undefined}
                     onChange={handleTenantSelect}
                     style={{ width: 200 }}
+                    disabled={!useTenantSelector}
                   />
                 </LitegraphFlex>
               )}
+              {!useTenantSelector && !useGraphsSelector && <span></span>}
             </LitegraphFlex>
 
             <div className={styles.userSection}>

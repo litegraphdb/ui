@@ -7,8 +7,7 @@ import {
   storeUser,
   storeAdminAccessKey,
 } from '@/lib/store/litegraph/actions';
-import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
-import Token from 'litegraphdb/types/models/Token';
+import { TenantMetaData, Token } from 'litegraphdb/dist/types/types';
 
 export const useFetchUserDetails = () => {
   const dispatch = useAppDispatch();
