@@ -1,4 +1,4 @@
-import LabelMetadata from 'litegraphdb/types/models/LabelMetadata';
+import { LabelMetadata } from 'litegraphdb/dist/types/types';
 
 export type LabelGroupWithGraph = {
   [GraphGUID: string]: LabelType[];

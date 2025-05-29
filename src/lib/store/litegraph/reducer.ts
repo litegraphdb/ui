@@ -6,9 +6,7 @@ import {
   storeUser,
   storeAdminAccessKey,
 } from './actions';
-import Token from 'litegraphdb/types/models/Token';
-import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
-import UserMetadata from 'litegraphdb/types/models/UserMetadata';
+import { TenantMetaData, Token, UserMetadata } from 'litegraphdb/dist/types/types';
 
 export type LiteGraphStore = {
   selectedGraph: string;

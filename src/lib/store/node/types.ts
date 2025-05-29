@@ -1,4 +1,4 @@
-import Node from 'litegraphdb/types/models/Node';
+import { Node } from 'litegraphdb/dist/types/types';
 
 export type NodeGroupWithGraph = {
   [GraphGUID: string]: NodeType[];

@@ -9,7 +9,6 @@ import { labelLists, updateLabelGroupWithGraph } from '../store/label/actions';
 import { vectorLists, updateVectorGroupWithGraph } from '../store/vector/actions';
 import toast from 'react-hot-toast';
 import { globalToastId, liteGraphInstanceURL } from '@/constants/config';
-import Node from 'litegraphdb/types/models/Node';
 import { storeTenants } from '../store/tenants/actions';
 import { TagType } from '../store/tag/types';
 import { VectorType } from '../store/vector/types';
@@ -18,21 +17,26 @@ import { credentialLists } from '../store/credential/actions';
 import { userLists } from '../store/user/actions';
 import { tenantLists } from '../store/tenants/actions';
 import { storeUser } from '../store/litegraph/actions';
-import SearchResult from 'litegraphdb/types/models/SearchResult';
-import { EnumerationOrderEnum } from 'litegraphdb/types/enums/EnumerationOrderEnum';
+import { BackupMetaDataCreateRequest, Node } from 'litegraphdb/dist/types/types';
+import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
+import { backupLists } from '@/lib/store/backup/actions';
 // Initialize the SDK once and reuse the instance
 
 let sdk = new LiteGraphSdk(liteGraphInstanceURL);
 
+export const setEndpoint = (endpoint: string) => {
+  console.log('endpoint: ', endpoint);
+  sdk.config.endpoint = endpoint;
+};
 export const setAccessToken = (accessToken: string) => {
-  sdk.accessToken = accessToken;
+  sdk.config.accessToken = accessToken;
 };
 export const setAccessKey = (accessKey: string) => {
-  sdk.accessKey = accessKey;
+  sdk.config.accessKey = accessKey;
 };
 
 export const setTenant = (tenantId: string) => {
-  sdk.tenantGuid = tenantId;
+  sdk.config.tenantGuid = tenantId;
 };
 // region Graph
 
@@ -46,7 +50,7 @@ export const useGetGraphs = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.readGraphs();
+      const data = await sdk.Graph.readAll();
       if (data && storeInRedux) {
         dispatch(graphLists(data as any));
       }
@@ -71,7 +75,7 @@ export const useGetGraphById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.readGraph(graphId);
+      const data = await sdk.Graph.read(graphId);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -93,7 +97,7 @@ export const useCreateGraph = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.createGraph(graph);
+      const data = await sdk.Graph.create(graph);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -115,7 +119,7 @@ export const useUpdateGraphById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.updateGraph(graph);
+      const data = await sdk.Graph.update(graph);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -137,7 +141,7 @@ export const useDeleteGraphById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk?.deleteGraph(graphId, true);
+      await sdk.Graph.delete(graphId, true);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -159,7 +163,7 @@ export const useGetGexfByGraphId = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.exportGraphToGexf(graphId);
+      const data = await sdk.Graph.exportGexf(graphId);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -184,7 +188,7 @@ export const useGetNodesList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readNodes(graphId);
+      const data = await sdk.Node.readAll(graphId);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(nodeLists(data as any));
@@ -209,7 +213,7 @@ export const useCreateNode = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createNode(node);
+      const data = await sdk.Node.create(node);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -231,7 +235,7 @@ export const useUpdateNodeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.updateNode(node);
+      const data = await sdk.Node.update(node);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -253,7 +257,7 @@ export const useDeleteNodeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk?.deleteNode(graphGuid, nodeGuid);
+      await sdk.Node.delete(graphGuid, nodeGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -276,7 +280,7 @@ export const useGetNodeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data: Node = await sdk?.readNode(graphId, nodeId);
+      const data: Node = await sdk.Node.read(graphId, nodeId);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(updateNodeGroupWithGraph({ nodeId: data.GUID, nodeData: data as any })); // Update Redux store
@@ -303,7 +307,7 @@ export const useGetEdgesList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.readEdges(graphId);
+      const data = await sdk.Edge.readAll(graphId);
       if (data && storeInRedux) {
         dispatch(edgeLists(data as any));
       }
@@ -328,7 +332,7 @@ export const useCreateEdge = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.createEdge(edge);
+      const data = await sdk.Edge.create(edge);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -350,7 +354,7 @@ export const useUpdateEdgeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.updateEdge(node);
+      const data = await sdk.Edge.update(node);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -372,7 +376,7 @@ export const useDeleteEdgeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk?.deleteEdge(graphGuid, edgeGuid);
+      await sdk.Edge.delete(graphGuid, edgeGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -394,7 +398,7 @@ export const useGetEdgeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk?.readEdge(graphId, edgeId);
+      const data = await sdk.Edge.read(graphId, edgeId);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -417,7 +421,7 @@ export const useGetTagsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const allTags = await sdk.readAllTags(); // Fetch all tags
+      const allTags = await sdk.Tag.readAll(); // Fetch all tags
       const filteredTags = allTags.filter((tag: TagType) => tag.GraphGUID === graphId); // Filter tags by graph ID
       if (filteredTags && storeInRedux) {
         dispatch(tagLists(filteredTags));
@@ -447,7 +451,7 @@ export const useCreateTag = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createTag(tag);
+      const data = await sdk.Tag.create(tag);
       setIsLoading(false);
       return data;
     } catch (err: any) {
@@ -473,7 +477,7 @@ export const useUpdateTagById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.updateTag(tag, tag.GUID);
+      const data = await sdk.Tag.update(tag, tag.GUID);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -496,7 +500,7 @@ export const useDeleteTagById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.deleteTag(tagGuid);
+      await sdk.Tag.delete(tagGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -519,7 +523,7 @@ export const useGetTagById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data: TagType = await sdk.readTag(tagGuid);
+      const data: TagType = await sdk.Tag.read(tagGuid);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(updateTagGroupWithGraph({ tagId: data.GUID, tagData: data }));
@@ -545,7 +549,7 @@ export const useGetLabelsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const allLabels = await sdk.readAllLabels(); // Fetch all labels
+      const allLabels = await sdk.Label.readAll(); // Fetch all labels
       const filteredLabels = allLabels.filter((label: LabelType) => label.GraphGUID === graphId); // Filter labels by graph ID
       if (filteredLabels && storeInRedux) {
         dispatch(labelLists(filteredLabels));
@@ -572,7 +576,7 @@ export const useCreateLabel = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createLabel(label);
+      const data = await sdk.Label.create(label);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -594,7 +598,7 @@ export const useUpdateLabelById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.updateLabel(label, label.GUID);
+      const data = await sdk.Label.update(label, label.GUID);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -617,7 +621,7 @@ export const useDeleteLabelById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.deleteLabel(labelGuid);
+      await sdk.Label.delete(labelGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -640,7 +644,7 @@ export const useGetLabelById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data: LabelType = await sdk.readLabel(labelGuid);
+      const data: LabelType = await sdk.Label.read(labelGuid);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(updateLabelGroupWithGraph({ labelId: data.GUID, labelData: data }));
@@ -667,7 +671,7 @@ export const useGetVectorsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const allVectors = await sdk.readAllVectors(); // Fetch all vectors
+      const allVectors = await sdk.Vector.readAll(); // Fetch all vectors
       const filteredVectors = allVectors.filter(
         (vector: VectorType) => vector.GraphGUID === graphId
       ); // Filter vectors by graph ID
@@ -695,7 +699,7 @@ export const useCreateVector = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createVector(vector);
+      const data = await sdk.Vector.create(vector);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -717,7 +721,7 @@ export const useUpdateVectorById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await sdk.updateVector(vector, vector.GUID);
+      const result = await sdk.Vector.update(vector, vector.GUID);
       setIsLoading(false);
       return result;
     } catch (err) {
@@ -740,7 +744,7 @@ export const useDeleteVectorById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.deleteVector(vectorGuid);
+      await sdk.Vector.delete(vectorGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -763,7 +767,7 @@ export const useGetVectorById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data: VectorType = await sdk.readVector(vectorGuid);
+      const data: VectorType = await sdk.Vector.read(vectorGuid);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(updateVectorGroupWithGraph({ vectorId: data.GUID, vectorData: data }));
@@ -790,7 +794,7 @@ export const useGetCredentialsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readAllCredentials();
+      const data = await sdk.Credential.readAll();
       setIsLoading(false);
       if (data) {
         dispatch(credentialLists(data));
@@ -816,7 +820,7 @@ export const useCreateCredentials = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createCredential(credential);
+      const data = await sdk.Credential.create(credential);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -837,7 +841,7 @@ export const useGenerateToken = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.generateToken(email, password, tenantId);
+      const data = await sdk.Authentication.generateToken(email, password, tenantId);
       setIsLoading(false);
       return data;
     } catch (err: any) {
@@ -859,7 +863,7 @@ export const useGetTenants = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readTenants();
+      const data = await sdk.Tenant.readAll();
       setIsLoading(false);
       dispatch(storeTenants(data));
       return data;
@@ -882,7 +886,8 @@ export const useGetTenantsForEmail = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.getTenantsForEmail(email);
+      const data = await sdk.Authentication.getTenantsForEmail(email);
+      console.log('data: ', data);
       setIsLoading(false);
       dispatch(storeTenants(data));
       return data;
@@ -926,7 +931,7 @@ export const useUpdateCredentialsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.updateCredential(credential, credential.GUID);
+      const data = await sdk.Credential.update(credential, credential.GUID);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -949,7 +954,7 @@ export const useDeleteCredentialsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.deleteCredential(credentialGuid);
+      await sdk.Credential.delete(credentialGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -972,7 +977,7 @@ export const useGetCredentialsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readCredential(credentialGuid);
+      const data = await sdk.Credential.read(credentialGuid);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -996,7 +1001,7 @@ export const useGetUser = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readUser(userId);
+      const data = await sdk.User.read(userId);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(storeUser(data));
@@ -1022,7 +1027,7 @@ export const useGetTokenDetails = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.getTokenDetails(token);
+      const data = await sdk.Authentication.getTokenDetails(token);
       setIsLoading(false);
       if (data && storeInRedux) {
         if (data.User) {
@@ -1052,7 +1057,7 @@ export const useGetUsersList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readAllUsers();
+      const data = await sdk.User.readAll();
       setIsLoading(false);
       if (data) {
         dispatch(userLists(data));
@@ -1078,7 +1083,7 @@ export const useCreateUsers = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createUser(user);
+      const data = await sdk.User.create(user);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1100,7 +1105,7 @@ export const useUpdateUsersById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.updateUser(user, user.GUID);
+      const data = await sdk.User.update(user, user.GUID);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1123,7 +1128,7 @@ export const useDeleteUsersById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.deleteUser(userGuid);
+      await sdk.User.delete(userGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -1146,7 +1151,7 @@ export const useGetUsersById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readUser(userGuid);
+      const data = await sdk.User.read(userGuid);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1171,7 +1176,7 @@ export const useGetTenantsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readTenants();
+      const data = await sdk.Tenant.readAll();
       setIsLoading(false);
       if (data) {
         dispatch(tenantLists(data));
@@ -1197,7 +1202,7 @@ export const useCreateTenants = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.createTenant(tenant);
+      const data = await sdk.Tenant.create(tenant);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1219,7 +1224,7 @@ export const useUpdateTenantsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.updateTenant(tenant, tenant.GUID);
+      const data = await sdk.Tenant.update(tenant, tenant.GUID);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1242,7 +1247,7 @@ export const useDeleteTenantsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.deleteTenant(tenantGuid);
+      await sdk.Tenant.delete(tenantGuid);
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -1265,7 +1270,7 @@ export const useGetTenantsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.readTenant(tenantGuid);
+      const data = await sdk.Tenant.read(tenantGuid);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1288,7 +1293,7 @@ export const useSearchDataByVector = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.searchVectors(query);
+      const data = await sdk.Vector.search(query);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1317,7 +1322,7 @@ export const useSearchGraphsByTLD = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.searchGraphs(query);
+      const data = await sdk.Graph.search(query);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1347,7 +1352,7 @@ export const useSearchNodesByTLD = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.searchNodes(query);
+      const data = await sdk.Node.search(query);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1377,7 +1382,7 @@ export const useSearchEdgesByTLD = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.searchEdges(query);
+      const data = await sdk.Edge.search(query);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1391,3 +1396,99 @@ export const useSearchEdgesByTLD = () => {
 
   return { searchEdgesByTLD, isLoading, error };
 };
+
+//region Backups
+
+export const useGetBackupsList = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+  const dispatch = useAppDispatch();
+
+  const fetchBackups = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.Backup.readAll();
+      if (data) {
+        dispatch(backupLists(data));
+      }
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      toast.error('Unable to fetch backups.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { fetchBackups, isLoading, error };
+};
+
+export const useGetBackupByFilename = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchBackupByFilename = async (backupFilename: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await sdk.Backup.read(backupFilename);
+      setIsLoading(false);
+      return data;
+    } catch (err) {
+      toast.error('Unable to fetch backup.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { fetchBackupByFilename, isLoading, error };
+};
+
+export const useCreateBackup = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const createBackup = async (backup: BackupMetaDataCreateRequest) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await sdk.Backup.create(backup);
+      setIsLoading(false);
+      return true;
+    } catch (err) {
+      toast.error('Unable to create backup.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return false;
+    }
+  };
+
+  return { createBackup, isLoading, error };
+};
+
+export const useDeleteBackupByFilename = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const deleteBackupByFilename = async (backupFilename: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await sdk.Backup.delete(backupFilename);
+      setIsLoading(false);
+      return true;
+    } catch (err) {
+      toast.error('Unable to delete backup.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { deleteBackupByFilename, isLoading, error };
+};
+
+//endregion

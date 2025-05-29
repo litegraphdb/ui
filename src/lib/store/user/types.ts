@@ -1,3 +1,3 @@
-import UserMetadata from 'litegraphdb/types/models/UserMetadata';
+import { UserMetadata } from 'litegraphdb/dist/types/types';
 
 export type UserType = UserMetadata;

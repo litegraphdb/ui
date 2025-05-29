@@ -1,4 +1,4 @@
-import type { VectorMetadata } from 'litegraphdb/types/models/VectorMetadata';
+import { VectorMetadata } from 'litegraphdb/dist/types/types';
 
 export type VectorGroupWithGraph = {
   [GraphGUID: string]: VectorType[];

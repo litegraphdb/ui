@@ -65,7 +65,7 @@ export const tableColumns = (
     dataIndex: 'Cost' as keyof EdgeType,
     key: 'Cost',
     width: 150,
-    sorter: (a: EdgeType, b: EdgeType) => a.Cost - b.Cost,
+    sorter: (a: EdgeType, b: EdgeType) => (a.Cost ?? 0) - (b.Cost ?? 0),
     render: (cost: number) => (
       <div>
         <div>{cost}</div>
@@ -101,7 +101,9 @@ export const tableColumns = (
     width: 150,
     responsive: ['md'],
     render: (_: any, record: EdgeType) => (
-      <div>{record?.Vectors?.length > 0 ? pluralize(record?.Vectors?.length, 'vector') : NONE}</div>
+      <div>
+        {record?.Vectors?.length > 0 ? pluralize(record?.Vectors?.length ?? 0, 'vector') : NONE}
+      </div>
     ),
   },
   {

@@ -1,3 +1,3 @@
-import CredentialMetadata from 'litegraphdb/types/models/CredentialMetadata';
+import { CredentialMetadata } from 'litegraphdb/dist/types/types';
 
 export type CredentialType = CredentialMetadata;

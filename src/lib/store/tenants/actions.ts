@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { TenantType } from './types';
-import TenantMetaData from 'litegraphdb/types/models/TenantMetaData';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
 
 export enum TenantsAction {
   STORE_TENANTS = 'STORE_TENANTS',
