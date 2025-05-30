@@ -132,7 +132,20 @@ const LoginPage = () => {
               name="url"
               rules={[
                 { required: true, message: 'Please enter the LiteGraph Server URL!' },
-                { type: 'url', message: 'Please enter a valid URL!' },
+                {
+                  validator: (_, value) => {
+                    if (!value) return Promise.resolve();
+                    try {
+                      const parsedUrl = new URL(value);
+                      if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+                        return Promise.reject('Only HTTP or HTTPS URLs are allowed!');
+                      }
+                      return Promise.resolve();
+                    } catch (err) {
+                      return Promise.reject('Please enter a valid URL!');
+                    }
+                  },
+                },
               ]}
             >
               <LitegraphInput

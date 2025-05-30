@@ -48,3 +48,33 @@ export function downloadBase64File(
     console.error('Download failed:', error);
   }
 }
+
+export const calculateTooltipPosition = (
+  x: number,
+  y: number,
+  tooltipHeight: number = 230, // Approximate height of tooltip
+  horizontalOffset: number = 180,
+  verticalOffset: number = 200
+) => {
+  // Get viewport dimensions
+  const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+
+  // Calculate initial position
+  let finalX = x + horizontalOffset;
+  let finalY = y + verticalOffset;
+
+  // Check if tooltip would be clipped at the bottom
+  if (finalY + tooltipHeight > viewportHeight) {
+    // Position tooltip above the cursor instead
+    finalY = y - tooltipHeight - 20; // 10px gap between cursor and tooltip
+  }
+
+  // Check if tooltip would be clipped at the right
+  if (finalX + 300 > viewportWidth) {
+    // Assuming tooltip width is ~300px
+    finalX = x - 300 - 10; // Position tooltip to the left of cursor
+  }
+
+  return { x: finalX, y: finalY };
+};

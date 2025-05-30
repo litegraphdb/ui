@@ -147,6 +147,8 @@ const GraphViewer = ({
                   gexfContent={selectedGraphContext}
                   setTooltip={setNodeTooltip}
                   setEdgeTooltip={setEdgeTooltip}
+                  nodeTooltip={nodeTooltip}
+                  edgeTooltip={edgeTooltip}
                 />
               </SigmaContainer>
             )}

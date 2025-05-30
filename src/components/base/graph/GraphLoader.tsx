@@ -5,20 +5,31 @@ import Graph from 'graphology';
 import { parseGexf } from '@/lib/graph/parser';
 import { useLoadGraph, useRegisterEvents, useSigma } from '@react-sigma/core';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
+import { calculateTooltipPosition } from '@/utils/appUtils';
 
 interface GraphLoaderProps {
   gexfContent: string;
   setTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
+  nodeTooltip: GraphNodeTooltip;
+  edgeTooltip: GraphEdgeTooltip;
 }
 
-const GraphLoader = ({ gexfContent, setTooltip, setEdgeTooltip }: GraphLoaderProps) => {
+const GraphLoader = ({
+  gexfContent,
+  setTooltip,
+  setEdgeTooltip,
+  nodeTooltip,
+  edgeTooltip,
+}: GraphLoaderProps) => {
   const loadGraph = useLoadGraph();
   const sigma = useSigma();
   const animationFrameRef = useRef<number>();
   const registerEvents = useRegisterEvents();
   const [draggedNode, setDraggedNode] = useState<string | null>(null);
   const [draggedEdge, setDraggedEdge] = useState<string | null>(null);
+
+  const isDraggingRef = useRef(false);
 
   // Reset the tooltips while zoom in-zoom out
   useEffect(() => {
@@ -166,11 +177,19 @@ const GraphLoader = ({ gexfContent, setTooltip, setEdgeTooltip }: GraphLoaderPro
     registerEvents({
       downNode: (e) => {
         setDraggedNode(e.node);
+        isDraggingRef.current = false;
         sigma.getGraph().setNodeAttribute(e.node, 'highlighted', true);
       },
       // On mouse move, if the drag mode is enabled, we change the position of the draggedNode
       mousemovebody: (e) => {
+        if (nodeTooltip?.visible) {
+          setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+        }
+        if (edgeTooltip?.visible) {
+          setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
+        }
         if (draggedNode) {
+          isDraggingRef.current = true;
           // Get new position of node
           const pos = sigma.viewportToGraph(e);
           sigma.getGraph().setNodeAttribute(draggedNode, 'x', pos.x);
@@ -206,16 +225,22 @@ const GraphLoader = ({ gexfContent, setTooltip, setEdgeTooltip }: GraphLoaderPro
         if (!sigma.getCustomBBox()) sigma.setCustomBBox(sigma.getBBox());
       },
       clickNode: (event) => {
+        if (isDraggingRef.current) {
+          isDraggingRef.current = false; // Reset for next interaction
+          return;
+        }
         const { x, y } = event.event; // Screen coordinates of the pointer event
         const node = event.node; // Node ID
         // const graph = event.event.graph;
         // const nodeAttributes = graph.getNodeAttributes(node); // Fetch node attributes
 
+        const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y);
+
         setTooltip({
           visible: true,
           nodeId: node,
-          x: x + 180, // Adjust to position tooltip slightly offset from the cursor
-          y: y + 200,
+          x: tooltipX,
+          y: tooltipY,
         });
 
         // Clear edge tooltip
@@ -237,11 +262,13 @@ const GraphLoader = ({ gexfContent, setTooltip, setEdgeTooltip }: GraphLoaderPro
         // const graph = sigma.getGraph();
         // const edgeAttributes = graph.getEdgeAttributes(edgeId);
 
+        const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y, 200, 180, 180);
+
         setEdgeTooltip({
           visible: true,
           edgeId,
-          x: x + 180,
-          y: y + 180,
+          x: tooltipX,
+          y: tooltipY,
         });
 
         // Clear node tooltip

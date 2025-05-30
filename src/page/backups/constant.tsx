@@ -100,7 +100,7 @@ export const tableColumns = (
           <Button
             type="text"
             icon={<MoreOutlined style={{ fontSize: '20px' }} />}
-            role="credential-action-menu"
+            role="backup-action-menu"
             style={{ fontSize: '16px' }}
           />
         </Dropdown>

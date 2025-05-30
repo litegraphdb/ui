@@ -1,5 +1,6 @@
 import { GraphData } from '@/lib/store/graph/types';
 import {
+  BackupMetaData,
   CredentialMetadata,
   Edge,
   LabelMetadata,
@@ -288,3 +289,26 @@ export const vectorListingData = {
   count: mockVectorData.length,
   results: mockVectorData,
 };
+
+export const mockBackupData: BackupMetaData[] = [
+  {
+    Filename: 'test-backup-1',
+    Length: 438272,
+    MD5Hash: 'test-md5-hash',
+    SHA1Hash: 'test-sha1-hash',
+    SHA256Hash: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    CreatedUtc: '2025-01-01T00:00:00Z' as any,
+    LastUpdateUtc: '2025-01-01T00:00:00Z' as any,
+    LastAccessUtc: '2025-01-01T00:00:00Z' as any,
+  },
+  {
+    Filename: 'test-backup-2',
+    Length: 438272,
+    MD5Hash: 'test-md5-hash-2',
+    SHA1Hash: 'test-sha1-hash-2',
+    SHA256Hash: 'abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+    CreatedUtc: '2025-01-02T00:00:00Z' as any,
+    LastUpdateUtc: '2025-01-02T00:00:00Z' as any,
+    LastAccessUtc: '2025-01-02T00:00:00Z' as any,
+  },
+];
