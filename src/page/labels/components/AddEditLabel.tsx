@@ -64,12 +64,12 @@ const AddEditLabel = ({
         const updatedLabel = {
           GUID: label.GUID,
           GraphGUID: label.GraphGUID,
-          TenantGUID: label.TenantGUID || '00000000-0000-0000-0000-000000000000',
           CreatedUtc: label.CreatedUtc,
           Label: values.Label,
           NodeGUID: values.NodeGUID || label.NodeGUID,
           EdgeGUID: values.EdgeGUID || label.EdgeGUID,
-          LastUpdateUtc: new Date().toISOString(),
+          LastUpdateUtc: label.LastUpdateUtc,
+          TenantGUID: label.TenantGUID,
         };
 
         if (!updatedLabel.GUID) {
@@ -93,7 +93,6 @@ const AddEditLabel = ({
           ...values,
           GUID: v4(),
           GraphGUID: selectedGraph,
-          TenantGUID: '00000000-0000-0000-0000-000000000000',
           CreatedUtc: new Date().toISOString(),
           LastUpdateUtc: new Date().toISOString(),
         };
