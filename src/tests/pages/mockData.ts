@@ -11,6 +11,8 @@ import {
 
 export const mockGraphData: GraphData[] = [
   {
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    LastUpdateUtc: '2024-12-23T15:36:07.816289Z' as any,
     GUID: 'e6d4294e-6f49-4d67-8260-5e44c2b077a6',
     Name: 'Test Demo Graph',
     CreatedUtc: '2024-12-23T15:36:07.816289Z' as any,
@@ -23,6 +25,8 @@ export const mockGraphData: GraphData[] = [
     Vectors: [],
   },
   {
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
+    LastUpdateUtc: '2024-12-23T15:36:07.816289Z' as any,
     GUID: 'd52aeab4-4de7-4076-98dd-461d4a61ac88',
     Name: 'testttt 2',
     CreatedUtc: '2024-12-18T07:28:53.965316Z' as any,
@@ -35,6 +39,7 @@ export const mockGraphData: GraphData[] = [
 
 export const mockEdgeData: Edge[] = [
   {
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
     GUID: '7b665c02-249a-4029-b782-92526f50d357',
     GraphGUID: 'd52e9587-f9a8-4348-9cfe-b860ab13ba54',
     Name: 'new test 23',
@@ -49,6 +54,7 @@ export const mockEdgeData: Edge[] = [
     Vectors: [],
   },
   {
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
     GUID: 'd35bea13-f548-43be-b005-c79191117334',
     GraphGUID: 'd52e9587-f9a8-4348-9cfe-b860ab13ba54',
     Name: 'test edge',
@@ -66,6 +72,7 @@ export const mockEdgeData: Edge[] = [
 
 export const mockNodeData: Node[] = [
   {
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
     GUID: '3fc519b1-5f78-4fc7-810b-c18fade549db',
     GraphGUID: '01010101-0101-0101-0101-010101010101',
     Name: 'My updated test node',
@@ -77,6 +84,7 @@ export const mockNodeData: Node[] = [
     Vectors: [],
   },
   {
+    TenantGUID: '00000000-0000-0000-0000-000000000000',
     GUID: '6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c',
     GraphGUID: '01010101-0101-0101-0101-010101010101',
     Name: 'test sas',

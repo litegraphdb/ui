@@ -17,7 +17,7 @@ import { credentialLists } from '../store/credential/actions';
 import { userLists } from '../store/user/actions';
 import { tenantLists } from '../store/tenants/actions';
 import { storeUser } from '../store/litegraph/actions';
-import { BackupMetaDataCreateRequest, Node } from 'litegraphdb/dist/types/types';
+import { BackupMetaDataCreateRequest, LabelMetadata, Node } from 'litegraphdb/dist/types/types';
 import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
 import { backupLists } from '@/lib/store/backup/actions';
 // Initialize the SDK once and reuse the instance
@@ -594,11 +594,11 @@ export const useUpdateLabelById = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const updateLabelById = async (label: any) => {
+  const updateLabelById = async (label: LabelMetadata) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Label.update(label, label.GUID);
+      const data = await sdk.Label.update(label);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1105,7 +1105,7 @@ export const useUpdateUsersById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.User.update(user, user.GUID);
+      const data = await sdk.User.update(user);
       setIsLoading(false);
       return data;
     } catch (err) {
@@ -1224,7 +1224,7 @@ export const useUpdateTenantsById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Tenant.update(tenant, tenant.GUID);
+      const data = await sdk.Tenant.update(tenant);
       setIsLoading(false);
       return data;
     } catch (err) {
