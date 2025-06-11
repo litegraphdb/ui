@@ -3,10 +3,14 @@ import { Button, Layout } from 'antd';
 import LitegraphFlex from './base/flex/Flex';
 import MenuItems from './menu-item/MenuItems';
 import { MenuItemProps } from './menu-item/types';
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import LitegraphTitle from './base/typograpghy/Title';
 import styles from './layout/nav.module.scss';
+import LitegraphTooltip from './base/tooltip/Tooltip';
+import { useFlushDBtoDisk } from '@/lib/sdk/litegraph.service';
+import ConfirmationModal from './confirmation-modal/ConfirmationModal';
+import { useState } from 'react';
 
 const { Sider } = Layout;
 
@@ -19,7 +23,8 @@ const Navigation = ({
   menuItems: MenuItemProps[];
   setCollapsed: (collapsed: boolean) => void;
 }) => {
-  const liteGraphConnected = true;
+  const [open, setOpen] = useState(false);
+  const { flushDBtoDisk, isLoading, error } = useFlushDBtoDisk();
   return (
     <Sider
       theme="light"
@@ -54,7 +59,22 @@ const Navigation = ({
           }}
         />
       </LitegraphFlex>
+      <LitegraphFlex className="mt mb-sm" gap={10} justify="center" align="center">
+        <LitegraphTooltip title="Flush the database to disk">
+          <Button type="default" icon={<DatabaseOutlined />} onClick={() => setOpen(true)}>
+            {collapsed ? '' : 'Flush to disk'}
+          </Button>
+        </LitegraphTooltip>
+      </LitegraphFlex>
       <MenuItems menuItems={menuItems} />
+      <ConfirmationModal
+        title="Flush the database to disk"
+        content="Are you sure you want to flush the database to disk?"
+        onCancel={() => setOpen(false)}
+        onConfirm={() => flushDBtoDisk()}
+        open={open}
+        loading={isLoading}
+      />
     </Sider>
   );
 };

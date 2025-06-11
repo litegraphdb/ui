@@ -1491,4 +1491,24 @@ export const useDeleteBackupByFilename = () => {
   return { deleteBackupByFilename, isLoading, error };
 };
 
-//endregion
+export const useFlushDBtoDisk = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const flushDBtoDisk = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await sdk.Admin.flush();
+      setIsLoading(false);
+      return true;
+    } catch (err) {
+      toast.error('Unable to flush database to disk.', { id: globalToastId });
+      setIsLoading(false);
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return null;
+    }
+  };
+
+  return { flushDBtoDisk, isLoading, error };
+};
