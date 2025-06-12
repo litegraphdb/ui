@@ -25,6 +25,12 @@ const Navigation = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { flushDBtoDisk, isLoading, error } = useFlushDBtoDisk();
+  const onFlushDBtoDisk = async () => {
+    const result = await flushDBtoDisk();
+    if (result) {
+      setOpen(false);
+    }
+  };
   return (
     <Sider
       theme="light"
@@ -71,7 +77,7 @@ const Navigation = ({
         title="Flush the database to disk"
         content="Are you sure you want to flush the database to disk?"
         onCancel={() => setOpen(false)}
-        onConfirm={() => flushDBtoDisk()}
+        onConfirm={onFlushDBtoDisk}
         open={open}
         loading={isLoading}
       />

@@ -1501,6 +1501,7 @@ export const useFlushDBtoDisk = () => {
     try {
       await sdk.Admin.flush();
       setIsLoading(false);
+      toast.success('Database flushed to disk.', { id: globalToastId });
       return true;
     } catch (err) {
       toast.error('Unable to flush database to disk.', { id: globalToastId });
