@@ -32,6 +32,7 @@ interface LayoutWrapperProps {
   noProfile?: boolean;
   useGraphsSelector?: boolean;
   useTenantSelector?: boolean;
+  isAdmin?: boolean;
 }
 
 const DashboardLayout = ({
@@ -40,6 +41,7 @@ const DashboardLayout = ({
   noProfile,
   useGraphsSelector,
   useTenantSelector,
+  isAdmin,
 }: LayoutWrapperProps) => {
   const [collapsed, setCollapsed] = useState(false);
 
@@ -90,7 +92,12 @@ const DashboardLayout = ({
   return (
     <LayoutContext.Provider value={{ isGraphsLoading, graphError, refetchGraphs: fetchGraphsList }}>
       <Layout style={{ minHeight: '100vh' }}>
-        <Navigation collapsed={collapsed} menuItems={menuItems} setCollapsed={setCollapsed} />
+        <Navigation
+          collapsed={collapsed}
+          menuItems={menuItems}
+          setCollapsed={setCollapsed}
+          isAdmin={isAdmin}
+        />
         <Layout>
           <Header className={styles.header}>
             <LitegraphFlex vertical justify="center">

@@ -4,6 +4,7 @@ import { getNodeNameByGUID } from '../edges/utils';
 import { getEdgeNameByGUID } from '../tags/utils';
 import { LabelMetadata } from 'litegraphdb/dist/types/types';
 import { EdgeType } from '@/lib/store/edge/types';
+import { LabelMetadataForTable } from './types';
 
 export const transformLabelsDataForTable = (
   labelsList: LabelMetadata[],
@@ -17,7 +18,7 @@ export const transformLabelsDataForTable = (
         NodeName: getNodeNameByGUID(data.NodeGUID, nodesList),
         EdgeName: getEdgeNameByGUID(data.EdgeGUID, edgesList),
         key: data.GUID,
-      } as LabelMetadata;
+      } as LabelMetadataForTable;
     }) || []
   );
 };

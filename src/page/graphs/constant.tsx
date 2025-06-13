@@ -6,9 +6,9 @@ import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';
 import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
-import LitegraphFlex from '@/components/base/flex/Flex';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '@/components/table-search/TableSearch';
+import { onGUIDFilter, onLabelFilter, onNameFilter, onTagFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (record: GraphData) => void,
@@ -23,9 +23,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Name" />
     ),
-    onFilter: (value, record) => {
-      return record.Name.toLowerCase().includes(value as string);
-    },
+    onFilter: (value, record) => onNameFilter(value, record.Name),
     width: 350,
     responsive: ['sm'],
     sorter: (a: GraphData, b: GraphData) => a.Name.localeCompare(b.Name),
@@ -45,9 +43,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search GUID" />
     ),
-    onFilter: (value, record) => {
-      return record.GUID.toLowerCase().includes(value as string);
-    },
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -63,9 +59,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Labels" />
     ),
-    onFilter: (value, record) => {
-      return record.Labels.some((label: string) => label.toLowerCase().includes(value as string));
-    },
+    onFilter: (value, record) => onLabelFilter(value, record.Labels),
     render: (labels: any) => (
       <div>
         <div>{Array.isArray(labels) && labels.length > 0 ? labels.join(', ') : NOT_AVAILABLE}</div>
@@ -80,13 +74,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Tags" />
     ),
-    onFilter: (val, record) => {
-      return Object.entries(record.Tags).some(([key, value]) => {
-        return (
-          key.toLowerCase().includes(val as string) || value.toLowerCase().includes(val as string)
-        );
-      });
-    },
+    onFilter: (val, record) => onTagFilter(val, record.Tags),
     responsive: ['sm'],
     render: (tags: any) => (
       <div>

@@ -13,6 +13,7 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
       menuItems={adminDashboardRoutes}
       noProfile={true}
       useTenantSelector={!isDisableTenantSelector}
+      isAdmin={true}
     >
       {children}
     </DashboardLayout>

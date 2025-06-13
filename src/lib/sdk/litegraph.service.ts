@@ -1499,15 +1499,19 @@ export const useFlushDBtoDisk = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await sdk.Admin.flush();
+      const done = await sdk.Admin.flush();
       setIsLoading(false);
-      toast.success('Database flushed to disk.', { id: globalToastId });
-      return true;
+      if (done) {
+        toast.success('Database flushed to disk.', { id: globalToastId });
+      } else {
+        toast.error('Unable to flush database to disk.', { id: globalToastId });
+      }
+      return done;
     } catch (err) {
       toast.error('Unable to flush database to disk.', { id: globalToastId });
       setIsLoading(false);
       setError(err instanceof Error ? err : new Error(String(err)));
-      return null;
+      return false;
     }
   };
 

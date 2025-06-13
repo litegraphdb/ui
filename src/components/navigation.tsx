@@ -18,10 +18,12 @@ const Navigation = ({
   collapsed,
   menuItems,
   setCollapsed,
+  isAdmin,
 }: {
   collapsed: boolean;
   menuItems: MenuItemProps[];
   setCollapsed: (collapsed: boolean) => void;
+  isAdmin?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const { flushDBtoDisk, isLoading, error } = useFlushDBtoDisk();
@@ -65,13 +67,15 @@ const Navigation = ({
           }}
         />
       </LitegraphFlex>
-      <LitegraphFlex className="mt mb-sm" gap={10} justify="center" align="center">
-        <LitegraphTooltip title="Flush the database to disk">
-          <Button type="default" icon={<DatabaseOutlined />} onClick={() => setOpen(true)}>
-            {collapsed ? '' : 'Flush to disk'}
-          </Button>
-        </LitegraphTooltip>
-      </LitegraphFlex>
+      {isAdmin && (
+        <LitegraphFlex className="mt mb-sm" gap={10} justify="center" align="center">
+          <LitegraphTooltip title="Flush the database to disk">
+            <Button type="default" icon={<DatabaseOutlined />} onClick={() => setOpen(true)}>
+              {collapsed ? '' : 'Flush to disk'}
+            </Button>
+          </LitegraphTooltip>
+        </LitegraphFlex>
+      )}
       <MenuItems menuItems={menuItems} />
       <ConfirmationModal
         title="Flush the database to disk"

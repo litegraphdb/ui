@@ -3,6 +3,9 @@ import { Button, Dropdown, TableProps } from 'antd';
 import { MoreOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { CredentialType } from '@/lib/store/credential/types';
 import { formatDateTime } from '@/utils/dateUtils';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import TableSearch from '@/components/table-search/TableSearch';
+import { onGUIDFilter, onNameFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (user: CredentialType) => void,
@@ -12,6 +15,10 @@ export const tableColumns = (
     title: 'GUID',
     dataIndex: 'GUID',
     key: 'GUID',
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     width: 350,
     responsive: ['md'],
     render: (GUID: string) => <div>{GUID}</div>,
@@ -19,16 +26,24 @@ export const tableColumns = (
   {
     title: 'User',
     dataIndex: 'userName',
-    key: 'UserGUID',
+    key: 'userName',
     width: 250,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search User" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.userName || ''),
     responsive: ['md'],
-    render: (UserGUID: string) => <div>{UserGUID}</div>,
+    render: (userName: string) => <div>{userName}</div>,
   },
   {
     title: 'Name',
     dataIndex: 'Name',
     key: 'name',
     width: 200,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Name" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Name),
     responsive: ['md'],
     sorter: (a: CredentialType, b: CredentialType) => a.Name.localeCompare(b.Name),
     render: (name: string) => <div>{name}</div>,

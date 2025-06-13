@@ -12,6 +12,7 @@ const TableSearch = ({
   return (
     <LitegraphFlex className="p">
       <Input.Search
+        autoFocus
         placeholder={placeholder}
         value={selectedKeys[0]}
         onChange={(e) => {

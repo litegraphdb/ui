@@ -3,6 +3,9 @@ import { Button, Dropdown, TableProps } from 'antd';
 import { MoreOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { UserType } from '@/lib/store/user/types';
 import { formatDateTime } from '@/utils/dateUtils';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import TableSearch from '@/components/table-search/TableSearch';
+import { onGUIDFilter, onNameFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (user: UserType) => void,
@@ -13,6 +16,10 @@ export const tableColumns = (
     dataIndex: 'GUID',
     key: 'GUID',
     width: 350,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     responsive: ['md'],
     render: (GUID: string) => <div>{GUID}</div>,
   },
@@ -21,6 +28,10 @@ export const tableColumns = (
     dataIndex: 'FirstName',
     key: 'FirstName',
     width: 200,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search First Name" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.FirstName),
     responsive: ['md'],
     sorter: (a: UserType, b: UserType) => a.FirstName.localeCompare(b.FirstName),
     render: (FirstName: string) => <div>{FirstName}</div>,
@@ -30,6 +41,10 @@ export const tableColumns = (
     dataIndex: 'LastName',
     key: 'LastName',
     width: 200,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Last Name" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.LastName),
     responsive: ['md'],
     sorter: (a: UserType, b: UserType) => a.LastName.localeCompare(b.LastName),
     render: (LastName: string) => <div>{LastName}</div>,
@@ -39,6 +54,10 @@ export const tableColumns = (
     dataIndex: 'Email',
     key: 'Email',
     width: 200,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Email" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Email),
     responsive: ['md'],
     render: (Email: string) => <div>{Email}</div>,
   },

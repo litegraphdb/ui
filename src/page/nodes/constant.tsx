@@ -8,6 +8,7 @@ import { isNumber } from 'lodash';
 import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
 import TableSearch from '@/components/table-search/TableSearch';
 import { FilterDropdownProps } from 'antd/es/table/interface';
+import { onGUIDFilter, onLabelFilter, onNameFilter, onTagFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (record: NodeType) => void,
@@ -22,9 +23,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Name" />
     ),
-    onFilter: (value, record) => {
-      return record.Name.toLowerCase().includes(value as string);
-    },
+    onFilter: (value, record) => onNameFilter(value, record.Name),
     sorter: (a: NodeType, b: NodeType) => a.Name.localeCompare(b.Name),
     render: (name: string) => (
       <div>
@@ -41,9 +40,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search GUID" />
     ),
-    onFilter: (value, record) => {
-      return record.GUID.toLowerCase().includes(value as string);
-    },
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -58,9 +55,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Labels" />
     ),
-    onFilter: (value, record) => {
-      return record.Labels.some((label: string) => label.toLowerCase().includes(value as string));
-    },
+    onFilter: (value, record) => onLabelFilter(value, record.Labels),
     render: (label: string[]) => (
       <div>
         <div>{label?.length ? label?.join(', ') : NOT_AVAILABLE}</div>
@@ -75,13 +70,7 @@ export const tableColumns = (
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Tags" />
     ),
-    onFilter: (val, record) => {
-      return Object.entries(record.Tags).some(([key, value]) => {
-        return (
-          key.toLowerCase().includes(val as string) || value.toLowerCase().includes(val as string)
-        );
-      });
-    },
+    onFilter: (val, record) => onTagFilter(val, record.Tags),
     render: (tags: any) => (
       <div>
         <div>{Object.keys(tags || {}).length > 0 ? JSON.stringify(tags) : NONE}</div>
