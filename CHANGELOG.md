@@ -19,3 +19,8 @@ v0.1.2
 
 - sdk version update
 - fixed label update issue
+
+v0.1.3
+
+- added search functionality to the table columns
+- added flush db to disk functionality
