@@ -3,6 +3,9 @@ import { Button, Dropdown, TableProps } from 'antd';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 import { TenantType } from '@/lib/store/tenants/types';
 import { formatDateTime } from '@/utils/dateUtils';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import TableSearch from '@/components/table-search/TableSearch';
+import { onGUIDFilter, onNameFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (tenant: TenantType) => void,
@@ -11,6 +14,10 @@ export const tableColumns = (
   {
     title: 'GUID',
     dataIndex: 'GUID',
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     key: 'GUID',
     width: 450,
     responsive: ['md'],
@@ -21,6 +28,10 @@ export const tableColumns = (
     dataIndex: 'Name',
     key: 'Name',
     width: 350,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Name" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Name),
     responsive: ['md'],
     sorter: (a: TenantType, b: TenantType) => a.Name.localeCompare(b.Name),
     render: (Name: string) => <div>{Name}</div>,

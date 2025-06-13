@@ -3,6 +3,7 @@ import { NodeType } from '@/lib/store/node/types';
 import { getNodeNameByGUID } from '../edges/utils';
 import { EdgeType } from '@/lib/store/edge/types';
 import { TagMetaData } from 'litegraphdb/dist/types/types';
+import { TagType } from '@/lib/store/tag/types';
 
 // Utility to find the name by GUID
 export const getEdgeNameByGUID = (guid: string, edgesList: EdgeType[]) => {
@@ -23,7 +24,7 @@ export const transformTagsDataForTable = (
         NodeName: getNodeNameByGUID(data.NodeGUID, nodesList),
         EdgeName: getEdgeNameByGUID(data.EdgeGUID, edgesList),
         key: data.GUID,
-      } as TagMetaData;
+      } as TagType;
     }) || []
   );
 };

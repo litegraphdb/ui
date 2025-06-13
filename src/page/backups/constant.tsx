@@ -11,6 +11,9 @@ import { Button, Dropdown, MenuProps, TableProps } from 'antd';
 import { formatBytes } from '@/utils/appUtils';
 import { useState } from 'react';
 import { LoaderIcon } from 'react-hot-toast';
+import { onNameFilter } from '@/constants/table';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import TableSearch from '@/components/table-search/TableSearch';
 
 const Sha256ToggleCell: React.FC<{ hash: string }> = ({ hash }) => {
   const [visible, setVisible] = useState<Boolean>(false);
@@ -48,6 +51,11 @@ export const tableColumns = (
     key: 'Filename',
     width: 200,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Filename" />
+    ),
+    sorter: (a: BackupType, b: BackupType) => a.Filename.localeCompare(b.Filename),
+    onFilter: (value, record) => onNameFilter(value, record.Filename),
     render: (Filename: string) => <div>{Filename}</div>,
   },
   {

@@ -8,10 +8,8 @@ import { CredentialType } from '@/lib/store/credential/types';
 import AddEditCredential from './components/AddEditCredential';
 import DeleteCredential from './components/DeleteCredential';
 
-import { useGetCredentialsList } from '@/lib/sdk/litegraph.service';
 import { tableColumns } from './constant';
 import FallBack from '@/components/base/fallback/FallBack';
-import { Space, Button } from 'antd';
 import { useCredentials, useUsers } from '@/hooks/entityHooks';
 
 const CredentialPage = () => {

@@ -1,19 +1,26 @@
 import React from 'react';
 import { MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
-import { LabelType } from '@/lib/store/label/types';
 import { formatDateTime } from '@/utils/dateUtils';
+import { onGUIDFilter, onNameFilter } from '@/constants/table';
+import TableSearch from '@/components/table-search/TableSearch';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import { LabelMetadataForTable } from './types';
 
 export const tableColumns = (
-  handleEdit: (record: LabelType) => void,
-  handleDelete: (record: LabelType) => void
-): TableProps<LabelType>['columns'] => [
+  handleEdit: (record: LabelMetadataForTable) => void,
+  handleDelete: (record: LabelMetadataForTable) => void
+): TableProps<LabelMetadataForTable>['columns'] => [
   {
     title: 'Label',
     dataIndex: 'Label',
     key: 'Label',
     width: 250,
-    sorter: (a: LabelType, b: LabelType) => a.Label.localeCompare(b.Label),
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Label" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Label),
+    sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) => a.Label.localeCompare(b.Label),
     render: (key: string) => (
       <div>
         <div>{key}</div>
@@ -27,6 +34,10 @@ export const tableColumns = (
     key: 'GUID',
     width: 350,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -39,7 +50,12 @@ export const tableColumns = (
     key: 'NodeName',
     width: 200,
     responsive: ['md'],
-    // sorter: (a: LabelType, b: LabelType) => a.NodeName.localeCompare(b.NodeName),
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Node" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.NodeName || ''),
+    sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) =>
+      a.NodeName.localeCompare(b.NodeName),
     render: (NodeName: string) => (
       <div>
         <div>{NodeName}</div>
@@ -52,7 +68,12 @@ export const tableColumns = (
     key: 'EdgeName',
     width: 200,
     responsive: ['md'],
-    // sorter: (a: LabelType, b: LabelType) => a.EdgeName.localeCompare(b.EdgeName),
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Edge" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.EdgeName || ''),
+    sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) =>
+      a.EdgeName.localeCompare(b.EdgeName),
     render: (EdgeName: string) => (
       <div>
         <div>{EdgeName}</div>
@@ -65,14 +86,14 @@ export const tableColumns = (
     key: 'CreatedUtc',
     width: 200,
     responsive: ['md'],
-    sorter: (a: LabelType, b: LabelType) =>
+    sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,
   },
   {
     title: 'Actions',
     key: 'actions',
-    render: (_: any, record: LabelType) => {
+    render: (_: any, record: LabelMetadataForTable) => {
       const items = [
         {
           key: 'edit',

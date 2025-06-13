@@ -4,4 +4,8 @@ export type VectorGroupWithGraph = {
   [GraphGUID: string]: VectorType[];
 };
 
-export type VectorType = VectorMetadata;
+export type VectorType = VectorMetadata & {
+  NodeName?: string;
+  EdgeName?: string;
+  key?: string;
+};

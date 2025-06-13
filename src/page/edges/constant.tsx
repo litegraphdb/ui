@@ -6,6 +6,9 @@ import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';
 import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
+import TableSearch from '@/components/table-search/TableSearch';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import { onGUIDFilter, onLabelFilter, onNameFilter, onTagFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (record: EdgeType) => void,
@@ -17,6 +20,10 @@ export const tableColumns = (
     dataIndex: 'Name' as keyof EdgeType,
     key: 'Name',
     width: 250,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Name" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Name),
     sorter: (a: EdgeType, b: EdgeType) => a.Name.localeCompare(b.Name),
     render: (Name: string) => (
       <div>
@@ -30,6 +37,10 @@ export const tableColumns = (
     key: 'GUID',
     width: 350,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -41,6 +52,10 @@ export const tableColumns = (
     dataIndex: 'FromName' as keyof EdgeType,
     key: 'FromName',
     width: 250,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search From" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.FromName || ''),
     responsive: ['md'],
     render: (FromName: string) => (
       <div>
@@ -53,6 +68,10 @@ export const tableColumns = (
     dataIndex: 'ToName' as keyof EdgeType,
     key: 'ToName',
     width: 250,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search To" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.ToName || ''),
     responsive: ['md'],
     render: (ToName: string) => (
       <div>
@@ -77,6 +96,10 @@ export const tableColumns = (
     dataIndex: 'Labels' as keyof EdgeType,
     key: 'Labels',
     width: 150,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Labels" />
+    ),
+    onFilter: (value, record) => onLabelFilter(value, record.Labels),
     render: (Labels: string[]) => (
       <div>
         <div>{Labels?.length ? Labels?.join(', ') : NOT_AVAILABLE}</div>
@@ -88,6 +111,10 @@ export const tableColumns = (
     dataIndex: 'Tags' as keyof EdgeType,
     key: 'Tags',
     width: 150,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Tags" />
+    ),
+    onFilter: (val, record) => onTagFilter(val, record.Tags),
     render: (Tags: any) => (
       <div>
         <div>{Object.keys(Tags || {}).length > 0 ? JSON.stringify(Tags) : NONE}</div>

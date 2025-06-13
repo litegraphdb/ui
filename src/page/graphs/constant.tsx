@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MoreOutlined } from '@ant-design/icons';
 import { GraphData } from '@/lib/store/graph/types';
-import { TableProps, Dropdown, Button, Menu } from 'antd';
+import { TableProps, Dropdown, Button, Menu, Input } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';
 import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import TableSearch from '@/components/table-search/TableSearch';
+import { onGUIDFilter, onLabelFilter, onNameFilter, onTagFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (record: GraphData) => void,
@@ -17,6 +20,10 @@ export const tableColumns = (
     title: 'Name',
     dataIndex: 'Name',
     key: 'name',
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Name" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Name),
     width: 350,
     responsive: ['sm'],
     sorter: (a: GraphData, b: GraphData) => a.Name.localeCompare(b.Name),
@@ -32,6 +39,11 @@ export const tableColumns = (
     key: 'GUID',
     width: 350,
     responsive: ['sm'],
+
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -44,6 +56,10 @@ export const tableColumns = (
     key: 'labels',
     width: 350,
     responsive: ['sm'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Labels" />
+    ),
+    onFilter: (value, record) => onLabelFilter(value, record.Labels),
     render: (labels: any) => (
       <div>
         <div>{Array.isArray(labels) && labels.length > 0 ? labels.join(', ') : NOT_AVAILABLE}</div>
@@ -55,6 +71,10 @@ export const tableColumns = (
     dataIndex: 'Tags',
     key: 'tags',
     width: 350,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Tags" />
+    ),
+    onFilter: (val, record) => onTagFilter(val, record.Tags),
     responsive: ['sm'],
     render: (tags: any) => (
       <div>

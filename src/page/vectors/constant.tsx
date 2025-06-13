@@ -4,6 +4,9 @@ import { Button, Dropdown, TableProps } from 'antd';
 import { VectorType } from '@/lib/store/vector/types';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import { formatDateTime } from '@/utils/dateUtils';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import { onGUIDFilter, onNameFilter } from '@/constants/table';
+import TableSearch from '@/components/table-search/TableSearch';
 
 export const tableColumns = (
   handleEdit: (record: VectorType) => void,
@@ -15,6 +18,10 @@ export const tableColumns = (
     sorter: (a: VectorType, b: VectorType) => a.Model.localeCompare(b.Model),
     key: 'Model',
     width: 250,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Model" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Model),
     responsive: ['md'],
     render: (Model: string) => (
       <div>
@@ -28,6 +35,10 @@ export const tableColumns = (
     key: 'GUID',
     width: 350,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -37,10 +48,14 @@ export const tableColumns = (
   {
     title: 'Node',
     dataIndex: 'NodeName',
-    // sorter: (a: VectorType, b: VectorType) => a.NodeName.localeCompare(b.NodeName),
+    sorter: (a: VectorType, b: VectorType) => a.NodeName?.localeCompare(b.NodeName || '') || 0,
     key: 'NodeName',
     width: 200,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Node" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.NodeName || ''),
     render: (NodeGUID: string) => (
       <div>
         <div>{NodeGUID}</div>
@@ -50,10 +65,14 @@ export const tableColumns = (
   {
     title: 'Edge',
     dataIndex: 'EdgeName',
-    // sorter: (a: VectorType, b: VectorType) => a.EdgeName.localeCompare(b.EdgeName),
+    sorter: (a: VectorType, b: VectorType) => a.EdgeName?.localeCompare(b.EdgeName || '') || 0,
     key: 'EdgeName',
     width: 200,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Edge" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.EdgeName || ''),
     render: (EdgeName: string) => (
       <div>
         <div>{EdgeName}</div>
@@ -79,6 +98,10 @@ export const tableColumns = (
     dataIndex: 'Content',
     sorter: (a: VectorType, b: VectorType) => a.Content.localeCompare(b.Content),
     key: 'Content',
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Content" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Content),
     width: 200,
     responsive: ['md'],
     render: (Content: string) => (

@@ -3,6 +3,9 @@ import { MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
 import { TagType } from '@/lib/store/tag/types';
 import { formatDateTime } from '@/utils/dateUtils';
+import { FilterDropdownProps } from 'antd/es/table/interface';
+import TableSearch from '@/components/table-search/TableSearch';
+import { onGUIDFilter, onNameFilter } from '@/constants/table';
 
 export const tableColumns = (
   handleEdit: (record: TagType) => void,
@@ -14,6 +17,10 @@ export const tableColumns = (
     key: 'Key',
     width: 200,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Key" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Key),
     sorter: (a: TagType, b: TagType) => a.Key.localeCompare(b.Key),
     render: (key: string) => (
       <div>
@@ -24,6 +31,10 @@ export const tableColumns = (
   {
     title: 'Value',
     dataIndex: 'Value',
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Value" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.Value),
     sorter: (a: TagType, b: TagType) => a.Value.localeCompare(b.Value),
     key: 'Value',
     width: 200,
@@ -40,6 +51,10 @@ export const tableColumns = (
     key: 'GUID',
     width: 350,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search GUID" />
+    ),
+    onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     render: (GUID: string) => (
       <div>
         <div>{GUID}</div>
@@ -49,10 +64,14 @@ export const tableColumns = (
   {
     title: 'Node',
     dataIndex: 'NodeName',
-    // sorter: (a: TagType, b: TagType) => a.NodeName.localeCompare(b.NodeName),
+    sorter: (a: TagType, b: TagType) => a.NodeName?.localeCompare(b.NodeName || '') || 0,
     key: 'NodeName',
     width: 200,
     responsive: ['md'],
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Node" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.NodeName || ''),
     render: (NodeGUID: string) => (
       <div>
         <div>{NodeGUID}</div>
@@ -62,9 +81,13 @@ export const tableColumns = (
   {
     title: 'Edge',
     dataIndex: 'EdgeName',
-    // sorter: (a: TagType, b: TagType) => a.EdgeName.localeCompare(b.EdgeName),
+    sorter: (a: TagType, b: TagType) => a.EdgeName?.localeCompare(b.EdgeName || '') || 0,
     key: 'EdgeName',
     width: 200,
+    filterDropdown: (props: FilterDropdownProps) => (
+      <TableSearch {...props} placeholder="Search Edge" />
+    ),
+    onFilter: (value, record) => onNameFilter(value, record.EdgeName || ''),
     responsive: ['md'],
     render: (EdgeName: string) => (
       <div>

@@ -1,3 +1,5 @@
 import { CredentialMetadata } from 'litegraphdb/dist/types/types';
 
-export type CredentialType = CredentialMetadata;
+export type CredentialType = CredentialMetadata & {
+  userName?: string;
+};
