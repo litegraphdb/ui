@@ -124,7 +124,8 @@ const EdgeToolTip = ({
               <LitegraphFlex vertical className="card-details">
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {edge?.Name} {`[${edge?.GUID}]`}
+                  {edge?.Name}{' '}
+                  <LitegraphText color="gray" fontSize={12}>{`[${edge?.GUID}]`}</LitegraphText>
                 </LitegraphText>
 
                 <LitegraphText>

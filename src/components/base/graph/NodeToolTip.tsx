@@ -3,7 +3,7 @@ import LiteGraphCard from '@/components/base/card/Card';
 import LiteGraphSpace from '@/components/base/space/Space';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { GraphNodeTooltip } from './types';
-import { CloseCircleFilled } from '@ant-design/icons';
+import { CloseCircleFilled, ExpandOutlined } from '@ant-design/icons';
 import { defaultNodeTooltip } from './constant';
 import { useGetGexfByGraphId, useGetNodeById } from '@/lib/sdk/litegraph.service';
 import LitegraphText from '@/components/base/typograpghy/Text';
@@ -38,6 +38,7 @@ const NodeToolTip = ({
   setSelectedGraphContext,
 }: NodeTooltipProps) => {
   const dispatch = useAppDispatch();
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const { fetchNodeById, isLoading, error } = useGetNodeById();
   const { fetchGexfByGraphId } = useGetGexfByGraphId();
 
@@ -123,7 +124,21 @@ const NodeToolTip = ({
         }}
       >
         <LiteGraphCard
-          title="Node Information"
+          title={
+            <LitegraphFlex gap={10}>
+              <LitegraphText weight={600} fontSize={18}>
+                Node Information
+              </LitegraphText>
+              <ExpandOutlined
+                className="cursor-pointer"
+                onClick={() => {
+                  setSelectedNode(node);
+                  setIsExpanded(true);
+                  setIsAddEditNodeVisible(true);
+                }}
+              />
+            </LitegraphFlex>
+          }
           extra={<CloseCircleFilled onClick={() => setTooltip(defaultNodeTooltip)} />}
           style={{ width: 300 }}
         >
@@ -141,7 +156,8 @@ const NodeToolTip = ({
               <LitegraphFlex vertical className="card-details">
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {node?.Name} {`[${node?.GUID}]`}
+                  {node?.Name}{' '}
+                  <LitegraphText color="gray" fontSize={12}>{`[${node?.GUID}]`}</LitegraphText>
                 </LitegraphText>
 
                 <LitegraphText>
@@ -230,7 +246,11 @@ const NodeToolTip = ({
         setIsAddEditNodeVisible={setIsAddEditNodeVisible}
         node={selectedNode || null}
         selectedGraph={graphId}
+        readonly={isExpanded}
         onNodeUpdated={handleNodeUpdate} // Pass callback to handle updates
+        onClose={() => {
+          setIsExpanded(false);
+        }}
       />
 
       {/* DeleteNode Component On Delete*/}
