@@ -13,6 +13,7 @@ interface LabelInputProps {
   placeholder?: string;
   name: string;
   readonly?: boolean;
+  className?: string;
 }
 
 const LabelInput: React.FC<LabelInputProps> = ({
@@ -21,14 +22,16 @@ const LabelInput: React.FC<LabelInputProps> = ({
   placeholder = 'Enter label',
   name,
   readonly,
+  className,
 }) => {
   return (
-    <LitegraphFormItem label="Labels" name={name}>
+    <LitegraphFormItem label="Labels" name={name} className={className}>
       <LitegraphSelect
+        variant={readonly ? 'borderless' : 'outlined'}
         readonly={readonly}
         mode="tags"
         style={{ width: '100%' }}
-        placeholder="Enter labels, separated by commas"
+        placeholder={readonly ? 'N/A' : 'Enter labels, separated by commas'}
         tokenSeparators={[',']}
         open={false}
         // value={labels}

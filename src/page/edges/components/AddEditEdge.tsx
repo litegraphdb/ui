@@ -19,6 +19,7 @@ import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import TagsInput from '@/components/inputs/tags-input/TagsInput';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
+import LitegraphFlex from '@/components/base/flex/Flex';
 
 const initialValues = {
   graphName: '',
@@ -37,6 +38,8 @@ interface AddEditEdgeProps {
   selectedGraph: string;
   onEdgeUpdated?: () => Promise<void>;
   fromNodeGUID?: string;
+  readonly?: boolean;
+  onClose?: () => void;
 }
 
 const AddEditEdge = ({
@@ -46,6 +49,8 @@ const AddEditEdge = ({
   selectedGraph,
   onEdgeUpdated,
   fromNodeGUID,
+  onClose,
+  readonly,
 }: AddEditEdgeProps) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
@@ -164,7 +169,10 @@ const AddEditEdge = ({
       onOk={handleSubmit}
       loading={isNodesLoading}
       confirmLoading={isCreateLoading || isUpdateLoading}
-      onCancel={() => setIsAddEditEdgeVisible(false)}
+      onCancel={() => {
+        setIsAddEditEdgeVisible(false);
+        onClose && onClose();
+      }}
       width={800}
       okButtonProps={{ disabled: !formValid }}
     >
@@ -172,57 +180,94 @@ const AddEditEdge = ({
         initialValues={{ ...initialValues, from: edge?.From || fromNodeGUID || '' }}
         form={form}
         layout="vertical"
-        labelCol={{ xs: 5, md: 5, lg: 4 }}
         wrapperCol={{ span: 24 }}
         onValuesChange={(_, allValues) => setFormValues(allValues)}
+        requiredMark={!readonly}
       >
-        <LitegraphFormItem label="Graph Name" name="graphName">
-          <LitegraphInput readOnly disabled />
-        </LitegraphFormItem>
-        <LitegraphFormItem label="Name" name="name" rules={validationRules.Name}>
-          <LitegraphInput placeholder="Enter edge name" data-testid="edge-name-input" />
-        </LitegraphFormItem>
-        <LitegraphFormItem label="From Node" name="from" rules={validationRules.From}>
-          <LitegraphSelect
-            placeholder="Select from node"
-            options={nodeOptions}
-            loading={isNodesLoading}
-          />
-        </LitegraphFormItem>
-        <LitegraphFormItem label="To Node" name="to" rules={validationRules.To}>
-          <LitegraphSelect
-            placeholder="Select to node"
-            options={nodeOptions}
-            loading={isNodesLoading}
-          />
-        </LitegraphFormItem>
-        <LitegraphFormItem label="Cost" name="cost" rules={validationRules.Cost}>
-          <LitegraphInput
-            placeholder="Enter edge cost"
-            type="number"
-            onChange={(e) => {
-              const value = parseFloat(e.target.value);
-              form.setFieldsValue({ cost: isNaN(value) ? 0 : value });
-            }}
-          />
-        </LitegraphFormItem>
-        <Form.Item label="Labels">
-          <LabelInput name="labels" />
-        </Form.Item>
+        <LitegraphFlex vertical={!readonly} gap={readonly ? 10 : 0}>
+          <LitegraphFormItem className="flex-1" label="Graph" name="graphName">
+            <LitegraphInput readOnly variant="borderless" />
+          </LitegraphFormItem>
+          <LitegraphFormItem
+            className="flex-1"
+            label="Name"
+            name="name"
+            rules={validationRules.Name}
+          >
+            <LitegraphInput
+              placeholder="Enter edge name"
+              data-testid="edge-name-input"
+              variant={readonly ? 'borderless' : 'outlined'}
+            />
+          </LitegraphFormItem>
+        </LitegraphFlex>
+        <LitegraphFlex gap={10}>
+          <LitegraphFormItem
+            className="flex-1"
+            label="From Node"
+            name="from"
+            rules={validationRules.From}
+          >
+            <LitegraphSelect
+              readonly={readonly}
+              placeholder="Select from node"
+              options={nodeOptions}
+              loading={isNodesLoading}
+              variant={readonly ? 'borderless' : 'outlined'}
+            />
+          </LitegraphFormItem>
+          <LitegraphFormItem
+            className="flex-1"
+            label="To Node"
+            name="to"
+            rules={validationRules.To}
+          >
+            <LitegraphSelect
+              readonly={readonly}
+              placeholder="Select to node"
+              options={nodeOptions}
+              loading={isNodesLoading}
+              variant={readonly ? 'borderless' : 'outlined'}
+            />
+          </LitegraphFormItem>
+        </LitegraphFlex>
+        <LitegraphFlex gap={10}>
+          <LitegraphFormItem
+            className="flex-1"
+            label="Cost"
+            name="cost"
+            rules={validationRules.Cost}
+          >
+            <LitegraphInput
+              readOnly={readonly}
+              variant={readonly ? 'borderless' : 'outlined'}
+              placeholder="Enter edge cost"
+              type="number"
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                form.setFieldsValue({ cost: isNaN(value) ? 0 : value });
+              }}
+            />
+          </LitegraphFormItem>
+          <LabelInput name="labels" className="flex-1" readonly={readonly} />
+        </LitegraphFlex>
         <Form.Item label="Tags">
-          <TagsInput name="tags" />
+          <TagsInput name="tags" readonly={readonly} />
         </Form.Item>
         <Form.Item label="Vectors">
-          <VectorsInput name="vectors" />
+          <VectorsInput name="vectors" readonly={readonly} />
         </Form.Item>
         <LitegraphFormItem label="Data" name="data">
           <JsonEditor
             key={uniqueKey}
             value={form.getFieldValue('data') || {}}
             onChange={(json: any) => form.setFieldsValue({ data: json })}
-            mode="code"
+            mode={readonly ? 'view' : 'code'}
             enableSort={false}
             enableTransform={false}
+            mainMenuBar={!readonly} // Hide the menu bar
+            statusBar={!readonly} // Hide the status bar
+            navigationBar={!readonly} // Hide the navigation bar
             data-testid="edge-data-input"
           />
         </LitegraphFormItem>

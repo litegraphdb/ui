@@ -322,3 +322,13 @@
     display: none !important;
   }
 }
+
+.ant-form-item-label {
+  // white-space: nowrap !important;
+}
+
+.ant-select-borderless {
+  .ant-select-selector {
+    padding-left: 0 !important;
+  }
+}

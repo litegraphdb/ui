@@ -129,14 +129,16 @@ const NodeToolTip = ({
               <LitegraphText weight={600} fontSize={18}>
                 Node Information
               </LitegraphText>
-              <ExpandOutlined
-                className="cursor-pointer"
-                onClick={() => {
-                  setSelectedNode(node);
-                  setIsExpanded(true);
-                  setIsAddEditNodeVisible(true);
-                }}
-              />
+              <LitegraphTooltip title="Expand" placement="bottom">
+                <ExpandOutlined
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedNode(node);
+                    setIsExpanded(true);
+                    setIsAddEditNodeVisible(true);
+                  }}
+                />
+              </LitegraphTooltip>
             </LitegraphFlex>
           }
           extra={<CloseCircleFilled onClick={() => setTooltip(defaultNodeTooltip)} />}
@@ -241,17 +243,20 @@ const NodeToolTip = ({
       </LiteGraphSpace>
 
       {/* AddEditNode Component On Update*/}
-      <AddEditNode
-        isAddEditNodeVisible={isAddEditNodeVisible}
-        setIsAddEditNodeVisible={setIsAddEditNodeVisible}
-        node={selectedNode || null}
-        selectedGraph={graphId}
-        readonly={isExpanded}
-        onNodeUpdated={handleNodeUpdate} // Pass callback to handle updates
-        onClose={() => {
-          setIsExpanded(false);
-        }}
-      />
+      {selectedNode && (
+        <AddEditNode
+          isAddEditNodeVisible={isAddEditNodeVisible}
+          setIsAddEditNodeVisible={setIsAddEditNodeVisible}
+          node={selectedNode || null}
+          selectedGraph={graphId}
+          readonly={isExpanded}
+          onNodeUpdated={handleNodeUpdate} // Pass callback to handle updates
+          onClose={() => {
+            setIsExpanded(false);
+            setSelectedNode(null);
+          }}
+        />
+      )}
 
       {/* DeleteNode Component On Delete*/}
       <DeleteNode
