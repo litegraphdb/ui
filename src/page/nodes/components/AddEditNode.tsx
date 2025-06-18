@@ -18,6 +18,7 @@ import TagsInput from '@/components/inputs/tags-input/TagsInput';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
 import { useGraphs } from '@/hooks/entityHooks';
+import LitegraphFlex from '@/components/base/flex/Flex';
 
 const initialValues = {
   graphName: '',
@@ -34,6 +35,8 @@ interface AddEditNodeProps {
   node: NodeType | null;
   selectedGraph: string;
   onNodeUpdated?: () => Promise<void>;
+  readonly?: boolean;
+  onClose?: () => void;
 }
 
 const AddEditNode = ({
@@ -42,6 +45,8 @@ const AddEditNode = ({
   node,
   selectedGraph,
   onNodeUpdated,
+  readonly,
+  onClose,
 }: AddEditNodeProps) => {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
@@ -55,6 +60,11 @@ const AddEditNode = ({
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
+
+  useEffect(() => {
+    setUniqueKey(v4());
+  }, [readonly]);
+
   useEffect(() => {
     form
       .validateFields({ validateOnly: true })
@@ -149,14 +159,22 @@ const AddEditNode = ({
 
   return (
     <LitegraphModal
-      title={node ? 'Edit Node' : 'Create Node'}
+      title={node ? `${readonly ? 'View' : 'Edit'} Node` : 'Create Node'}
       okText={node ? 'Update' : 'Create'}
       open={isAddEditNodeVisible}
       onOk={handleSubmit}
       confirmLoading={isCreateLoading || isUpdateLoading}
-      onCancel={() => setIsAddEditNodeVisible(false)}
+      onCancel={() => {
+        setIsAddEditNodeVisible(false);
+        onClose && onClose();
+      }}
       width={800}
-      okButtonProps={{ disabled: !formValid, 'data-testid': 'add-node-submit-button' }}
+      cancelText={readonly ? 'Close' : 'Cancel'}
+      okButtonProps={{
+        disabled: !formValid,
+        'data-testid': 'add-node-submit-button',
+        hidden: readonly,
+      }}
     >
       <Form
         initialValues={initialValues}
@@ -165,25 +183,34 @@ const AddEditNode = ({
         labelCol={{ xs: 5, md: 5, lg: 4 }}
         wrapperCol={{ span: 24 }}
         onValuesChange={(_, allValues) => setFormValues(allValues)}
+        requiredMark={!readonly}
       >
-        {/* Graph Name */}
-        <LitegraphFormItem label="Graph Name" name="graphName">
-          <LitegraphInput readOnly disabled />
-        </LitegraphFormItem>
+        <LitegraphFlex gap={readonly ? 10 : 0} vertical={!readonly}>
+          <LitegraphFormItem className="flex-1" label="Graph" name="graphName">
+            <LitegraphInput readOnly variant="borderless" />
+          </LitegraphFormItem>
 
-        {/* Node Name */}
-        <LitegraphFormItem label="Name" name="name" rules={validationRules.name}>
-          <LitegraphInput placeholder="Enter node name" data-testid="node-name-input" />
-        </LitegraphFormItem>
+          <LitegraphFormItem
+            className="flex-1"
+            label="Name"
+            name="name"
+            rules={validationRules.name}
+          >
+            <LitegraphInput
+              placeholder="Enter node name"
+              data-testid="node-name-input"
+              readOnly={readonly}
+              variant={readonly ? 'borderless' : 'outlined'}
+            />
+          </LitegraphFormItem>
+        </LitegraphFlex>
+        <LabelInput name="labels" readonly={readonly} />
 
-        <Form.Item label="Labels">
-          <LabelInput name="labels" />
-        </Form.Item>
         <Form.Item label="Tags">
-          <TagsInput name="tags" />
+          <TagsInput name="tags" readonly={readonly} />
         </Form.Item>
         <Form.Item label="Vectors">
-          <VectorsInput name="vectors" />
+          <VectorsInput name="vectors" readonly={readonly} />
         </Form.Item>
         {/* The JsonEditor for Node Data */}
         <LitegraphFormItem label="Data" name="data">
@@ -193,9 +220,12 @@ const AddEditNode = ({
             onChange={(json: any) => {
               form.setFieldsValue({ data: json });
             }}
+            mode={readonly ? 'view' : 'code'}
             enableSort={false}
             enableTransform={false}
-            mode="code"
+            mainMenuBar={!readonly} // Hide the menu bar
+            statusBar={!readonly} // Hide the status bar
+            navigationBar={!readonly} // Hide the navigation bar
             data-testid="node-data-input"
           />
         </LitegraphFormItem>

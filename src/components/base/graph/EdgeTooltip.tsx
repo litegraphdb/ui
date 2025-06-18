@@ -3,7 +3,7 @@ import { GraphEdgeTooltip } from './types';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
-import { CloseCircleFilled } from '@ant-design/icons';
+import { CloseCircleFilled, ExpandOutlined } from '@ant-design/icons';
 import FallBack from '@/components/base/fallback/FallBack';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -42,6 +42,7 @@ const EdgeToolTip = ({
   nodesList,
 }: EdgeTooltipProps) => {
   const dispatch = useAppDispatch();
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   // State for AddEditDeleteNode visibility and selected node
   const [isAddEditEdgeVisible, setIsAddEditEdgeVisible] = useState<boolean>(false);
@@ -106,7 +107,23 @@ const EdgeToolTip = ({
         }}
       >
         <LiteGraphCard
-          title="Edge Information"
+          title={
+            <LitegraphFlex gap={10}>
+              <LitegraphText weight={600} fontSize={18}>
+                Edge Information
+              </LitegraphText>
+              <LitegraphTooltip title="Expand" placement="bottom">
+                <ExpandOutlined
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedEdge(edge);
+                    setIsExpanded(true);
+                    setIsAddEditEdgeVisible(true);
+                  }}
+                />
+              </LitegraphTooltip>
+            </LitegraphFlex>
+          }
           extra={<CloseCircleFilled onClick={() => setTooltip(defaultEdgeTooltip)} />}
           style={{ width: 300 }}
         >
@@ -124,7 +141,8 @@ const EdgeToolTip = ({
               <LitegraphFlex vertical className="card-details">
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {edge?.Name} {`[${edge?.GUID}]`}
+                  {edge?.Name}{' '}
+                  <LitegraphText color="gray" fontSize={12}>{`[${edge?.GUID}]`}</LitegraphText>
                 </LitegraphText>
 
                 <LitegraphText>
@@ -212,13 +230,21 @@ const EdgeToolTip = ({
       </LiteGraphSpace>
 
       {/* AddEditEdge Component On Update*/}
-      <AddEditEdge
-        isAddEditEdgeVisible={isAddEditEdgeVisible}
-        setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
-        edge={selectedEdge || null}
-        selectedGraph={graphId}
-        onEdgeUpdated={handleEdgeUpdate} // Pass callback to handle updates
-      />
+      {selectedEdge && (
+        <AddEditEdge
+          isAddEditEdgeVisible={isAddEditEdgeVisible}
+          setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
+          edge={selectedEdge || null}
+          selectedGraph={graphId}
+          onEdgeUpdated={handleEdgeUpdate} // Pass callback to handle updates
+          readonly={isExpanded}
+          onClose={() => {
+            setIsAddEditEdgeVisible(false);
+            setSelectedEdge(null);
+            setIsExpanded(false);
+          }}
+        />
+      )}
 
       {/* DeleteEdge Component On Delete*/}
       <DeleteEdge

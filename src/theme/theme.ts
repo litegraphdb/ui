@@ -71,6 +71,7 @@ export const primaryTheme: ThemeConfig = {
       labelColor: LightGraphTheme.subHeadingColor,
       colorBorder: 'none',
       verticalLabelPadding: 0,
+      itemMarginBottom: 10,
     },
   },
 };

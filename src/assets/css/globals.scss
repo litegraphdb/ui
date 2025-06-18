@@ -48,6 +48,10 @@
   margin-bottom: var(--ant-margin);
 }
 
+.mb-sm {
+  margin-bottom: var(--ant-margin-sm);
+}
+
 .mb-lg {
   margin-bottom: var(--ant-margin-lg);
 }
@@ -74,7 +78,7 @@
   margin-top: 0;
 }
 .mb-0 {
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
 }
 
 .mr-0 {
@@ -302,4 +306,29 @@
 
 .h-screen {
   height: 100vh;
+}
+
+.ant-input-borderless {
+  padding-left: 0 !important;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.ant-select[aria-readonly='true'] {
+  pointer-events: none;
+  .ant-select-selection-item-remove {
+    display: none !important;
+  }
+}
+
+.ant-form-item-label {
+  // white-space: nowrap !important;
+}
+
+.ant-select-borderless {
+  .ant-select-selector {
+    padding-left: 0 !important;
+  }
 }
