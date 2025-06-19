@@ -20,6 +20,8 @@ import TagsInput from '@/components/inputs/tags-input/TagsInput';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import LitegraphFlex from '@/components/base/flex/Flex';
+import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
+import { CopyOutlined } from '@ant-design/icons';
 
 const initialValues = {
   graphName: '',
@@ -257,7 +259,23 @@ const AddEditEdge = ({
         <Form.Item label="Vectors">
           <VectorsInput name="vectors" readonly={readonly} />
         </Form.Item>
-        <LitegraphFormItem label="Data" name="data">
+        <LitegraphFormItem
+          name="data"
+          label={
+            <LitegraphFlex align="center" gap={8}>
+              <span>Data</span>
+              {readonly && (
+                <CopyOutlined
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    const data = form.getFieldValue('data') || {};
+                    copyJsonToClipboard(data, 'Data');
+                  }}
+                />
+              )}
+            </LitegraphFlex>
+          }
+        >
           <JsonEditor
             key={uniqueKey}
             value={form.getFieldValue('data') || {}}

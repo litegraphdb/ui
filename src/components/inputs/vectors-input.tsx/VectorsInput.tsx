@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Form, Button } from 'antd';
-import { CloseCircleFilled, PlusOutlined } from '@ant-design/icons';
+import { CloseCircleFilled, CopyOutlined, PlusOutlined } from '@ant-design/icons';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
@@ -9,6 +9,8 @@ import { v4 } from 'uuid';
 import styles from './styles.module.scss';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
+import { toast } from 'react-hot-toast';
+import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 
 interface VectorsInputProps {
   value?: any[];
@@ -80,26 +82,37 @@ const VectorsInput: React.FC<VectorsInputProps> = ({ value = [], onChange, name,
                       variant={readonly ? 'borderless' : 'outlined'}
                     />
                   </LitegraphFormItem>
-
                   <LitegraphFormItem
-                    label="Vectors"
                     name={[field.name, 'Vectors']}
+                    label={
+                      <LitegraphFlex align="center" gap={8}>
+                        <span>Vectors</span>
+                        {readonly && (
+                          <CopyOutlined
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              const vectors =
+                                form.getFieldValue([name, field.name, 'Vectors']) || [];
+                              copyJsonToClipboard(vectors, 'Vectors');
+                            }}
+                          />
+                        )}
+                      </LitegraphFlex>
+                    }
                     rules={[{ required: true, message: 'Please input Vectors!' }]}
                   >
                     <JsonEditor
                       key={uniqueKeys[index]}
                       value={form.getFieldValue([field.name, 'Vectors']) || []}
                       onChange={(json: any) => {
-                        // Handle vector array changes
-                        const vectors = form.getFieldValue([name, field.name, 'Vectors']);
                         form.setFieldValue([name, field.name, 'Vectors'], json);
                       }}
                       mode={readonly ? 'view' : 'code'}
                       enableSort={false}
                       enableTransform={false}
-                      mainMenuBar={!readonly} // Hide the menu bar
-                      statusBar={!readonly} // Hide the status bar
-                      navigationBar={!readonly} // Hide the navigation bar
+                      mainMenuBar={!readonly}
+                      statusBar={!readonly}
+                      navigationBar={!readonly}
                     />
                   </LitegraphFormItem>
                 </div>

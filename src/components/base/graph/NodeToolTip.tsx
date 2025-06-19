@@ -3,7 +3,7 @@ import LiteGraphCard from '@/components/base/card/Card';
 import LiteGraphSpace from '@/components/base/space/Space';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { GraphNodeTooltip } from './types';
-import { CloseCircleFilled, ExpandOutlined } from '@ant-design/icons';
+import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
 import { defaultNodeTooltip } from './constant';
 import { useGetGexfByGraphId, useGetNodeById } from '@/lib/sdk/litegraph.service';
 import LitegraphText from '@/components/base/typograpghy/Text';
@@ -24,6 +24,7 @@ import AddEditEdge from '@/page/edges/components/AddEditEdge';
 import { pluralize } from '@/utils/stringUtils';
 import classNames from 'classnames';
 import styles from './tooltip.module.scss';
+import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 
 type NodeTooltipProps = {
   tooltip: GraphNodeTooltip;
@@ -39,6 +40,7 @@ const NodeToolTip = ({
 }: NodeTooltipProps) => {
   const dispatch = useAppDispatch();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  console.log('isExpanded', isExpanded);
   const { fetchNodeById, isLoading, error } = useGetNodeById();
   const { fetchGexfByGraphId } = useGetGexfByGraphId();
 
@@ -125,10 +127,12 @@ const NodeToolTip = ({
       >
         <LiteGraphCard
           title={
+            <LitegraphText weight={600} fontSize={18}>
+              Node Information
+            </LitegraphText>
+          }
+          extra={
             <LitegraphFlex gap={10}>
-              <LitegraphText weight={600} fontSize={18}>
-                Node Information
-              </LitegraphText>
               <LitegraphTooltip title="Expand" placement="bottom">
                 <ExpandOutlined
                   className="cursor-pointer"
@@ -139,9 +143,12 @@ const NodeToolTip = ({
                   }}
                 />
               </LitegraphTooltip>
+              <CloseCircleFilled
+                className="cursor-pointer"
+                onClick={() => setTooltip(defaultNodeTooltip)}
+              />
             </LitegraphFlex>
           }
-          extra={<CloseCircleFilled onClick={() => setTooltip(defaultNodeTooltip)} />}
           style={{ width: 300 }}
         >
           {/* If error then fallback displays */}
@@ -186,19 +193,29 @@ const NodeToolTip = ({
                   />
                 </LitegraphText>
 
-                <LitegraphText>
-                  <strong>Data: </strong>
-                  <JsonEditor
-                    key={JSON.stringify(node?.Data && JSON.parse(JSON.stringify(node.Data)))}
-                    value={(node?.Data && JSON.parse(JSON.stringify(node.Data))) || {}}
-                    mode="view" // Use 'view' mode to make it read-only
-                    mainMenuBar={false} // Hide the menu bar
-                    statusBar={false} // Hide the status bar
-                    navigationBar={false} // Hide the navigation bar
-                    enableSort={false}
-                    enableTransform={false}
-                  />
-                </LitegraphText>
+                <LitegraphFlex align="center" gap={6}>
+                  <LitegraphText>
+                    <strong>Data:</strong>
+                  </LitegraphText>
+                  <LitegraphTooltip title="Copy JSON">
+                    <CopyOutlined
+                      className="cursor-pointer"
+                      onClick={() => {
+                        copyJsonToClipboard(node?.Data || {}, 'Data');
+                      }}
+                    />
+                  </LitegraphTooltip>
+                </LitegraphFlex>
+                <JsonEditor
+                  key={JSON.stringify(node?.Data && JSON.parse(JSON.stringify(node.Data)))}
+                  value={(node?.Data && JSON.parse(JSON.stringify(node.Data))) || {}}
+                  mode="view"
+                  mainMenuBar={false}
+                  statusBar={false}
+                  navigationBar={false}
+                  enableSort={false}
+                  enableTransform={false}
+                />
               </LitegraphFlex>
               {/* Buttons */}
               <LitegraphFlex className="pt-3" gap={10} justify="space-between">
