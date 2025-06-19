@@ -19,6 +19,8 @@ import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
 import { useGraphs } from '@/hooks/entityHooks';
 import LitegraphFlex from '@/components/base/flex/Flex';
+import { CopyOutlined } from '@ant-design/icons';
+import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 
 const initialValues = {
   graphName: '',
@@ -212,8 +214,23 @@ const AddEditNode = ({
         <Form.Item label="Vectors">
           <VectorsInput name="vectors" readonly={readonly} />
         </Form.Item>
-        {/* The JsonEditor for Node Data */}
-        <LitegraphFormItem label="Data" name="data">
+        <LitegraphFormItem
+          name="data"
+          label={
+            <LitegraphFlex align="center" gap={8}>
+              <span>Data</span>
+              {readonly && (
+                <CopyOutlined
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    const data = form.getFieldValue('data') || {};
+                    copyJsonToClipboard(data, 'Data');
+                  }}
+                />
+              )}
+            </LitegraphFlex>
+          }
+        >
           <JsonEditor
             key={uniqueKey}
             value={form.getFieldValue('data') || {}}
@@ -223,9 +240,9 @@ const AddEditNode = ({
             mode={readonly ? 'view' : 'code'}
             enableSort={false}
             enableTransform={false}
-            mainMenuBar={!readonly} // Hide the menu bar
-            statusBar={!readonly} // Hide the status bar
-            navigationBar={!readonly} // Hide the navigation bar
+            mainMenuBar={!readonly}
+            statusBar={!readonly}
+            navigationBar={!readonly}
             data-testid="node-data-input"
           />
         </LitegraphFormItem>

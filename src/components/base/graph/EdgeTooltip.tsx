@@ -3,7 +3,7 @@ import { GraphEdgeTooltip } from './types';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
-import { CloseCircleFilled, ExpandOutlined } from '@ant-design/icons';
+import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
 import FallBack from '@/components/base/fallback/FallBack';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -25,6 +25,7 @@ import { JsonEditor } from 'jsoneditor-react';
 import { pluralize } from '@/utils/stringUtils';
 import styles from './tooltip.module.scss';
 import classNames from 'classnames';
+import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 
 type EdgeTooltipProps = {
   tooltip: GraphEdgeTooltip;
@@ -108,10 +109,12 @@ const EdgeToolTip = ({
       >
         <LiteGraphCard
           title={
+            <LitegraphText weight={600} fontSize={18}>
+              Edge Information
+            </LitegraphText>
+          }
+          extra={
             <LitegraphFlex gap={10}>
-              <LitegraphText weight={600} fontSize={18}>
-                Edge Information
-              </LitegraphText>
               <LitegraphTooltip title="Expand" placement="bottom">
                 <ExpandOutlined
                   className="cursor-pointer"
@@ -122,9 +125,12 @@ const EdgeToolTip = ({
                   }}
                 />
               </LitegraphTooltip>
+              <CloseCircleFilled
+                className="cursor-pointer"
+                onClick={() => setTooltip(defaultEdgeTooltip)}
+              />
             </LitegraphFlex>
           }
-          extra={<CloseCircleFilled onClick={() => setTooltip(defaultEdgeTooltip)} />}
           style={{ width: 300 }}
         >
           {/* If error then fallback displays */}
@@ -184,19 +190,29 @@ const EdgeToolTip = ({
                   />
                 </LitegraphText>
 
-                <LitegraphText>
-                  <strong>Data: </strong>
-                  <JsonEditor
-                    key={JSON.stringify(edge?.Data && JSON.parse(JSON.stringify(edge?.Data)))}
-                    value={(edge?.Data && JSON.parse(JSON.stringify(edge.Data))) || {}}
-                    mode="view" // Use 'view' mode to make it read-only
-                    mainMenuBar={false} // Hide the menu bar
-                    statusBar={false} // Hide the status bar
-                    navigationBar={false} // Hide the navigation bar
-                    enableSort={false}
-                    enableTransform={false}
-                  />
-                </LitegraphText>
+                <LitegraphFlex align="center" gap={6}>
+                  <LitegraphText>
+                    <strong>Data:</strong>
+                  </LitegraphText>
+                  <LitegraphTooltip title="Copy JSON">
+                    <CopyOutlined
+                      className="cursor-pointer"
+                      onClick={() => {
+                        copyJsonToClipboard(edge?.Data || {}, 'Data');
+                      }}
+                    />
+                  </LitegraphTooltip>
+                </LitegraphFlex>
+                <JsonEditor
+                  key={JSON.stringify(edge?.Data && JSON.parse(JSON.stringify(edge?.Data)))}
+                  value={(edge?.Data && JSON.parse(JSON.stringify(edge.Data))) || {}}
+                  mode="view" // Use 'view' mode to make it read-only
+                  mainMenuBar={false} // Hide the menu bar
+                  statusBar={false} // Hide the status bar
+                  navigationBar={false} // Hide the navigation bar
+                  enableSort={false}
+                  enableTransform={false}
+                />
               </LitegraphFlex>
 
               {/* Buttons */}
