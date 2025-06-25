@@ -14,9 +14,9 @@ import PageLoading from '../loading/PageLoading';
 import EdgeToolTip from './EdgeTooltip';
 import AddEditNode from '@/page/nodes/components/AddEditNode';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
-import { useNodes } from '@/hooks/entityHooks';
 import FallBack, { FallBackEnums } from '../fallback/FallBack';
 import styles from './graph.module.scss';
+import { useGetAllNodesQuery, useGetGraphGexfContentQuery } from '@/lib/store/slice/slice';
 
 const GraphViewer = ({
   isAddEditNodeVisible,
@@ -41,38 +41,19 @@ const GraphViewer = ({
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
 
-  // Manage local state for the selected graph and its context
-  const [selectedGraphContext, setSelectedGraphContext] = useState<any>(null);
-
-  const { fetchNodesList, nodesList } = useNodes(selectedGraphRedux);
-  const { fetchGexfByGraphId, isLoading: isGetGexfByGraphIdLoading } = useGetGexfByGraphId();
-  ``;
-  const fetchGexfAndNodes = async (graphId: string) => {
-    setSelectedGraphContext(null);
-    const data = await fetchGexfByGraphId(graphId);
-    if (data) {
-      dispatch(getGexfOgGraphByID({ GUID: graphId, gexfContent: data }));
-      setSelectedGraphContext(data); // Keep the selected graph context locally
-      await fetchNodesList();
-    }
-  };
-
-  // Reset the content based on selectedGraph redux value
-  useEffect(() => {
-    if (selectedGraphRedux) {
-      fetchGexfAndNodes(selectedGraphRedux);
-    }
-  }, [selectedGraphRedux]);
+  const { data, refetch: fetchNodesList } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
+  const nodesList = data || [];
+  const {
+    data: gexfContent,
+    refetch: fetchGexfByGraphId,
+    isLoading: isGetGexfByGraphIdLoading,
+  } = useGetGraphGexfContentQuery(selectedGraphRedux);
 
   // Callback for handling node update
   const handleNodeUpdate = async () => {
     //Graph re-renders
     if (selectedGraphRedux) {
-      const data: any = await fetchGexfByGraphId(selectedGraphRedux);
-      if (data) {
-        dispatch(getGexfOgGraphByID({ GUID: selectedGraphRedux, gexfContent: data }));
-        setSelectedGraphContext(data); // Keep the selected graph context locally
-      }
+      await fetchGexfByGraphId();
     }
   };
 
@@ -105,7 +86,7 @@ const GraphViewer = ({
           <PageLoading />
         ) : (
           <>
-            {!selectedGraphContext ? (
+            {!gexfContent ? (
               <FallBack className="mt-lg" type={FallBackEnums.INFO}>
                 Select a graph to visualize
               </FallBack>
@@ -115,7 +96,7 @@ const GraphViewer = ({
               </FallBack>
             ) : (
               <SigmaContainer
-                key={selectedGraphContext?.GUID} // Force re-render when the context changes
+                key={selectedGraphRedux} // Force re-render when the context changes
                 style={{ height: '100%' }}
                 settings={{
                   enableEdgeHoverEvents: true, // Explicitly enable edge hover events
@@ -144,7 +125,7 @@ const GraphViewer = ({
                 graph={MultiDirectedGraph}
               >
                 <GraphLoader
-                  gexfContent={selectedGraphContext}
+                  gexfContent={gexfContent}
                   setTooltip={setNodeTooltip}
                   setEdgeTooltip={setEdgeTooltip}
                   nodeTooltip={nodeTooltip}
@@ -157,7 +138,6 @@ const GraphViewer = ({
                 tooltip={nodeTooltip}
                 setTooltip={setNodeTooltip}
                 graphId={selectedGraphRedux}
-                setSelectedGraphContext={setSelectedGraphContext}
               />
             )}
             {edgeTooltip.visible && (
@@ -165,7 +145,6 @@ const GraphViewer = ({
                 tooltip={edgeTooltip}
                 setTooltip={setEdgeTooltip}
                 graphId={selectedGraphRedux}
-                setSelectedGraphContext={setSelectedGraphContext}
                 nodesList={nodesList || []}
               />
             )}

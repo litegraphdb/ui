@@ -1,0 +1,508 @@
+import { BaseQueryFn, EndpointBuilder } from '@reduxjs/toolkit/query';
+import sdkSlice, { SdkBaseQueryArgs } from '../rtk/rtkSdkInstance';
+import { SliceTags } from './types';
+import {
+  Graph,
+  EnumerateResponse,
+  EnumerateRequest,
+  Node,
+  NodeCreateRequest,
+  Edge,
+  EdgeCreateRequest,
+  TagMetaData,
+  TagMetaDataCreateRequest,
+  LabelMetadata,
+  LabelMetadataCreateRequest,
+  VectorCreateRequest,
+  VectorMetadata,
+  CredentialMetadataCreateRequest,
+  CredentialMetadata,
+  TenantMetaDataCreateRequest,
+  UserMetadata,
+  UserMetadataCreateRequest,
+  TenantMetaData,
+  GraphCreateRequest,
+} from 'litegraphdb/dist/types/types';
+import { sdk } from '@/lib/sdk/litegraph.service';
+
+const enhancedSdk = sdkSlice.enhanceEndpoints({
+  addTagTypes: [SliceTags.GRAPH],
+});
+
+const graphSlice = enhancedSdk.injectEndpoints({
+  endpoints: (
+    build: EndpointBuilder<BaseQueryFn<SdkBaseQueryArgs, unknown, unknown>, SliceTags, 'sdk'>
+  ) => ({
+    //region Graph
+    //enumerate all graphs
+    enumerateGraph: build.query<EnumerateResponse<Graph>, EnumerateRequest>({
+      query: (request?: EnumerateRequest) => ({
+        callback: () => sdk.Graph.enumerate(request),
+      }),
+      providesTags: [SliceTags.GRAPH],
+    }),
+    //get all
+    getAllGraphs: build.query<Graph[], void>({
+      query: () => ({
+        callback: () => sdk.Graph.readAll(),
+      }),
+      providesTags: [SliceTags.GRAPH],
+    }),
+    getGraphById: build.query<Graph, string>({
+      query: (graphId: string) => ({
+        callback: () => sdk.Graph.read(graphId),
+      }),
+      providesTags: [SliceTags.GRAPH],
+    }),
+    getGraphGexfContent: build.query<string, string>({
+      query: (graphId: string) => ({
+        callback: () => sdk.Graph.exportGexf(graphId),
+      }),
+    }),
+
+    getGraphGexfContentById: build.mutation<string, { graphId: string }>({
+      query: ({ graphId }: { graphId: string }) => ({
+        callback: () => sdk.Graph.exportGexf(graphId),
+      }),
+    }),
+    //Create api key
+    createGraph: build.mutation<Graph, GraphCreateRequest>({
+      query: (request: GraphCreateRequest) => ({
+        callback: () => sdk.Graph.create(request),
+      }),
+      invalidatesTags: [SliceTags.GRAPH],
+    }),
+    //Delete api key
+    deleteGraph: build.mutation<boolean, string>({
+      query: (request: string) => ({
+        callback: () => sdk.Graph.delete(request),
+      }),
+      invalidatesTags: [SliceTags.GRAPH],
+    }),
+    //Update api key
+    updateGraph: build.mutation<Graph, Graph>({
+      query: (request: Graph) => ({
+        callback: () => sdk.Graph.update(request),
+      }),
+      invalidatesTags: [SliceTags.GRAPH],
+    }),
+    //endregion
+
+    //region Node
+    //enumerate all nodes
+    enumerateNode: build.query<
+      EnumerateResponse<Node>,
+      { graphId: string; request: EnumerateRequest }
+    >({
+      query: ({ graphId, request }: { graphId: string; request: EnumerateRequest }) => ({
+        callback: () => sdk.Node.enumerate(graphId, request),
+      }),
+      providesTags: [SliceTags.NODE],
+    }),
+    //get all nodes
+    getAllNodes: build.query<Node[], { graphId: string }>({
+      query: ({ graphId }: { graphId: string }) => ({
+        callback: () => sdk.Node.readAll(graphId),
+      }),
+      providesTags: [SliceTags.NODE],
+    }),
+    getNodeById: build.query<Node, { graphId: string; nodeId: string }>({
+      query: ({ graphId, nodeId }: { graphId: string; nodeId: string }) => ({
+        callback: () => sdk.Node.read(graphId, nodeId),
+      }),
+      providesTags: [SliceTags.NODE],
+    }),
+    //create node
+    createNode: build.mutation<Node, NodeCreateRequest>({
+      query: (node: NodeCreateRequest) => ({
+        callback: () => sdk.Node.create(node),
+      }),
+      invalidatesTags: [SliceTags.NODE],
+    }),
+    //update node
+    updateNode: build.mutation<Node, Node>({
+      query: (node: Node) => ({
+        callback: () => sdk.Node.update(node),
+      }),
+      invalidatesTags: [SliceTags.NODE],
+    }),
+    //delete node
+    deleteNode: build.mutation<boolean, { graphId: string; nodeId: string }>({
+      query: ({ graphId, nodeId }: { graphId: string; nodeId: string }) => ({
+        callback: () => sdk.Node.delete(graphId, nodeId),
+      }),
+      invalidatesTags: [SliceTags.NODE],
+    }),
+    //endregion
+
+    //region Edge
+    //enumerate all edges
+    enumerateEdge: build.query<
+      EnumerateResponse<Edge>,
+      { graphId: string; request: EnumerateRequest }
+    >({
+      query: ({ graphId, request }: { graphId: string; request: EnumerateRequest }) => ({
+        callback: () => sdk.Edge.enumerate(graphId, request),
+      }),
+      providesTags: [SliceTags.EDGE],
+    }),
+    //get all edges
+    getAllEdges: build.query<Edge[], { graphId: string }>({
+      query: ({ graphId }: { graphId: string }) => ({
+        callback: () => sdk.Edge.readAll(graphId),
+      }),
+      providesTags: [SliceTags.EDGE],
+    }),
+    getEdgeById: build.query<Edge, { graphId: string; edgeId: string }>({
+      query: ({ graphId, edgeId }: { graphId: string; edgeId: string }) => ({
+        callback: () => sdk.Edge.read(graphId, edgeId),
+      }),
+      providesTags: [SliceTags.EDGE],
+    }),
+    //create edge
+    createEdge: build.mutation<Edge, EdgeCreateRequest>({
+      query: (edge: EdgeCreateRequest) => ({
+        callback: () => sdk.Edge.create(edge),
+      }),
+      invalidatesTags: [SliceTags.EDGE],
+    }),
+    //update edge
+    updateEdge: build.mutation<Edge, Edge>({
+      query: (edge: Edge) => ({
+        callback: () => sdk.Edge.update(edge),
+      }),
+      invalidatesTags: [SliceTags.EDGE],
+    }),
+    //delete edge
+    deleteEdge: build.mutation<boolean, { graphId: string; edgeId: string }>({
+      query: ({ graphId, edgeId }: { graphId: string; edgeId: string }) => ({
+        callback: () => sdk.Edge.delete(graphId, edgeId),
+      }),
+      invalidatesTags: [SliceTags.EDGE],
+    }),
+    //endregion
+
+    //region Tag
+    //enumerate all tags
+    enumerateTag: build.query<EnumerateResponse<TagMetaData>, EnumerateRequest>({
+      query: (request: EnumerateRequest) => ({
+        callback: () => sdk.Tag.enumerate(request),
+      }),
+      providesTags: [SliceTags.TAG],
+    }),
+    //get all tags
+    getAllTags: build.query<TagMetaData[], void>({
+      query: () => ({
+        callback: () => sdk.Tag.readAll(),
+      }),
+      providesTags: [SliceTags.TAG],
+    }),
+    getTagById: build.query<TagMetaData, string>({
+      query: (tagId: string) => ({
+        callback: () => sdk.Tag.read(tagId),
+      }),
+      providesTags: [SliceTags.TAG],
+    }),
+    //create tag
+    createTag: build.mutation<TagMetaData, TagMetaDataCreateRequest>({
+      query: (tag: TagMetaDataCreateRequest) => ({
+        callback: () => sdk.Tag.create(tag),
+      }),
+      invalidatesTags: [SliceTags.TAG],
+    }),
+    //update tag
+    updateTag: build.mutation<TagMetaData, TagMetaData>({
+      query: (tag: TagMetaData) => ({
+        callback: () => sdk.Tag.update(tag),
+      }),
+      invalidatesTags: [SliceTags.TAG],
+    }),
+    //delete tag
+    deleteTag: build.mutation<boolean, string>({
+      query: (tagId: string) => ({
+        callback: () => sdk.Tag.delete(tagId),
+      }),
+      invalidatesTags: [SliceTags.TAG],
+    }),
+    //endregion
+
+    //region Label
+    //enumerate all labels
+    enumerateLabel: build.query<EnumerateResponse<LabelMetadata>, EnumerateRequest>({
+      query: (request: EnumerateRequest) => ({
+        callback: () => sdk.Label.enumerate(request),
+      }),
+      providesTags: [SliceTags.LABEL],
+    }),
+    //get all labels
+    getAllLabels: build.query<LabelMetadata[], void>({
+      query: () => ({
+        callback: () => sdk.Label.readAll(),
+      }),
+      providesTags: [SliceTags.LABEL],
+    }),
+    getLabelById: build.query<LabelMetadata, string>({
+      query: (labelId: string) => ({
+        callback: () => sdk.Label.read(labelId),
+      }),
+      providesTags: [SliceTags.LABEL],
+    }),
+    //create label
+    createLabel: build.mutation<LabelMetadata, LabelMetadataCreateRequest>({
+      query: (label: LabelMetadataCreateRequest) => ({
+        callback: () => sdk.Label.create(label),
+      }),
+      invalidatesTags: [SliceTags.LABEL],
+    }),
+    //update label
+    updateLabel: build.mutation<LabelMetadata, LabelMetadata>({
+      query: (label: LabelMetadata) => ({
+        callback: () => sdk.Label.update(label),
+      }),
+      invalidatesTags: [SliceTags.LABEL],
+    }),
+    //delete label
+    deleteLabel: build.mutation<boolean, string>({
+      query: (labelId: string) => ({
+        callback: () => sdk.Label.delete(labelId),
+      }),
+      invalidatesTags: [SliceTags.LABEL],
+    }),
+    //endregion
+
+    //region Vector
+    //enumerate all vectors
+    enumerateVector: build.query<EnumerateResponse<VectorMetadata>, EnumerateRequest>({
+      query: (request: EnumerateRequest) => ({
+        callback: () => sdk.Vector.enumerate(request),
+      }),
+      providesTags: [SliceTags.VECTOR],
+    }),
+    //get all vectors
+    getAllVectors: build.query<VectorMetadata[], void>({
+      query: () => ({
+        callback: () => sdk.Vector.readAll(),
+      }),
+      providesTags: [SliceTags.VECTOR],
+    }),
+    getVectorById: build.query<VectorMetadata, string>({
+      query: (vectorId: string) => ({
+        callback: () => sdk.Vector.read(vectorId),
+      }),
+      providesTags: [SliceTags.VECTOR],
+    }),
+    //create vector
+    createVector: build.mutation<VectorMetadata, VectorCreateRequest>({
+      query: (vector: VectorCreateRequest) => ({
+        callback: () => sdk.Vector.create(vector),
+      }),
+      invalidatesTags: [SliceTags.VECTOR],
+    }),
+    //update vector
+    updateVector: build.mutation<VectorMetadata, VectorMetadata>({
+      query: (vector: VectorMetadata) => ({
+        callback: () => sdk.Vector.update(vector),
+      }),
+      invalidatesTags: [SliceTags.VECTOR],
+    }),
+    //delete vector
+    deleteVector: build.mutation<boolean, string>({
+      query: (vectorId: string) => ({
+        callback: () => sdk.Vector.delete(vectorId),
+      }),
+      invalidatesTags: [SliceTags.VECTOR],
+    }),
+    //endregion
+
+    //region Credential
+    //enumerate all credentials
+    enumerateCredential: build.query<EnumerateResponse<Credential>, EnumerateRequest>({
+      query: (request: EnumerateRequest) => ({
+        callback: () => sdk.Credential.enumerate(request),
+      }),
+      providesTags: [SliceTags.CREDENTIAL],
+    }),
+    //get all credentials
+    getAllCredentials: build.query<Credential[], void>({
+      query: () => ({
+        callback: () => sdk.Credential.readAll(),
+      }),
+      providesTags: [SliceTags.CREDENTIAL],
+    }),
+    getCredentialById: build.query<Credential, string>({
+      query: (credentialId: string) => ({
+        callback: () => sdk.Credential.read(credentialId),
+      }),
+      providesTags: [SliceTags.CREDENTIAL],
+    }),
+    //create credential
+    createCredential: build.mutation<Credential, CredentialMetadataCreateRequest>({
+      query: (credential: CredentialMetadataCreateRequest) => ({
+        callback: () => sdk.Credential.create(credential),
+      }),
+      invalidatesTags: [SliceTags.CREDENTIAL],
+    }),
+    //update credential
+    updateCredential: build.mutation<CredentialMetadata, CredentialMetadata>({
+      query: (credential: CredentialMetadata) => ({
+        callback: () => sdk.Credential.update(credential),
+      }),
+      invalidatesTags: [SliceTags.CREDENTIAL],
+    }),
+    //delete credential
+    deleteCredential: build.mutation<boolean, string>({
+      query: (credentialId: string) => ({
+        callback: () => sdk.Credential.delete(credentialId),
+      }),
+      invalidatesTags: [SliceTags.CREDENTIAL],
+    }),
+    //endregion
+
+    //region Tenant
+    //enumerate all tenants
+    enumerateTenant: build.query<EnumerateResponse<TenantMetaData>, EnumerateRequest>({
+      query: (request: EnumerateRequest) => ({
+        callback: () => sdk.Tenant.enumerate(request),
+      }),
+      providesTags: [SliceTags.TENANT],
+    }),
+    //get all tenants
+    getAllTenants: build.query<TenantMetaData[], void>({
+      query: () => ({
+        callback: () => sdk.Tenant.readAll(),
+      }),
+      providesTags: [SliceTags.TENANT],
+    }),
+    getTenantById: build.query<TenantMetaData, string>({
+      query: (tenantId: string) => ({
+        callback: () => sdk.Tenant.read(tenantId),
+      }),
+      providesTags: [SliceTags.TENANT],
+    }),
+    //create tenant
+    createTenant: build.mutation<TenantMetaData, TenantMetaDataCreateRequest>({
+      query: (tenant: TenantMetaDataCreateRequest) => ({
+        callback: () => sdk.Tenant.create(tenant),
+      }),
+      invalidatesTags: [SliceTags.TENANT],
+    }),
+    //update tenant
+    updateTenant: build.mutation<TenantMetaData, TenantMetaData>({
+      query: (tenant: TenantMetaData) => ({
+        callback: () => sdk.Tenant.update(tenant),
+      }),
+      invalidatesTags: [SliceTags.TENANT],
+    }),
+    //delete tenant
+    deleteTenant: build.mutation<boolean, string>({
+      query: (tenantId: string) => ({
+        callback: () => sdk.Tenant.delete(tenantId),
+      }),
+      invalidatesTags: [SliceTags.TENANT],
+    }),
+    //endregion
+
+    //region User
+    //enumerate all users
+    enumerateUser: build.query<EnumerateResponse<UserMetadata>, EnumerateRequest>({
+      query: (request: EnumerateRequest) => ({
+        callback: () => sdk.User.enumerate(request),
+      }),
+      providesTags: [SliceTags.USER],
+    }),
+    //get all users
+    getAllUsers: build.query<UserMetadata[], void>({
+      query: () => ({
+        callback: () => sdk.User.readAll(),
+      }),
+      providesTags: [SliceTags.USER],
+    }),
+    getUserById: build.query<UserMetadata, string>({
+      query: (userId: string) => ({
+        callback: () => sdk.User.read(userId),
+      }),
+      providesTags: [SliceTags.USER],
+    }),
+    //create user
+    createUser: build.mutation<UserMetadata, UserMetadataCreateRequest>({
+      query: (user: UserMetadataCreateRequest) => ({
+        callback: () => sdk.User.create(user),
+      }),
+      invalidatesTags: [SliceTags.USER],
+    }),
+    //update user
+    updateUser: build.mutation<UserMetadata, UserMetadata>({
+      query: (user: UserMetadata) => ({
+        callback: () => sdk.User.update(user),
+      }),
+      invalidatesTags: [SliceTags.USER],
+    }),
+    //delete user
+    deleteUser: build.mutation<boolean, string>({
+      query: (userId: string) => ({
+        callback: () => sdk.User.delete(userId),
+      }),
+      invalidatesTags: [SliceTags.USER],
+    }),
+    //endregion
+  }),
+});
+
+export const {
+  useEnumerateGraphQuery,
+  useGetGraphByIdQuery,
+  useGetGraphGexfContentQuery,
+  useCreateGraphMutation,
+  useDeleteGraphMutation,
+  useGetAllGraphsQuery,
+  useUpdateGraphMutation,
+  useEnumerateNodeQuery,
+  useGetNodeByIdQuery,
+  useCreateNodeMutation,
+  useDeleteNodeMutation,
+  useGetAllNodesQuery,
+  useUpdateNodeMutation,
+  useEnumerateEdgeQuery,
+  useCreateEdgeMutation,
+  useDeleteEdgeMutation,
+  useGetAllEdgesQuery,
+  useUpdateEdgeMutation,
+  useEnumerateTagQuery,
+  useCreateTagMutation,
+  useDeleteTagMutation,
+  useGetAllTagsQuery,
+  useUpdateTagMutation,
+  useEnumerateLabelQuery,
+  useCreateLabelMutation,
+  useDeleteLabelMutation,
+  useGetAllLabelsQuery,
+  useUpdateLabelMutation,
+  useEnumerateVectorQuery,
+  useCreateVectorMutation,
+  useDeleteVectorMutation,
+  useGetAllVectorsQuery,
+  useUpdateVectorMutation,
+  useEnumerateCredentialQuery,
+  useCreateCredentialMutation,
+  useDeleteCredentialMutation,
+  useGetAllCredentialsQuery,
+  useUpdateCredentialMutation,
+  useEnumerateTenantQuery,
+  useCreateTenantMutation,
+  useDeleteTenantMutation,
+  useGetAllTenantsQuery,
+  useUpdateTenantMutation,
+  useEnumerateUserQuery,
+  useCreateUserMutation,
+  useDeleteUserMutation,
+  useGetAllUsersQuery,
+  useUpdateUserMutation,
+  useGetTagByIdQuery,
+  useGetLabelByIdQuery,
+  useGetVectorByIdQuery,
+  useGetCredentialByIdQuery,
+  useGetTenantByIdQuery,
+  useGetUserByIdQuery,
+  useGetEdgeByIdQuery,
+  useGetGraphGexfContentByIdMutation,
+} = graphSlice;

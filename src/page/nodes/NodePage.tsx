@@ -11,24 +11,25 @@ import FallBack from '@/components/base/fallback/FallBack';
 import AddEditNode from './components/AddEditNode';
 import DeleteNode from './components/DeleteNode';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
-import { useNodes, useSearchNodeData } from '@/hooks/entityHooks';
+import { useSearchNodeData } from '@/hooks/entityHooks';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import SearchByTLDModal from '@/components/search/SearchModal';
 import { SearchData } from '@/components/search/type';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
+import { useGetAllNodesQuery } from '@/lib/store/slice/slice';
 
 const NodePage = () => {
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const {
-    nodesList,
-    fetchNodesList,
+    data: nodesList,
+    refetch: fetchNodesList,
     isLoading: isNodesLoading,
-    error: isNodesError,
-  } = useNodes(selectedGraphRedux);
+    isError: isNodesError,
+  } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(null);
 
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
@@ -70,7 +71,10 @@ const NodePage = () => {
   };
 
   const dataSource = isSearching ? searchResults || [] : nodesList;
-  const hasScoreOrDistance = useMemo(() => hasScoreOrDistanceInData(dataSource), [dataSource]);
+  const hasScoreOrDistance = useMemo(
+    () => hasScoreOrDistanceInData(dataSource || []),
+    [dataSource]
+  );
 
   useEffect(() => {
     setIsSearching(false);

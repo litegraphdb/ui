@@ -17,12 +17,24 @@ import { credentialLists } from '../store/credential/actions';
 import { userLists } from '../store/user/actions';
 import { tenantLists } from '../store/tenants/actions';
 import { storeUser } from '../store/litegraph/actions';
-import { BackupMetaDataCreateRequest, LabelMetadata, Node } from 'litegraphdb/dist/types/types';
-import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
+// import { BackupMetaDataCreateRequest, LabelMetadata, Node } from 'litegraphdb/dist/types/types';
+// import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
 import { backupLists } from '@/lib/store/backup/actions';
+import { GraphEnumerateRequest } from '@/components/base/graph/types';
+import {
+  BackupMetaData,
+  BackupMetaDataCreateRequest,
+  CredentialMetadata,
+  EnumerateRequest,
+  LabelMetadata,
+  TagMetaData,
+  TenantMetaData,
+  UserMetadata,
+} from 'litegraphdb/dist/types/types';
+import { EnumerationOrderEnum } from 'litegraphdb/dist/types/enums/EnumerationOrderEnum';
 // Initialize the SDK once and reuse the instance
 
-let sdk = new LiteGraphSdk(liteGraphInstanceURL);
+export const sdk = new LiteGraphSdk(liteGraphInstanceURL);
 
 export const setEndpoint = (endpoint: string) => {
   console.log('endpoint: ', endpoint);
@@ -41,7 +53,7 @@ export const setTenant = (tenantId: string) => {
 // region Graph
 
 // Fetch all graphs list
-export const useGetGraphs = () => {
+export const useGetGraphs = (enumerateRequest?: GraphEnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -50,12 +62,12 @@ export const useGetGraphs = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Graph.readAll();
+      const data = await sdk.Graph.enumerate(enumerateRequest);
       if (data && storeInRedux) {
-        dispatch(graphLists(data as any));
+        dispatch(graphLists(data.Objects as any));
       }
       setIsLoading(false);
-      return data;
+      return data.Objects;
     } catch (err: any) {
       toast.error(err?.message ? err.message : 'Unable to fetch graphs.', { id: globalToastId });
       setIsLoading(false);
@@ -179,7 +191,7 @@ export const useGetGexfByGraphId = () => {
 // region Node
 
 // Fetch all nodes list
-export const useGetNodesList = () => {
+export const useGetNodesList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -188,7 +200,7 @@ export const useGetNodesList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Node.readAll(graphId);
+      const data = await sdk.Node.enumerate(graphId, enumerateRequest);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(nodeLists(data as any));
@@ -280,7 +292,7 @@ export const useGetNodeById = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data: Node = await sdk.Node.read(graphId, nodeId);
+      const data = await sdk.Node.read(graphId, nodeId);
       setIsLoading(false);
       if (data && storeInRedux) {
         dispatch(updateNodeGroupWithGraph({ nodeId: data.GUID, nodeData: data as any })); // Update Redux store
@@ -299,7 +311,7 @@ export const useGetNodeById = () => {
 // region Edge
 
 // Fetch all edge list
-export const useGetEdgesList = () => {
+export const useGetEdgesList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -307,7 +319,7 @@ export const useGetEdgesList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Edge.readAll(graphId);
+      const data = await sdk.Edge.enumerate(graphId, enumerateRequest);
       if (data && storeInRedux) {
         dispatch(edgeLists(data as any));
       }
@@ -413,7 +425,7 @@ export const useGetEdgeById = () => {
 
 //region Tags
 // Fetch all tags list
-export const useGetTagsList = () => {
+export const useGetTagsList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -421,8 +433,10 @@ export const useGetTagsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const allTags = await sdk.Tag.readAll(); // Fetch all tags
-      const filteredTags = allTags.filter((tag: TagType) => tag.GraphGUID === graphId); // Filter tags by graph ID
+      const allTags = await sdk.Tag.enumerate(enumerateRequest); // Fetch all tags
+      const filteredTags = (allTags.Objects as TagMetaData[]).filter(
+        (tag: TagType) => tag.GraphGUID === graphId
+      ); // Filter tags by graph ID
       if (filteredTags && storeInRedux) {
         dispatch(tagLists(filteredTags));
       }
@@ -541,7 +555,7 @@ export const useGetTagById = () => {
 
 //region Labels
 // Fetch all labels list
-export const useGetLabelsList = () => {
+export const useGetLabelsList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -549,8 +563,10 @@ export const useGetLabelsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const allLabels = await sdk.Label.readAll(); // Fetch all labels
-      const filteredLabels = allLabels.filter((label: LabelType) => label.GraphGUID === graphId); // Filter labels by graph ID
+      const allLabels = await sdk.Label.enumerate(enumerateRequest); // Fetch all labels
+      const filteredLabels = (allLabels.Objects as LabelMetadata[]).filter(
+        (label: LabelType) => label.GraphGUID === graphId
+      ); // Filter labels by graph ID
       if (filteredLabels && storeInRedux) {
         dispatch(labelLists(filteredLabels));
       }
@@ -663,7 +679,7 @@ export const useGetLabelById = () => {
 //region Vectors
 
 // Fetch all vectors list
-export const useGetVectorsList = () => {
+export const useGetVectorsList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -671,7 +687,7 @@ export const useGetVectorsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const allVectors = await sdk.Vector.readAll(); // Fetch all vectors
+      const allVectors = await sdk.Vector.enumerate(enumerateRequest); // Fetch all vectors
       const filteredVectors = allVectors.filter(
         (vector: VectorType) => vector.GraphGUID === graphId
       ); // Filter vectors by graph ID
@@ -785,7 +801,7 @@ export const useGetVectorById = () => {
 
 //region Credentials
 // Fetch all credentials list
-export const useGetCredentialsList = () => {
+export const useGetCredentialsList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -794,10 +810,10 @@ export const useGetCredentialsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Credential.readAll();
+      const data = await sdk.Credential.enumerate(enumerateRequest);
       setIsLoading(false);
       if (data) {
-        dispatch(credentialLists(data));
+        dispatch(credentialLists(data?.Objects as CredentialMetadata[]));
       }
       return data;
     } catch (err) {
@@ -854,7 +870,7 @@ export const useGenerateToken = () => {
   return { generateToken, isLoading, error };
 };
 
-export const useGetTenants = () => {
+export const useGetTenants = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -863,9 +879,9 @@ export const useGetTenants = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Tenant.readAll();
+      const data = await sdk.Tenant.enumerate(enumerateRequest);
       setIsLoading(false);
-      dispatch(storeTenants(data));
+      dispatch(storeTenants(data.Objects as TenantMetaData[]));
       return data;
     } catch (err) {
       toast.error(toastMessage || 'Unable to fetch tenants.', { id: globalToastId });
@@ -1048,7 +1064,7 @@ export const useGetTokenDetails = () => {
 
 //region Users
 
-export const useGetUsersList = () => {
+export const useGetUsersList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -1057,10 +1073,10 @@ export const useGetUsersList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.User.readAll();
+      const data = await sdk.User.enumerate(enumerateRequest);
       setIsLoading(false);
       if (data) {
-        dispatch(userLists(data));
+        dispatch(userLists(data.Objects as UserMetadata[]));
       }
       return data;
     } catch (err) {
@@ -1167,7 +1183,7 @@ export const useGetUsersById = () => {
 
 //region Tenants
 
-export const useGetTenantsList = () => {
+export const useGetTenantsList = (enumerateRequest?: EnumerateRequest) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const dispatch = useAppDispatch();
@@ -1176,10 +1192,10 @@ export const useGetTenantsList = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await sdk.Tenant.readAll();
+      const data = await sdk.Tenant.enumerate(enumerateRequest);
       setIsLoading(false);
       if (data) {
-        dispatch(tenantLists(data));
+        dispatch(tenantLists(data.Objects as TenantMetaData[]));
       }
       return data;
     } catch (err) {

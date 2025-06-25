@@ -28,6 +28,9 @@ import {
 import Graph from 'graphology';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { GraphEnumerateRequest } from '@/components/base/graph/types';
+import { EnumerateRequest } from 'litegraphdb/dist/types/types';
+import { useGetAllNodesQuery, useGetAllEdgesQuery } from '@/lib/store/slice/slice';
 
 export const useCurrentTenant = () => {
   const tenantFromRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
@@ -55,78 +58,21 @@ export const useSelectedTenant = () => {
   return selectedTenantRedux;
 };
 
-export const useGraphs = (doNotFetch: boolean = false) => {
-  const graphsList = useAppSelector((state: RootState) => state.graphsList.graphs);
-  const { fetchGraphs, isLoading, error } = useGetGraphs();
-  const fetchGraphsList = async () => {
-    await fetchGraphs(true);
-  };
-
-  useEffect(() => {
-    // Fetch the list of graphs on mount
-    if (graphsList === null && !doNotFetch) {
-      fetchGraphsList();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graphsList, doNotFetch]);
-  const graphOptions = transformToOptions(graphsList);
-  return { graphsList: graphsList || [], fetchGraphsList, isLoading, error, graphOptions };
-};
-
-export const useNodes = (graphId: string) => {
-  const nodesList = useAppSelector((state: RootState) => state.nodesList.allNodes);
-  const { fetchNodes, isLoading, error } = useGetNodesList();
-
-  const fetchNodesList = async () => {
-    await fetchNodes(graphId, true);
-  };
-  useEffect(() => {
-    if (nodesList === null && graphId) {
-      fetchNodesList();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodesList, graphId]);
-
-  const nodeOptions = transformToOptions(nodesList);
-
-  return { nodesList: nodesList || [], fetchNodesList, isLoading, error, nodeOptions };
-};
-
-export const useEdges = (graphId: string) => {
-  const edgesList = useAppSelector((state: RootState) => state.edgesList.allEdges);
-  const { fetchEdges, isLoading, error } = useGetEdgesList();
-
-  const fetchEdgesList = async () => {
-    await fetchEdges(graphId, true);
-  };
-
-  useEffect(() => {
-    if (edgesList === null && graphId) {
-      fetchEdgesList();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [edgesList, graphId]);
-
-  const edgeOptions = transformToOptions(edgesList);
-
-  return { edgesList: edgesList || [], fetchEdgesList, isLoading, error, edgeOptions };
-};
-
 export const useNodeAndEdge = (graphId: string) => {
   const {
-    nodesList,
-    fetchNodesList,
+    data: nodesList,
+    refetch: fetchNodesList,
     isLoading: isNodesLoading,
     error: nodesError,
-    nodeOptions,
-  } = useNodes(graphId);
+  } = useGetAllNodesQuery({ graphId });
+  const nodeOptions = transformToOptions(nodesList);
   const {
-    edgesList,
-    fetchEdgesList,
+    data: edgesList,
+    refetch: fetchEdgesList,
     isLoading: isEdgesLoading,
     error: edgesError,
-    edgeOptions,
-  } = useEdges(graphId);
+  } = useGetAllEdgesQuery({ graphId });
+  const edgeOptions = transformToOptions(edgesList);
 
   const fetchNodesAndEdges = async () => {
     await Promise.all([fetchNodesList(), fetchEdgesList()]);
@@ -145,10 +91,10 @@ export const useNodeAndEdge = (graphId: string) => {
   };
 };
 
-export const useTags = (graphId: string) => {
+export const useTags = (graphId: string, enumerateRequest?: EnumerateRequest) => {
   const dispatch = useAppDispatch();
   const tagsList = useAppSelector((state: RootState) => state.tagsList.allTags);
-  const { fetchTags, isLoading, error } = useGetTagsList();
+  const { fetchTags, isLoading, error } = useGetTagsList(enumerateRequest);
 
   const fetchTagsList = async () => {
     await fetchTags(graphId, true);
@@ -164,9 +110,9 @@ export const useTags = (graphId: string) => {
   return { tagsList: tagsList || [], fetchTagsList, isLoading, error };
 };
 
-export const useVectors = (graphId: string) => {
+export const useVectors = (graphId: string, enumerateRequest?: EnumerateRequest) => {
   const vectorsList = useAppSelector((state: RootState) => state.vectorsList.allVectors);
-  const { fetchVectors, isLoading, error } = useGetVectorsList();
+  const { fetchVectors, isLoading, error } = useGetVectorsList(enumerateRequest);
 
   const fetchVectorsList = async () => {
     await fetchVectors(graphId, true);
@@ -181,9 +127,9 @@ export const useVectors = (graphId: string) => {
   return { vectorsList: vectorsList || [], fetchVectorsList, isLoading, error };
 };
 
-export const useLabels = (graphId: string) => {
+export const useLabels = (graphId: string, enumerateRequest?: EnumerateRequest) => {
   const labelsList = useAppSelector((state: RootState) => state.labelsList.allLabels);
-  const { fetchLabels, isLoading, error } = useGetLabelsList();
+  const { fetchLabels, isLoading, error } = useGetLabelsList(enumerateRequest);
 
   const fetchLabelsList = async () => {
     await fetchLabels(graphId, true);
@@ -199,12 +145,12 @@ export const useLabels = (graphId: string) => {
   return { labelsList: labelsList || [], fetchLabelsList, isLoading, error, labelOptions };
 };
 
-export const useCredentials = () => {
+export const useCredentials = (enumerateRequest?: EnumerateRequest) => {
   const credentialsList = useAppSelector(
     (state: RootState) => state.credentialsList.allCredentials
   );
   const tenant = useAppSelector((state: RootState) => state.liteGraph.tenant);
-  const { fetchCredentials, isLoading, error } = useGetCredentialsList();
+  const { fetchCredentials, isLoading, error } = useGetCredentialsList(enumerateRequest);
 
   const fetchCredentialsList = async () => {
     await fetchCredentials();
@@ -235,10 +181,10 @@ export const useBackups = () => {
   return { backupsList: backupsList || [], fetchBackupsList, isLoading, error };
 };
 
-export const useUsers = () => {
+export const useUsers = (enumerateRequest?: EnumerateRequest) => {
   const usersList = useAppSelector((state: RootState) => state.usersList.allUsers);
   const tenant = useAppSelector((state: RootState) => state.liteGraph.tenant);
-  const { fetchUsers, isLoading, error } = useGetUsersList();
+  const { fetchUsers, isLoading, error } = useGetUsersList(enumerateRequest);
 
   const fetchUsersList = async () => {
     await fetchUsers();
@@ -253,10 +199,10 @@ export const useUsers = () => {
   return { usersList: usersList || [], fetchUsersList, isLoading, error };
 };
 
-export const useTenants = () => {
+export const useTenants = (enumerateRequest?: EnumerateRequest) => {
   const tenantsList = useAppSelector((state: RootState) => state.tenantsList.tenantsList);
   const tenant = useAppSelector((state: RootState) => state.liteGraph.tenant);
-  const { fetchTenants, isLoading, error } = useGetTenantsList();
+  const { fetchTenants, isLoading, error } = useGetTenantsList(enumerateRequest);
 
   const fetchTenantsList = async () => {
     await fetchTenants();

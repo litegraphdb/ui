@@ -14,7 +14,9 @@ import userReducer from './user/reducer';
 import { tenantLists } from './tenants/actions';
 import vectorReducer from './vector/reducer';
 import backupReducer from './backup/reducer';
+import sdkSlice from './rtk/rtkSdkInstance';
 const rootReducer = combineReducers({
+  [sdkSlice.reducerPath]: sdkSlice.reducer,
   liteGraph: liteGraphReducer,
   graphsList: graphReducer,
   nodesList: nodeReducer,
@@ -29,7 +31,7 @@ const rootReducer = combineReducers({
   backupsList: backupReducer,
 });
 
-export const apiMiddleWares = [rtkQueryErrorLogger];
+export const apiMiddleWares = [rtkQueryErrorLogger, sdkSlice.middleware];
 
 export const handleLogout = (path?: string) => {
   localStorage.removeItem(localStorageKeys.token);

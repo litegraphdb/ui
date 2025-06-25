@@ -25,3 +25,5 @@ export const paths = {
   tenants: `/admin/dashboard/tenants`,
   backups: `/admin/dashboard/backups`,
 };
+
+export const keepUnusedDataFor = 300; //5mins

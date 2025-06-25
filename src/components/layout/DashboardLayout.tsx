@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import styles from './dashboard.module.scss';
 import { MenuItemProps } from '../menu-item/types';
 import LitegraphSelect from '../base/select/Select';
-import { useGraphs, useSelectedGraph, useSelectedTenant, useTenantList } from '@/hooks/entityHooks';
+import { useSelectedGraph, useSelectedTenant, useTenantList } from '@/hooks/entityHooks';
 import { clearNodes } from '@/lib/store/node/actions';
 import { clearEdges } from '@/lib/store/edge/actions';
 import { storeSelectedGraph, storeTenant } from '@/lib/store/litegraph/actions';
@@ -23,6 +23,8 @@ import { clearUsers } from '@/lib/store/user/actions';
 import { localStorageKeys } from '@/constants/constant';
 import LitegraphFlex from '../base/flex/Flex';
 import { TenantType } from '@/lib/store/tenants/types';
+import { useGetAllGraphsQuery } from '@/lib/store/slice/slice';
+import { transformToOptions } from '@/lib/graph/utils';
 
 const { Header, Content } = Layout;
 
@@ -49,12 +51,12 @@ const DashboardLayout = ({
   const selectedGraphRedux = useSelectedGraph();
   const selectedTenantRedux = useSelectedTenant();
   const {
-    graphOptions,
+    data: graphsList,
     isLoading: isGraphsLoading,
     error: graphError,
-    fetchGraphsList,
-  } = useGraphs(!useGraphsSelector);
-
+    refetch: fetchGraphsList,
+  } = useGetAllGraphsQuery();
+  const graphOptions = transformToOptions(graphsList);
   const { tenantOptions, tenantsList } = useTenantList();
 
   useEffect(() => {

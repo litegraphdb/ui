@@ -4,7 +4,7 @@ import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/i
 import { tableColumns } from './constant';
 import { deleteGraph } from '@/lib/store/graph/actions';
 import { useAppDispatch } from '@/lib/store/hooks';
-import { useDeleteGraphById, useGetGexfByGraphId } from '@/lib/sdk/litegraph.service';
+import { useGetGraphGexfContentByIdMutation } from '@/lib/store/slice/slice';
 import { GraphData } from '@/lib/store/graph/types';
 import toast from 'react-hot-toast';
 import FallBack from '@/components/base/fallback/FallBack';
@@ -14,8 +14,7 @@ import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphTable from '@/components/base/table/Table';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import dynamic from 'next/dynamic';
-import { useGraphList, useSearchGraphData } from '@/hooks/entityHooks';
-import { useLayoutContext } from '@/components/layout/context';
+import { useSearchGraphData } from '@/hooks/entityHooks';
 import { saveAs } from 'file-saver';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -24,19 +23,29 @@ import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { SearchData } from '@/components/search/type';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
 import { SEARCH_BUTTON_LABEL } from '@/constants/uiLabels';
+import { usePagination } from '@/hooks/appHooks';
+import { useDeleteGraphMutation, useEnumerateGraphQuery } from '@/lib/store/slice/slice';
 const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
   ssr: false,
 });
 
 const GraphPage = () => {
   const dispatch = useAppDispatch();
-  const graphsList = useGraphList();
+  const { page, pageSize, skip, handlePageChange } = usePagination();
+  const {
+    data,
+    isLoading: isGraphsLoading,
+    refetch: refetchGraphs,
+    error: graphError,
+  } = useEnumerateGraphQuery({ maxKeys: pageSize });
+  const graphsList = data?.Objects || [];
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
   const [selectedGraph, setSelectedGraph] = useState<GraphData | null>(null);
-  const { fetchGexfByGraphId } = useGetGexfByGraphId();
+  const [fetchGexfByGraphId, { isLoading: isFetchGexfByGraphIdLoading }] =
+    useGetGraphGexfContentByIdMutation();
   const {
     searchGraph,
     isLoading: isSearchLoading,
@@ -45,8 +54,7 @@ const GraphPage = () => {
     setSearchResults,
   } = useSearchGraphData();
 
-  const { deleteGraphById, isLoading: isDeleteGraphLoading } = useDeleteGraphById();
-  const { isGraphsLoading, graphError, refetchGraphs } = useLayoutContext();
+  const [deleteGraphById, { isLoading: isDeleteGraphLoading }] = useDeleteGraphMutation();
 
   const handleCreateGraph = () => {
     setSelectedGraph(null);
@@ -75,7 +83,8 @@ const GraphPage = () => {
 
   const handleExportGexf = async (graph: GraphData) => {
     try {
-      const gexfContent = await fetchGexfByGraphId(graph.GUID);
+      const res = await fetchGexfByGraphId({ graphId: graph.GUID });
+      const gexfContent = res?.data;
       if (!gexfContent) {
         throw new Error('No GEXF content received');
       }
@@ -102,7 +111,7 @@ const GraphPage = () => {
     }
   };
 
-  const graphDataSource = isSearching ? searchResults || [] : graphsList;
+  const graphDataSource = isSearching ? searchResults || [] : graphsList || [];
   const hasScoreOrDistance = useMemo(
     () => hasScoreOrDistanceInData(graphDataSource),
     [graphDataSource]
@@ -158,8 +167,13 @@ const GraphPage = () => {
         <LitegraphTable
           columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
           dataSource={graphDataSource}
-          loading={isGraphsLoading || isSearchLoading}
+          loading={isGraphsLoading || isSearchLoading || isFetchGexfByGraphIdLoading}
           rowKey={'GUID'}
+          pagination={{
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 
