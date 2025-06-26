@@ -7,6 +7,7 @@ import { useAppDispatch } from '@/lib/store/hooks';
 import { deleteNode } from '@/lib/store/node/actions';
 import { useDeleteNodeById } from '@/lib/sdk/litegraph.service';
 import { NodeType } from '@/lib/store/node/types';
+import { useDeleteNodeMutation } from '@/lib/store/slice/slice';
 
 type DeleteNodeProps = {
   title: string;
@@ -28,11 +29,14 @@ const DeleteNode = ({
 }: DeleteNodeProps) => {
   const dispatch = useAppDispatch();
 
-  const { deleteNodeById, isLoading: isDeleteNodeLoading } = useDeleteNodeById();
+  const [deleteNodeById, { isLoading: isDeleteNodeLoading }] = useDeleteNodeMutation();
 
   const handleDeleteNode = async () => {
     if (selectedNode) {
-      const res = await deleteNodeById(selectedNode.GraphGUID, selectedNode.GUID);
+      const res = await deleteNodeById({
+        graphId: selectedNode.GraphGUID,
+        nodeId: selectedNode.GUID,
+      });
       if (res) {
         dispatch(deleteNode({ GUID: selectedNode.GUID }));
         toast.success('Delete Node successfully');

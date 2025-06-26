@@ -18,18 +18,27 @@ import SearchByTLDModal from '@/components/search/SearchModal';
 import { SearchData } from '@/components/search/type';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
-import { useGetAllNodesQuery } from '@/lib/store/slice/slice';
+import { useEnumerateNodeQuery, useGetAllNodesQuery } from '@/lib/store/slice/slice';
+import { usePagination } from '@/hooks/appHooks';
+import { tablePaginationConfig } from '@/constants/pagination';
 
 const NodePage = () => {
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const [isSearching, setIsSearching] = useState<boolean>(false);
+  const { page, pageSize, skip, handlePageChange } = usePagination();
   const {
     data: nodesList,
     refetch: fetchNodesList,
     isLoading: isNodesLoading,
     isError: isNodesError,
-  } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
+  } = useEnumerateNodeQuery({
+    graphId: selectedGraphRedux,
+    request: {
+      maxKeys: pageSize,
+      skip: skip,
+    },
+  });
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(null);
 
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
@@ -70,7 +79,7 @@ const NodePage = () => {
     });
   };
 
-  const dataSource = isSearching ? searchResults || [] : nodesList;
+  const dataSource = isSearching ? searchResults || [] : nodesList?.Objects || [];
   const hasScoreOrDistance = useMemo(
     () => hasScoreOrDistanceInData(dataSource || []),
     [dataSource]
@@ -128,17 +137,27 @@ const NodePage = () => {
         </>
       }
     >
-      {isNodesError && <FallBack retry={fetchNodesList}>{'Something went wrong.'}</FallBack>}
-      <LitegraphTable
-        columns={
-          hasScoreOrDistance
-            ? tableColumns(handleEditNode, handleDelete, true)
-            : tableColumns(handleEditNode, handleDelete, false)
-        }
-        dataSource={dataSource}
-        loading={isNodesLoading || isSearchLoading}
-        rowKey={'GUID'}
-      />
+      {isNodesError ? (
+        <FallBack retry={fetchNodesList}>{'Something went wrong.'}</FallBack>
+      ) : (
+        <LitegraphTable
+          columns={
+            hasScoreOrDistance
+              ? tableColumns(handleEditNode, handleDelete, true)
+              : tableColumns(handleEditNode, handleDelete, false)
+          }
+          dataSource={dataSource}
+          loading={isNodesLoading || isSearchLoading}
+          rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: nodesList?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
+        />
+      )}
 
       <AddEditNode
         onNodeUpdated={async () => {

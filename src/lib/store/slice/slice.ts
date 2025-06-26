@@ -22,6 +22,7 @@ import {
   UserMetadataCreateRequest,
   TenantMetaData,
   GraphCreateRequest,
+  EnumerateAndSearchRequest,
 } from 'litegraphdb/dist/types/types';
 import { sdk } from '@/lib/sdk/litegraph.service';
 
@@ -35,9 +36,9 @@ const graphSlice = enhancedSdk.injectEndpoints({
   ) => ({
     //region Graph
     //enumerate all graphs
-    enumerateGraph: build.query<EnumerateResponse<Graph>, EnumerateRequest>({
-      query: (request?: EnumerateRequest) => ({
-        callback: () => sdk.Graph.enumerate(request),
+    searchAndEnumerateGraph: build.query<EnumerateResponse<Graph>, EnumerateAndSearchRequest>({
+      query: (request: EnumerateAndSearchRequest) => ({
+        callback: () => sdk.Graph.enumerateAndSearch(request),
       }),
       providesTags: [SliceTags.GRAPH],
     }),
@@ -449,7 +450,7 @@ const graphSlice = enhancedSdk.injectEndpoints({
 });
 
 export const {
-  useEnumerateGraphQuery,
+  useSearchAndEnumerateGraphQuery,
   useGetGraphByIdQuery,
   useGetGraphGexfContentQuery,
   useCreateGraphMutation,

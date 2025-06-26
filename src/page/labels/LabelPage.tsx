@@ -11,18 +11,25 @@ import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditLabel from './components/AddEditLabel';
 import DeleteLabel from './components/DeleteLabel';
 import { transformLabelsDataForTable } from './utils';
-import { useLabels, useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
+import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
+import { useEnumerateLabelQuery } from '@/lib/store/slice/slice';
+import { usePagination } from '@/hooks/appHooks';
+import { tablePaginationConfig } from '@/constants/pagination';
 
 const LabelPage = () => {
   const selectedGraphRedux = useSelectedGraph();
   const { isGraphsLoading } = useLayoutContext();
+  const { page, pageSize, skip, handlePageChange } = usePagination();
   const {
-    labelsList,
-    fetchLabelsList,
+    data: labelsList,
     isLoading,
     error: isLabelsError,
-  } = useLabels(selectedGraphRedux);
+    refetch: fetchLabelsList,
+  } = useEnumerateLabelQuery({
+    maxKeys: pageSize,
+    skip: skip,
+  });
   const {
     nodesList,
     edgesList,
@@ -35,7 +42,11 @@ const LabelPage = () => {
   const [isAddEditLabelVisible, setIsAddEditLabelVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
 
-  const transformedLabelsList = transformLabelsDataForTable(labelsList, nodesList, edgesList);
+  const transformedLabelsList = transformLabelsDataForTable(
+    labelsList?.Objects || [],
+    nodesList || [],
+    edgesList || []
+  );
 
   // Check if litegraphURL present or not
 
@@ -86,6 +97,13 @@ const LabelPage = () => {
           columns={tableColumns(handleEditLabel, handleDelete)}
           dataSource={transformedLabelsList}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: labelsList?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 

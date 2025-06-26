@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
@@ -12,25 +12,41 @@ import AddEditEdge from './components/AddEditEdge';
 import DeleteEdge from './components/DeleteEdge';
 import { transformEdgeDataForTable } from './utils';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
-import { useNodeAndEdge, useSearchEdgeData } from '@/hooks/entityHooks';
+import { useSearchEdgeData } from '@/hooks/entityHooks';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import { SearchData } from '@/components/search/type';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import SearchByTLDModal from '@/components/search/SearchModal';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
+import { usePagination } from '@/hooks/appHooks';
+import { tablePaginationConfig } from '@/constants/pagination';
+import { useEnumerateEdgeQuery, useGetAllNodesQuery } from '@/lib/store/slice/slice';
 
 const EdgePage = () => {
-  const dispatch = useAppDispatch();
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
+  const { page, pageSize, skip, handlePageChange } = usePagination();
   const {
-    nodesList,
-    edgesList,
-    fetchNodesAndEdges,
-    isLoading: isNodesAndEdgesLoading,
-    edgesError: isEdgesError,
-  } = useNodeAndEdge(selectedGraphRedux);
+    data: nodesList,
+    refetch: fetchNodesList,
+    isLoading: isNodesLoading,
+  } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
+  const {
+    data: edgesList,
+    refetch: fetchEdgesList,
+    isLoading: isEdgesLoading,
+    error: isEdgesError,
+  } = useEnumerateEdgeQuery({
+    graphId: selectedGraphRedux,
+    request: {
+      maxKeys: pageSize,
+      skip: skip,
+    },
+  });
+
+  const isNodesAndEdgesLoading = isNodesLoading || isEdgesLoading;
+
   const [selectedEdge, setSelectedEdge] = useState<EdgeType | null | undefined>(null);
 
   const [isAddEditEdgeVisible, setIsAddEditEdgeVisible] = useState<boolean>(false);
@@ -47,8 +63,8 @@ const EdgePage = () => {
   } = useSearchEdgeData();
 
   const transformedEdgesList = transformEdgeDataForTable(
-    isSearching ? searchResults || [] : edgesList,
-    nodesList
+    isSearching ? searchResults || [] : edgesList?.Objects || [],
+    nodesList || []
   );
 
   const hasScoreOrDistance = useMemo(
@@ -134,13 +150,20 @@ const EdgePage = () => {
         </>
       }
     >
-      {isEdgesError && <FallBack retry={fetchNodesAndEdges}>{'Something went wrong.'}</FallBack>}
+      {!!isEdgesError && <FallBack retry={fetchEdgesList}>{'Something went wrong.'}</FallBack>}
       {!isEdgesError && (
         <LitegraphTable
           columns={tableColumns(handleEditEdge, handleDelete, hasScoreOrDistance)}
           dataSource={transformedEdgesList}
           loading={isNodesAndEdgesLoading || isSearchLoading}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: edgesList?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 
@@ -150,7 +173,7 @@ const EdgePage = () => {
         edge={selectedEdge ? selectedEdge : null}
         selectedGraph={selectedGraphRedux}
         onEdgeUpdated={async () => {
-          await fetchNodesAndEdges();
+          await fetchEdgesList();
           refreshSearch();
         }}
       />

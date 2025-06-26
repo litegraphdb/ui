@@ -6,6 +6,7 @@ import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { deleteLabel } from '@/lib/store/label/actions';
 import toast from 'react-hot-toast';
+import { useDeleteLabelMutation } from '@/lib/store/slice/slice';
 
 interface DeleteLabelProps {
   title: string;
@@ -29,7 +30,7 @@ const DeleteLabel = ({
   onLabelDeleted,
 }: DeleteLabelProps) => {
   const dispatch = useAppDispatch();
-  const { deleteLabelById, isLoading } = useDeleteLabelById();
+  const [deleteLabelById, { isLoading }] = useDeleteLabelMutation();
 
   const handleDelete = async () => {
     if (selectedLabel) {

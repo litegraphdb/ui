@@ -28,7 +28,7 @@ import {
   useUpdateEdgeMutation,
 } from '@/lib/store/slice/slice';
 import { transformToOptions } from '@/lib/graph/utils';
-import { EdgeCreateRequest } from 'litegraphdb/dist/types/types';
+import { Edge, EdgeCreateRequest } from 'litegraphdb/dist/types/types';
 
 const initialValues = {
   graphName: '',
@@ -120,8 +120,9 @@ const AddEditEdge = ({
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
       if (edge) {
         // Edit edge
-        const data = {
-          ...edge,
+        const data: Edge = {
+          TenantGUID: edge.TenantGUID,
+          LastUpdateUtc: edge.LastUpdateUtc,
           GUID: edge.GUID,
           GraphGUID: edge.GraphGUID,
           CreatedUtc: edge.CreatedUtc,

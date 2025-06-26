@@ -24,7 +24,9 @@ import { SearchData } from '@/components/search/type';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
 import { SEARCH_BUTTON_LABEL } from '@/constants/uiLabels';
 import { usePagination } from '@/hooks/appHooks';
-import { useDeleteGraphMutation, useEnumerateGraphQuery } from '@/lib/store/slice/slice';
+import { useDeleteGraphMutation, useSearchAndEnumerateGraphQuery } from '@/lib/store/slice/slice';
+import { tablePaginationConfig } from '@/constants/pagination';
+import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
   ssr: false,
 });
@@ -32,12 +34,19 @@ const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
 const GraphPage = () => {
   const dispatch = useAppDispatch();
   const { page, pageSize, skip, handlePageChange } = usePagination();
+  const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
   const {
     data,
     isLoading: isGraphsLoading,
     refetch: refetchGraphs,
     error: graphError,
-  } = useEnumerateGraphQuery({ maxKeys: pageSize });
+  } = useSearchAndEnumerateGraphQuery({
+    ...searchParams,
+    MaxResults: pageSize,
+    Skip: skip,
+    IncludeSubordinates: true,
+    IncludeData: true,
+  });
   const graphsList = data?.Objects || [];
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -61,14 +70,11 @@ const GraphPage = () => {
     setIsAddEditGraphVisible(true);
   };
   const onSearch = async (values: SearchData) => {
-    await searchGraph({
-      Domain: values.embeddings ? 'Graph' : undefined,
-      SearchType: values.embeddings ? 'CosineSimilarity' : undefined,
+    setSearchParams({
       Ordering: !values.embeddings ? 'CreatedDescending' : undefined,
       Labels: values.labels,
       Expr: values.expr,
       Tags: convertTagsToRecord(values.tags),
-      Embeddings: values.embeddings ? values.embeddings : undefined,
     });
   };
   const handleEdit = async (data: GraphData) => {
@@ -164,17 +170,30 @@ const GraphPage = () => {
           {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
         </FallBack>
       ) : (
-        <LitegraphTable
-          columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
-          dataSource={graphDataSource}
-          loading={isGraphsLoading || isSearchLoading || isFetchGexfByGraphIdLoading}
-          rowKey={'GUID'}
-          pagination={{
-            pageSize: pageSize,
-            current: page,
-            onChange: handlePageChange,
-          }}
-        />
+        <>
+          <LitegraphFlex gap={20}>
+            <LitegraphButton
+              type="link"
+              icon={<SearchOutlined />}
+              onClick={() => setShowSearchModal(true)}
+            >
+              {SEARCH_BUTTON_LABEL}
+            </LitegraphButton>
+          </LitegraphFlex>
+          <LitegraphTable
+            columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
+            dataSource={graphDataSource}
+            loading={isGraphsLoading || isSearchLoading || isFetchGexfByGraphIdLoading}
+            rowKey={'GUID'}
+            pagination={{
+              ...tablePaginationConfig,
+              total: data?.TotalRecords,
+              pageSize: pageSize,
+              current: page,
+              onChange: handlePageChange,
+            }}
+          />
+        </>
       )}
 
       <AddEditGraph

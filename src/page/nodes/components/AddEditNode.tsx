@@ -23,7 +23,7 @@ import {
   useGetAllGraphsQuery,
   useUpdateNodeMutation,
 } from '@/lib/store/slice/slice';
-import { NodeCreateRequest } from 'litegraphdb/dist/types/types';
+import { Node, NodeCreateRequest } from 'litegraphdb/dist/types/types';
 
 const initialValues = {
   graphName: '',
@@ -83,8 +83,12 @@ const AddEditNode = ({
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
       if (node) {
         // Edit Node
-        const data = {
-          ...node,
+        const data: Node = {
+          TenantGUID: node.TenantGUID,
+          LastUpdateUtc: node.LastUpdateUtc,
+          GUID: node.GUID,
+          GraphGUID: node.GraphGUID,
+          CreatedUtc: node.CreatedUtc,
           Name: values.name,
           Data: values.data,
           Labels: values.labels,

@@ -79,9 +79,7 @@ const SearchModal = ({
           setFormValues(values);
         }}
       >
-        <Form.Item label="Labels" rules={[{ validator: validateAtLeastOne(form) }]}>
-          <LabelInput name="labels" />
-        </Form.Item>
+        <LabelInput name="labels" />
         <Form.Item label="Tags" rules={[{ validator: validateAtLeastOne(form) }]}>
           <TagsInput name="tags" />
         </Form.Item>
