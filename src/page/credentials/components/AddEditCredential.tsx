@@ -1,22 +1,19 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form, Switch, Select } from 'antd';
-import {
-  useCreateCredentials,
-  useUpdateCredentialsById,
-  useGetUsersList,
-} from '@/lib/sdk/litegraph.service';
 import { CredentialType } from '@/lib/store/credential/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import { useAppDispatch } from '@/lib/store/hooks';
-import { createCredential, updateCredential } from '@/lib/store/credential/actions';
 import toast from 'react-hot-toast';
 
-import { v4 } from 'uuid';
-import { useUsers } from '@/hooks/entityHooks';
-import { formatDateTime } from '@/utils/dateUtils';
+import {
+  useCreateCredentialMutation,
+  useGetAllUsersQuery,
+  useUpdateCredentialMutation,
+} from '@/lib/store/slice/slice';
+import { CredentialMetadata, CredentialMetadataCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditCredentialProps {
   isAddEditCredentialVisible: boolean;
@@ -34,10 +31,9 @@ const AddEditCredential = ({
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
-  const { createCredentials: createCredentialService, isLoading: isCreateLoading } =
-    useCreateCredentials();
-  const { updateCredentialById, isLoading: isUpdateLoading } = useUpdateCredentialsById();
-  const { usersList, isLoading: isUsersLoading } = useUsers();
+  const [createCredentialService, { isLoading: isCreateLoading }] = useCreateCredentialMutation();
+  const [updateCredentialById, { isLoading: isUpdateLoading }] = useUpdateCredentialMutation();
+  const { data: usersList = [], isLoading: isUsersLoading } = useGetAllUsersQuery();
   const userOptions = usersList.map((user) => ({ label: user.FirstName, value: user.GUID }));
 
   // Add form validation watcher
@@ -68,16 +64,20 @@ const AddEditCredential = ({
       const values = await form.validateFields();
       if (credential) {
         // Update existing credential
-        const updatedCredential = {
-          ...credential,
-          ...values,
+        const updatedCredential: CredentialMetadata = {
+          GUID: credential.GUID,
+          CreatedUtc: credential.CreatedUtc,
+          TenantGUID: credential.TenantGUID,
+          UserGUID: values.UserGUID,
+          Name: values.Name,
+          BearerToken: values.BearerToken,
+          Active: values.Active,
           LastUpdateUtc: new Date().toISOString(),
         };
 
         const res = await updateCredentialById(updatedCredential);
 
         if (res) {
-          dispatch(updateCredential(res)); // Use the response data instead of updatedCredential
           toast.success('Credential updated successfully');
           setIsAddEditCredentialVisible(false);
           form.resetFields();
@@ -87,17 +87,14 @@ const AddEditCredential = ({
         }
       } else {
         // Create new credential
-        const newCredential = {
-          ...values,
-          GUID: v4(),
-          TenantGUID: '00000000-0000-0000-0000-000000000000',
-          CreatedUtc: new Date().toISOString(),
-          LastUpdateUtc: new Date().toISOString(),
-          CreatedAt: formatDateTime(new Date().toISOString()), // Set CreatedAt field using formatDateTime
+        const newCredential: CredentialMetadataCreateRequest = {
+          UserGUID: values.UserGUID,
+          Name: values.Name,
+          BearerToken: values.BearerToken,
+          Active: values.Active,
         };
         const res = await createCredentialService(newCredential);
         if (res) {
-          dispatch(createCredential(newCredential));
           toast.success('Credential created successfully');
           setIsAddEditCredentialVisible(false);
           form.resetFields();

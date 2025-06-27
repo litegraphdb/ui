@@ -1,17 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form } from 'antd';
-import { useCreateLabel, useUpdateLabelById } from '@/lib/sdk/litegraph.service';
 import { LabelType } from '@/lib/store/label/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import LitegraphSelect from '@/components/base/select/Select';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { createLabel, updateLabel } from '@/lib/store/label/actions';
 import toast from 'react-hot-toast';
-import { v4 } from 'uuid';
 import { useNodeAndEdge } from '@/hooks/entityHooks';
+import { useCreateLabelMutation, useUpdateLabelMutation } from '@/lib/store/slice/slice';
+import { LabelMetadata, LabelMetadataCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditLabelProps {
   isAddEditLabelVisible: boolean;
@@ -28,11 +26,10 @@ const AddEditLabel = ({
   selectedGraph,
   onLabelUpdated,
 }: AddEditLabelProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
-  const { createLabels, isLoading: isCreateLoading } = useCreateLabel();
-  const { updateLabelById, isLoading: isUpdateLoading } = useUpdateLabelById();
+  const [createLabels, { isLoading: isCreateLoading }] = useCreateLabelMutation();
+  const [updateLabelById, { isLoading: isUpdateLoading }] = useUpdateLabelMutation();
   const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
 
   // Add form validation watcher
@@ -61,7 +58,7 @@ const AddEditLabel = ({
       const values = await form.validateFields();
       if (label) {
         // Update existing label
-        const updatedLabel = {
+        const updatedLabel: LabelMetadata = {
           GUID: label.GUID,
           GraphGUID: label.GraphGUID,
           CreatedUtc: label.CreatedUtc,
@@ -79,7 +76,6 @@ const AddEditLabel = ({
         const res = await updateLabelById(updatedLabel);
 
         if (res) {
-          dispatch(updateLabel(res));
           toast.success('Label updated successfully');
           setIsAddEditLabelVisible(false);
           form.resetFields();
@@ -89,16 +85,14 @@ const AddEditLabel = ({
         }
       } else {
         // Create new label
-        const newLabel = {
-          ...values,
-          GUID: v4(),
+        const newLabel: LabelMetadataCreateRequest = {
+          Label: values.Label,
           GraphGUID: selectedGraph,
-          CreatedUtc: new Date().toISOString(),
-          LastUpdateUtc: new Date().toISOString(),
+          NodeGUID: values.NodeGUID,
+          EdgeGUID: values.EdgeGUID,
         };
         const res = await createLabels(newLabel);
         if (res) {
-          dispatch(createLabel(newLabel));
           toast.success('Label created successfully');
           setIsAddEditLabelVisible(false);
           form.resetFields();

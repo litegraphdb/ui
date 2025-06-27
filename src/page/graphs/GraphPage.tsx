@@ -2,8 +2,6 @@
 import { useMemo, useState } from 'react';
 import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
 import { tableColumns } from './constant';
-import { deleteGraph } from '@/lib/store/graph/actions';
-import { useAppDispatch } from '@/lib/store/hooks';
 import { useGetGraphGexfContentByIdMutation } from '@/lib/store/slice/slice';
 import { GraphData } from '@/lib/store/graph/types';
 import toast from 'react-hot-toast';
@@ -14,7 +12,6 @@ import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphTable from '@/components/base/table/Table';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import dynamic from 'next/dynamic';
-import { useSearchGraphData } from '@/hooks/entityHooks';
 import { saveAs } from 'file-saver';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -22,7 +19,6 @@ import SearchByTLDModal from '@/components/search/SearchModal';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { SearchData } from '@/components/search/type';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
-import { SEARCH_BUTTON_LABEL } from '@/constants/uiLabels';
 import { usePagination } from '@/hooks/appHooks';
 import { useDeleteGraphMutation, useSearchAndEnumerateGraphQuery } from '@/lib/store/slice/slice';
 import { tablePaginationConfig } from '@/constants/pagination';
@@ -32,7 +28,6 @@ const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
 });
 
 const GraphPage = () => {
-  const dispatch = useAppDispatch();
   const { page, pageSize, skip, handlePageChange } = usePagination();
   const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
   const {
@@ -48,20 +43,12 @@ const GraphPage = () => {
     IncludeData: true,
   });
   const graphsList = data?.Objects || [];
-  const [isSearching, setIsSearching] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
   const [selectedGraph, setSelectedGraph] = useState<GraphData | null>(null);
   const [fetchGexfByGraphId, { isLoading: isFetchGexfByGraphIdLoading }] =
     useGetGraphGexfContentByIdMutation();
-  const {
-    searchGraph,
-    isLoading: isSearchLoading,
-    searchResults,
-    refreshSearch,
-    setSearchResults,
-  } = useSearchGraphData();
 
   const [deleteGraphById, { isLoading: isDeleteGraphLoading }] = useDeleteGraphMutation();
 
@@ -71,7 +58,7 @@ const GraphPage = () => {
   };
   const onSearch = async (values: SearchData) => {
     setSearchParams({
-      Ordering: !values.embeddings ? 'CreatedDescending' : undefined,
+      Ordering: 'CreatedDescending',
       Labels: values.labels,
       Expr: values.expr,
       Tags: convertTagsToRecord(values.tags),
@@ -109,7 +96,6 @@ const GraphPage = () => {
     if (selectedGraph) {
       const res = await deleteGraphById(selectedGraph.GUID);
       if (res) {
-        dispatch(deleteGraph({ GUID: selectedGraph.GUID }));
         toast.success('Delete Graph successfully');
         setIsDeleteModelVisisble(false);
         setSelectedGraph(null);
@@ -117,7 +103,7 @@ const GraphPage = () => {
     }
   };
 
-  const graphDataSource = isSearching ? searchResults || [] : graphsList || [];
+  const graphDataSource = graphsList || [];
   const hasScoreOrDistance = useMemo(
     () => hasScoreOrDistanceInData(graphDataSource),
     [graphDataSource]
@@ -128,41 +114,19 @@ const GraphPage = () => {
       id="graphs"
       pageTitle={
         <LitegraphFlex align="center" gap={10}>
-          <LitegraphText>{isSearching ? 'Search ' : 'Graphs'}</LitegraphText>
-          {isSearching ? (
-            <CloseOutlined className="cursor-pointer" onClick={() => setIsSearching(false)} />
-          ) : (
-            <SearchOutlined
-              className="cursor-pointer"
-              onClick={() => {
-                setIsSearching(true);
-                setSearchResults(null);
-              }}
-            />
-          )}
+          <LitegraphText>Graphs</LitegraphText>
+          <SearchOutlined className="cursor-pointer" onClick={() => setShowSearchModal(true)} />
         </LitegraphFlex>
       }
       pageTitleRightContent={
-        isSearching ? (
-          <LitegraphFlex gap={20}>
-            <LitegraphButton
-              type="link"
-              icon={<SearchOutlined />}
-              onClick={() => setShowSearchModal(true)}
-            >
-              {SEARCH_BUTTON_LABEL}
-            </LitegraphButton>
-          </LitegraphFlex>
-        ) : (
-          <LitegraphButton
-            type="link"
-            icon={<PlusSquareOutlined />}
-            onClick={handleCreateGraph}
-            weight={500}
-          >
-            Create Graph
-          </LitegraphButton>
-        )
+        <LitegraphButton
+          type="link"
+          icon={<PlusSquareOutlined />}
+          onClick={handleCreateGraph}
+          weight={500}
+        >
+          Create Graph
+        </LitegraphButton>
       }
     >
       {graphError ? (
@@ -171,19 +135,30 @@ const GraphPage = () => {
         </FallBack>
       ) : (
         <>
-          <LitegraphFlex gap={20}>
-            <LitegraphButton
-              type="link"
-              icon={<SearchOutlined />}
-              onClick={() => setShowSearchModal(true)}
-            >
-              {SEARCH_BUTTON_LABEL}
-            </LitegraphButton>
+          <LitegraphFlex
+            style={{ marginTop: '-10px' }}
+            gap={20}
+            justify="space-between"
+            align="center"
+            className="mb-sm"
+          >
+            {Boolean(Object.keys(searchParams).length) && (
+              <LitegraphText>
+                {data?.TotalRecords} graph{`(s)`} found{' '}
+                <LitegraphButton
+                  icon={<CloseOutlined />}
+                  type="link"
+                  onClick={() => setSearchParams({})}
+                >
+                  Clear
+                </LitegraphButton>{' '}
+              </LitegraphText>
+            )}
           </LitegraphFlex>
           <LitegraphTable
             columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
             dataSource={graphDataSource}
-            loading={isGraphsLoading || isSearchLoading || isFetchGexfByGraphIdLoading}
+            loading={isGraphsLoading || isFetchGexfByGraphIdLoading}
             rowKey={'GUID'}
             pagination={{
               ...tablePaginationConfig,
@@ -202,7 +177,6 @@ const GraphPage = () => {
         graph={selectedGraph ? selectedGraph : null}
         onDone={() => {
           refetchGraphs();
-          refreshSearch();
         }}
       />
 

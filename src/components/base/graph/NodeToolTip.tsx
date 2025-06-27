@@ -1,7 +1,7 @@
 'use client';
 import LiteGraphCard from '@/components/base/card/Card';
 import LiteGraphSpace from '@/components/base/space/Space';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { GraphNodeTooltip } from './types';
 import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
 import { defaultNodeTooltip } from './constant';
@@ -61,22 +61,19 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
   const handleEdgeUpdate = async () => {
     await fetchGexfByGraphId();
 
-    //Tooltip re-renders
-    await fetchGexfByGraphId(); // Fetch updated node
-
     // Clear node tooltip
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
   };
 
-  useEffect(() => {
-    const getNode = async () => {
-      if (!node && graphId) {
-        await fetchGexfByGraphId();
-      }
-    };
-    getNode();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [node, graphId, tooltip]);
+  // useEffect(() => {
+  //   const getNode = async () => {
+  //     if (!node && graphId) {
+  //       await fetchGexfByGraphId();
+  //     }
+  //   };
+  //   getNode();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [node, graphId, tooltip]);
 
   return (
     <>

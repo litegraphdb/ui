@@ -14,4 +14,5 @@ export enum SliceTags {
   CREDENTIAL = 'credential',
   USER = 'user',
   TENANT = 'tenant',
+  BACKUP = 'backup',
 }

@@ -1,10 +1,7 @@
 'use client';
-import { useDeleteLabelById } from '@/lib/sdk/litegraph.service';
 import { LabelType } from '@/lib/store/label/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteLabel } from '@/lib/store/label/actions';
 import toast from 'react-hot-toast';
 import { useDeleteLabelMutation } from '@/lib/store/slice/slice';
 
@@ -29,18 +26,15 @@ const DeleteLabel = ({
 
   onLabelDeleted,
 }: DeleteLabelProps) => {
-  const dispatch = useAppDispatch();
   const [deleteLabelById, { isLoading }] = useDeleteLabelMutation();
 
   const handleDelete = async () => {
     if (selectedLabel) {
       const res = await deleteLabelById(selectedLabel.GUID);
       if (res) {
-        dispatch(deleteLabel({ GUID: selectedLabel.GUID }));
         toast.success('Label deleted successfully');
         setIsDeleteModelVisible(false);
         setSelectedLabel(null);
-
         onLabelDeleted && onLabelDeleted();
       }
     }

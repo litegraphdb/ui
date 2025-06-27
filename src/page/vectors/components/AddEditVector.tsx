@@ -1,18 +1,17 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form } from 'antd';
-import { useCreateVector, useUpdateVectorById } from '@/lib/sdk/litegraph.service';
 import { VectorType } from '@/lib/store/vector/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import LitegraphSelect from '@/components/base/select/Select';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { createVector, updateVector } from '@/lib/store/vector/actions';
 import toast from 'react-hot-toast';
 import { v4 } from 'uuid';
 import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { JsonEditor } from 'jsoneditor-react';
+import { useCreateVectorMutation, useUpdateVectorMutation } from '@/lib/store/slice/slice';
+import { VectorMetadata, VectorCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditVectorProps {
   isAddEditVectorVisible: boolean;
@@ -29,11 +28,10 @@ const AddEditVector = ({
   selectedGraph,
   onVectorUpdated,
 }: AddEditVectorProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
-  const { createVectors, isLoading: isCreateLoading } = useCreateVector();
-  const { updateVectorById, isLoading: isUpdateLoading } = useUpdateVectorById();
+  const [createVectors, { isLoading: isCreateLoading }] = useCreateVectorMutation();
+  const [updateVectorById, { isLoading: isUpdateLoading }] = useUpdateVectorMutation();
   const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
   const [uniqueKey, setUniqueKey] = useState(v4());
   // Add form validation watcher
@@ -74,7 +72,8 @@ const AddEditVector = ({
 
       if (vector) {
         // Update existing vector
-        const vectorToUpdate = {
+        const vectorToUpdate: VectorMetadata = {
+          TenantGUID: vector.TenantGUID,
           GUID: vector.GUID,
           GraphGUID: selectedGraph,
           Model: values.Model,
@@ -83,13 +82,13 @@ const AddEditVector = ({
           Vectors: vectorsArray.map((v: number) => Number(v)),
           NodeGUID: values.NodeGUID === undefined ? null : values.NodeGUID,
           EdgeGUID: values.EdgeGUID === undefined ? null : values.EdgeGUID,
+          CreatedUtc: vector.CreatedUtc,
           LastUpdateUtc: new Date().toISOString(),
         };
 
         const res = await updateVectorById(vectorToUpdate);
 
         if (res) {
-          dispatch(updateVector(res));
           toast.success('Vector updated successfully');
           setIsAddEditVectorVisible(false);
           form.resetFields();
@@ -99,23 +98,18 @@ const AddEditVector = ({
         }
       } else {
         // Create new vector
-        const newVector = {
-          GUID: v4(),
+        const newVector: VectorCreateRequest = {
           GraphGUID: selectedGraph,
-          TenantGUID: '00000000-0000-0000-0000-000000000000',
           Model: values.Model,
           Dimensionality: Number(values.Dimensionality),
           Content: values.Content,
           Vectors: vectorsArray.map((v: number) => Number(v)),
-          NodeGUID: values.NodeGUID || null,
-          EdgeGUID: values.EdgeGUID || null,
-          CreatedUtc: new Date().toISOString(),
-          LastUpdateUtc: new Date().toISOString(),
+          NodeGUID: values.NodeGUID,
+          EdgeGUID: values.EdgeGUID,
         };
 
         const res = await createVectors(newVector);
         if (res) {
-          dispatch(createVector(res));
           toast.success('Vector created successfully');
           setIsAddEditVectorVisible(false);
           form.resetFields();

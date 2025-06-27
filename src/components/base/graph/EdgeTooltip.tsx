@@ -1,6 +1,6 @@
 import { defaultEdgeTooltip } from './constant';
 import { GraphEdgeTooltip } from './types';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
 import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
@@ -54,16 +54,6 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipPro
     // Clear the tooltip after deletion
     setTooltip(defaultEdgeTooltip);
   };
-
-  useEffect(() => {
-    const getEdge = async () => {
-      if (!edge && graphId) {
-        await fetchGexfByGraphId();
-      }
-    };
-    getEdge();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graphId, tooltip]);
 
   return (
     <>

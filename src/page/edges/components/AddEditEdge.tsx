@@ -6,11 +6,8 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
-import { useCreateEdge, useUpdateEdgeById } from '@/lib/sdk/litegraph.service';
-import { useAppDispatch } from '@/lib/store/hooks';
 import { validationRules } from './constant';
 import { EdgeType } from '@/lib/store/edge/types';
-import { createEdge, updateEdge } from '@/lib/store/edge/actions';
 import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
@@ -61,7 +58,6 @@ const AddEditEdge = ({
   onClose,
   readonly,
 }: AddEditEdgeProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [uniqueKey, setUniqueKey] = useState(v4());
   const [formValid, setFormValid] = useState(false);

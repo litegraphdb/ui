@@ -1,11 +1,9 @@
 'use client';
-import { useDeleteTenantsById } from '@/lib/sdk/litegraph.service';
 import { TenantType } from '@/lib/store/tenants/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteTenant } from '@/lib/store/tenants/actions';
 import toast from 'react-hot-toast';
+import { useDeleteTenantMutation } from '@/lib/store/slice/slice';
 
 interface DeleteTenantProps {
   title: string;
@@ -28,18 +26,15 @@ const DeleteTenant = ({
 
   onTenantDeleted,
 }: DeleteTenantProps) => {
-  const dispatch = useAppDispatch();
-  const { deleteTenantById, isLoading } = useDeleteTenantsById();
+  const [deleteTenantById, { isLoading }] = useDeleteTenantMutation();
 
   const handleDelete = async () => {
     if (selectedTenant) {
       const res = await deleteTenantById(selectedTenant.GUID);
       if (res) {
-        dispatch(deleteTenant({ GUID: selectedTenant.GUID }));
         toast.success('Tenant deleted successfully');
         setIsDeleteModelVisible(false);
         setSelectedTenant(null);
-
         onTenantDeleted && onTenantDeleted();
       }
     }

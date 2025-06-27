@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { LogoutOutlined } from '@ant-design/icons';
+import { LogoutOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Layout } from 'antd';
 import Navigation from '../navigation';
 import LitegraphText from '../base/typograpghy/Text';
 import { useLogout } from '@/hooks/authHooks';
-import { RootState } from '@/lib/store/store';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { useAppDispatch } from '@/lib/store/hooks';
 import styles from './dashboard.module.scss';
 import { MenuItemProps } from '../menu-item/types';
 import LitegraphSelect from '../base/select/Select';
-import { useSelectedGraph, useSelectedTenant, useTenantList } from '@/hooks/entityHooks';
+import { useSelectedGraph, useSelectedTenant } from '@/hooks/entityHooks';
 import { clearNodes } from '@/lib/store/node/actions';
 import { clearEdges } from '@/lib/store/edge/actions';
 import { storeSelectedGraph, storeTenant } from '@/lib/store/litegraph/actions';
@@ -23,8 +22,11 @@ import { clearUsers } from '@/lib/store/user/actions';
 import { localStorageKeys } from '@/constants/constant';
 import LitegraphFlex from '../base/flex/Flex';
 import { TenantType } from '@/lib/store/tenants/types';
-import { useGetAllGraphsQuery } from '@/lib/store/slice/slice';
+import { useGetAllGraphsQuery, useGetAllTenantsQuery } from '@/lib/store/slice/slice';
 import { transformToOptions } from '@/lib/graph/utils';
+import LoggedUserInfo from '../logged-in-user/LoggedUserInfo';
+import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
+import { SliceTags } from '@/lib/store/slice/types';
 
 const { Header, Content } = Layout;
 
@@ -55,15 +57,29 @@ const DashboardLayout = ({
     isLoading: isGraphsLoading,
     error: graphError,
     refetch: fetchGraphsList,
-  } = useGetAllGraphsQuery();
+  } = useGetAllGraphsQuery(undefined, { skip: !useGraphsSelector });
   const graphOptions = transformToOptions(graphsList);
-  const { tenantOptions, tenantsList } = useTenantList();
+  const {
+    data: tenantsList = [],
+    isLoading: isTenantsLoading,
+    isError: tenantsError,
+    refetch: fetchTenantsList,
+  } = useGetAllTenantsQuery(undefined, { skip: !useTenantSelector });
+  const tenantOptions = transformToOptions(tenantsList);
 
   useEffect(() => {
     if (!selectedGraphRedux && graphOptions?.length > 0) {
       dispatch(storeSelectedGraph({ graph: graphOptions[0].value }));
     }
   }, [selectedGraphRedux, graphOptions, dispatch]);
+
+  useEffect(() => {
+    if (!selectedTenantRedux && tenantsList?.length > 0) {
+      localStorage.setItem(localStorageKeys.tenant, JSON.stringify(tenantsList[0]));
+      setTenant(tenantsList[0].GUID);
+      dispatch(storeTenant(tenantsList[0]));
+    }
+  }, [selectedTenantRedux, tenantsList, dispatch]);
 
   const handleGraphSelect = async (graphId: any) => {
     dispatch(clearNodes());
@@ -83,13 +99,11 @@ const DashboardLayout = ({
       localStorage.setItem(localStorageKeys.tenant, JSON.stringify(tenant));
       setTenant(tenant.GUID);
       dispatch(storeTenant(tenant));
+      dispatch(sdkSlice.util.invalidateTags([SliceTags.USER, SliceTags.CREDENTIAL] as any));
     }
   };
 
   const logOutFromSystem = useLogout();
-  const FirstName = useAppSelector((state: RootState) => state.liteGraph.user?.FirstName);
-  const LastName = useAppSelector((state: RootState) => state.liteGraph.user?.LastName);
-  const userName = `${FirstName} ${LastName}`;
 
   return (
     <LayoutContext.Provider value={{ isGraphsLoading, graphError, refetchGraphs: fetchGraphsList }}>
@@ -120,34 +134,45 @@ const DashboardLayout = ({
               {useTenantSelector && (
                 <LitegraphFlex align="center" gap={8}>
                   <span>Tenant:</span>
-                  <LitegraphSelect
-                    placeholder="Select a tenant"
-                    options={tenantOptions}
-                    value={selectedTenantRedux?.GUID || undefined}
-                    onChange={handleTenantSelect}
-                    style={{ width: 200 }}
-                    disabled={!useTenantSelector}
-                  />
+                  {tenantsError ? (
+                    <LitegraphText
+                      fontSize={12}
+                      className={'cursor-pointer'}
+                      style={{ color: 'red' }}
+                      onClick={() => fetchTenantsList()}
+                    >
+                      <ReloadOutlined /> Retry
+                    </LitegraphText>
+                  ) : (
+                    <LitegraphSelect
+                      loading={isTenantsLoading}
+                      placeholder="Select a tenant"
+                      options={tenantOptions}
+                      value={selectedTenantRedux?.GUID || undefined}
+                      onChange={handleTenantSelect}
+                      style={{ width: 200 }}
+                      disabled={!useTenantSelector}
+                    />
+                  )}
                 </LitegraphFlex>
               )}
               {!useTenantSelector && !useGraphsSelector && <span></span>}
             </LitegraphFlex>
 
             <div className={styles.userSection}>
-              {!noProfile && (
-                <LitegraphText className={styles.userName} strong weight={100}>
-                  {userName}
-                </LitegraphText>
+              {!noProfile ? (
+                <LoggedUserInfo />
+              ) : (
+                <div
+                  className={styles.logoutLink}
+                  onClick={() => logOutFromSystem()}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <LogoutOutlined className={styles.logoutIcon} />
+                  <span>Logout</span>
+                </div>
               )}
-              <div
-                className={styles.logoutLink}
-                onClick={() => logOutFromSystem()}
-                role="button"
-                tabIndex={0}
-              >
-                <LogoutOutlined className={styles.logoutIcon} />
-                <span>Logout</span>
-              </div>
             </div>
           </Header>
           <Content

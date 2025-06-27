@@ -10,19 +10,14 @@ import LitegraphButton from '@/components/base/button/Button';
 import { LightGraphTheme } from '@/theme/theme';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import Link from 'next/link';
-import {
-  setEndpoint,
-  useGenerateToken,
-  useGetTenantsForEmail,
-  useValidateConnectivity,
-} from '@/lib/sdk/litegraph.service';
-
+import { setEndpoint, useValidateConnectivity } from '@/lib/sdk/litegraph.service';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
+import toast from 'react-hot-toast';
 import { useCredentialsToLogin } from '@/hooks/authHooks';
-import { useAppSelector } from '@/lib/store/hooks';
-import { RootState } from '@/lib/store/store';
 import { localStorageKeys, paths } from '@/constants/constant';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import classNames from 'classnames';
+import { useGenerateTokenMutation, useGetTenantsForEmailMutation } from '@/lib/store/slice/slice';
 interface LoginFormData {
   url: string;
   email: string;
@@ -37,10 +32,10 @@ const LoginPage = () => {
   const [formData, setFormData] = useState<Partial<LoginFormData>>({});
   const [isServerValid, setIsServerValid] = useState<boolean>(false);
   const [form] = Form.useForm();
-  const { generateToken, isLoading: isGeneratingToken } = useGenerateToken();
+  const [generateToken, { isLoading: isGeneratingToken }] = useGenerateTokenMutation();
   const loginWithCredentials = useCredentialsToLogin();
-  const { getTenantsForEmail, isLoading: isLoadingTenant } = useGetTenantsForEmail();
-  const tenants = useAppSelector((state: RootState) => state.tenants.tenantsList);
+  const [getTenantsForEmail, { isLoading: isLoadingTenant }] = useGetTenantsForEmailMutation();
+  const [tenants, setTenants] = useState<TenantMetaData[]>([]);
   const { validateConnectivity, isLoading: isValidatingConnectivity } = useValidateConnectivity();
 
   const tenantOptions =
@@ -69,8 +64,9 @@ const LoginPage = () => {
           if (values.email) {
             setCurrentStep(1);
             getTenantsForEmail(values.email)
-              .then((res) => {
+              .then(({ data: res = [] }) => {
                 if (res) {
+                  setTenants(res);
                   if (res && res.length > 1) {
                     setCurrentStep(2);
                   } else if (res?.length === 1) {
@@ -108,9 +104,17 @@ const LoginPage = () => {
     try {
       const values = await form.validateFields();
       const finalData: LoginFormData = { ...formData, ...values };
-      const token = await generateToken(finalData.email, finalData.password, finalData.tenant);
-      const selectedTenant = tenants?.find((t) => t.GUID === finalData.tenant);
 
+      const selectedTenant = tenants?.find((t) => t.GUID === finalData.tenant);
+      if (!selectedTenant) {
+        toast.error('Tenant not found');
+        return;
+      }
+      const { data: token } = await generateToken({
+        email: finalData.email,
+        password: finalData.password,
+        tenantId: finalData.tenant,
+      });
       if (token && selectedTenant) {
         localStorage.setItem(localStorageKeys.token, JSON.stringify(token));
         localStorage.setItem(localStorageKeys.tenant, JSON.stringify(selectedTenant));

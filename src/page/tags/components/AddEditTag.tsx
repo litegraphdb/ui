@@ -1,17 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form } from 'antd';
-import { useCreateTag, useUpdateTagById } from '@/lib/sdk/litegraph.service';
 import { TagType } from '@/lib/store/tag/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import LitegraphSelect from '@/components/base/select/Select';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { createTag, updateTag } from '@/lib/store/tag/actions';
 import toast from 'react-hot-toast';
-import { v4 } from 'uuid';
 import { useNodeAndEdge } from '@/hooks/entityHooks';
+import { useCreateTagMutation, useUpdateTagMutation } from '@/lib/store/slice/slice';
+import { TagMetaData, TagMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditTagProps {
   isAddEditTagVisible: boolean;
@@ -28,11 +26,10 @@ const AddEditTag = ({
   selectedGraph,
   onTagUpdated,
 }: AddEditTagProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
-  const { createTags, isLoading: isCreateLoading } = useCreateTag();
-  const { updateTagById, isLoading: isUpdateLoading } = useUpdateTagById();
+  const [createTag, { isLoading: isCreateLoading }] = useCreateTagMutation();
+  const [updateTagById, { isLoading: isUpdateLoading }] = useUpdateTagMutation();
   const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
 
   // Add form validation watcher
@@ -62,15 +59,15 @@ const AddEditTag = ({
       const values = await form.validateFields();
       if (tag) {
         // Update existing tag
-        const updatedTag = {
+        const updatedTag: TagMetaData = {
           GUID: tag.GUID,
           GraphGUID: tag.GraphGUID,
-          TenantGUID: tag.TenantGUID || '00000000-0000-0000-0000-000000000000',
+          TenantGUID: tag.TenantGUID,
           CreatedUtc: tag.CreatedUtc,
           Key: values.Key,
           Value: values.Value,
-          NodeGUID: values.NodeGUID || tag.NodeGUID,
-          EdgeGUID: values.EdgeGUID || tag.EdgeGUID,
+          NodeGUID: values.NodeGUID,
+          EdgeGUID: values.EdgeGUID,
           LastUpdateUtc: new Date().toISOString(),
         };
 
@@ -81,7 +78,6 @@ const AddEditTag = ({
         const res = await updateTagById(updatedTag);
 
         if (res) {
-          dispatch(updateTag(res));
           toast.success('Tag updated successfully');
           setIsAddEditTagVisible(false);
           form.resetFields();
@@ -91,17 +87,15 @@ const AddEditTag = ({
         }
       } else {
         // Create new tag
-        const newTag = {
-          ...values,
-          GUID: v4(),
+        const newTag: TagMetaDataCreateRequest = {
+          Key: values.Key,
+          Value: values.Value,
+          NodeGUID: values.NodeGUID,
+          EdgeGUID: values.EdgeGUID,
           GraphGUID: selectedGraph,
-          TenantGUID: '00000000-0000-0000-0000-000000000000',
-          CreatedUtc: new Date().toISOString(),
-          LastUpdateUtc: new Date().toISOString(),
         };
-        const res = await createTags(newTag);
+        const res = await createTag(newTag);
         if (res) {
-          dispatch(createTag(newTag));
           toast.success('Tag created successfully');
           setIsAddEditTagVisible(false);
           form.resetFields();

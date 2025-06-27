@@ -124,6 +124,9 @@
 .pl-lg {
   padding-left: var(--ant-padding-lg);
 }
+.pl-0 {
+  padding-left: 0 !important;
+}
 
 .pr-lg {
   padding-right: var(--ant-padding-lg);
@@ -135,6 +138,9 @@
 
 .pr-sm {
   padding-right: var(--ant-padding-sm);
+}
+.ml-auto {
+  margin-left: auto;
 }
 
 .pl-xs {

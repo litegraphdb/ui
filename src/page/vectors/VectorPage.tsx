@@ -10,26 +10,39 @@ import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditVector from './components/AddEditVector';
 import DeleteVector from './components/DeleteVector';
 import { transformVectorsDataForTable } from './utils';
-import { useNodeAndEdge, useSelectedGraph, useVectors } from '@/hooks/entityHooks';
+import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
+import { useEnumerateAndSearchVectorQuery } from '@/lib/store/slice/slice';
+import { usePagination } from '@/hooks/appHooks';
+import { tablePaginationConfig } from '@/constants/pagination';
 
 const VectorPage = () => {
   // Redux state for the list of graphs
   const selectedGraphRedux = useSelectedGraph();
   const { isGraphsLoading } = useLayoutContext();
-
+  const { page, pageSize, skip, handlePageChange } = usePagination();
   const {
-    nodesList,
-    edgesList,
+    nodesList = [],
+    edgesList = [],
     isLoading: isEdgesAndNodeLoading,
     fetchNodesAndEdges,
   } = useNodeAndEdge(selectedGraphRedux);
   const {
-    vectorsList,
-    fetchVectorsList,
+    data,
+    refetch: fetchVectorsList,
     isLoading: isVectorsLoading,
     error: isVectorsError,
-  } = useVectors(selectedGraphRedux);
+  } = useEnumerateAndSearchVectorQuery(
+    {
+      GraphGUID: selectedGraphRedux,
+      MaxResults: pageSize,
+      Skip: skip,
+    },
+    {
+      skip: !selectedGraphRedux,
+    }
+  );
+  const vectorsList = data?.Objects || [];
   const transformedVectorsList = transformVectorsDataForTable(vectorsList, nodesList, edgesList);
   const [selectedVector, setSelectedVector] = useState<VectorType | null | undefined>(null);
   const [isAddEditVectorVisible, setIsAddEditVectorVisible] = useState<boolean>(false);
@@ -77,10 +90,17 @@ const VectorPage = () => {
           columns={tableColumns(handleEditVector, handleDelete)}
           dataSource={transformedVectorsList}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: data?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 
-       {isAddEditVectorVisible && (
+      {isAddEditVectorVisible && (
         <AddEditVector
           isAddEditVectorVisible={isAddEditVectorVisible}
           setIsAddEditVectorVisible={setIsAddEditVectorVisible}
@@ -91,7 +111,7 @@ const VectorPage = () => {
             await fetchNodesAndEdges();
           }}
         />
-      )} 
+      )}
 
       {isDeleteModelVisible && selectedVector && (
         <DeleteVector
@@ -103,7 +123,7 @@ const VectorPage = () => {
           setSelectedVector={setSelectedVector}
           onVectorDeleted={async () => await fetchNodesAndEdges()}
         />
-      )} 
+      )}
     </PageContainer>
   );
 };

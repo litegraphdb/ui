@@ -13,7 +13,7 @@ import DeleteLabel from './components/DeleteLabel';
 import { transformLabelsDataForTable } from './utils';
 import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
-import { useEnumerateLabelQuery } from '@/lib/store/slice/slice';
+import { useEnumerateAndSearchLabelQuery } from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 
@@ -26,10 +26,16 @@ const LabelPage = () => {
     isLoading,
     error: isLabelsError,
     refetch: fetchLabelsList,
-  } = useEnumerateLabelQuery({
-    maxKeys: pageSize,
-    skip: skip,
-  });
+  } = useEnumerateAndSearchLabelQuery(
+    {
+      MaxResults: pageSize,
+      Skip: skip,
+      GraphGUID: selectedGraphRedux,
+    },
+    {
+      skip: !selectedGraphRedux,
+    }
+  );
   const {
     nodesList,
     edgesList,

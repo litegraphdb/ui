@@ -23,11 +23,25 @@ import {
   TenantMetaData,
   GraphCreateRequest,
   EnumerateAndSearchRequest,
+  BackupMetaData,
+  BackupMetaDataCreateRequest,
+  Token,
 } from 'litegraphdb/dist/types/types';
 import { sdk } from '@/lib/sdk/litegraph.service';
 
 const enhancedSdk = sdkSlice.enhanceEndpoints({
-  addTagTypes: [SliceTags.GRAPH],
+  addTagTypes: [
+    SliceTags.GRAPH,
+    SliceTags.USER,
+    SliceTags.TENANT,
+    SliceTags.NODE,
+    SliceTags.EDGE,
+    SliceTags.TAG,
+    SliceTags.LABEL,
+    SliceTags.VECTOR,
+    SliceTags.CREDENTIAL,
+    SliceTags.BACKUP,
+  ],
 });
 
 const graphSlice = enhancedSdk.injectEndpoints({
@@ -91,12 +105,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
 
     //region Node
     //enumerate all nodes
-    enumerateNode: build.query<
+    enumerateAndSearchNode: build.query<
       EnumerateResponse<Node>,
-      { graphId: string; request: EnumerateRequest }
+      { graphId: string; request: EnumerateAndSearchRequest }
     >({
-      query: ({ graphId, request }: { graphId: string; request: EnumerateRequest }) => ({
-        callback: () => sdk.Node.enumerate(graphId, request),
+      query: ({ graphId, request }: { graphId: string; request: EnumerateAndSearchRequest }) => ({
+        callback: () => sdk.Node.enumerateAndSearch(graphId, request),
       }),
       providesTags: [SliceTags.NODE],
     }),
@@ -138,12 +152,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
 
     //region Edge
     //enumerate all edges
-    enumerateEdge: build.query<
+    enumerateAndSearchEdge: build.query<
       EnumerateResponse<Edge>,
-      { graphId: string; request: EnumerateRequest }
+      { graphId: string; request: EnumerateAndSearchRequest }
     >({
-      query: ({ graphId, request }: { graphId: string; request: EnumerateRequest }) => ({
-        callback: () => sdk.Edge.enumerate(graphId, request),
+      query: ({ graphId, request }: { graphId: string; request: EnumerateAndSearchRequest }) => ({
+        callback: () => sdk.Edge.enumerateAndSearch(graphId, request),
       }),
       providesTags: [SliceTags.EDGE],
     }),
@@ -185,9 +199,9 @@ const graphSlice = enhancedSdk.injectEndpoints({
 
     //region Tag
     //enumerate all tags
-    enumerateTag: build.query<EnumerateResponse<TagMetaData>, EnumerateRequest>({
-      query: (request: EnumerateRequest) => ({
-        callback: () => sdk.Tag.enumerate(request),
+    enumerateAndSearchTag: build.query<EnumerateResponse<TagMetaData>, EnumerateAndSearchRequest>({
+      query: (request: EnumerateAndSearchRequest) => ({
+        callback: () => sdk.Tag.enumerateAndSearch(request),
       }),
       providesTags: [SliceTags.TAG],
     }),
@@ -229,9 +243,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
 
     //region Label
     //enumerate all labels
-    enumerateLabel: build.query<EnumerateResponse<LabelMetadata>, EnumerateRequest>({
-      query: (request: EnumerateRequest) => ({
-        callback: () => sdk.Label.enumerate(request),
+    enumerateAndSearchLabel: build.query<
+      EnumerateResponse<LabelMetadata>,
+      EnumerateAndSearchRequest
+    >({
+      query: (request: EnumerateAndSearchRequest) => ({
+        callback: () => sdk.Label.enumerateAndSearch(request),
       }),
       providesTags: [SliceTags.LABEL],
     }),
@@ -273,9 +290,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
 
     //region Vector
     //enumerate all vectors
-    enumerateVector: build.query<EnumerateResponse<VectorMetadata>, EnumerateRequest>({
-      query: (request: EnumerateRequest) => ({
-        callback: () => sdk.Vector.enumerate(request),
+    enumerateAndSearchVector: build.query<
+      EnumerateResponse<VectorMetadata>,
+      EnumerateAndSearchRequest
+    >({
+      query: (request: EnumerateAndSearchRequest) => ({
+        callback: () => sdk.Vector.enumerateAndSearch(request),
       }),
       providesTags: [SliceTags.VECTOR],
     }),
@@ -317,14 +337,14 @@ const graphSlice = enhancedSdk.injectEndpoints({
 
     //region Credential
     //enumerate all credentials
-    enumerateCredential: build.query<EnumerateResponse<Credential>, EnumerateRequest>({
+    enumerateCredential: build.query<EnumerateResponse<CredentialMetadata>, EnumerateRequest>({
       query: (request: EnumerateRequest) => ({
         callback: () => sdk.Credential.enumerate(request),
       }),
       providesTags: [SliceTags.CREDENTIAL],
     }),
     //get all credentials
-    getAllCredentials: build.query<Credential[], void>({
+    getAllCredentials: build.query<CredentialMetadata[], void>({
       query: () => ({
         callback: () => sdk.Credential.readAll(),
       }),
@@ -446,6 +466,61 @@ const graphSlice = enhancedSdk.injectEndpoints({
       invalidatesTags: [SliceTags.USER],
     }),
     //endregion
+    //region Backup
+    //read all backups
+    readAllBackups: build.query<BackupMetaData[], void>({
+      query: () => ({
+        callback: () => sdk.Backup.readAll(),
+      }),
+      providesTags: [SliceTags.BACKUP],
+    }),
+    //read backup
+    readBackup: build.mutation<BackupMetaData, string>({
+      query: (fileName: string) => ({
+        callback: () => sdk.Backup.read(fileName),
+      }),
+    }),
+    //create backup
+    createBackup: build.mutation<BackupMetaData, BackupMetaDataCreateRequest>({
+      query: (backup: BackupMetaDataCreateRequest) => ({
+        callback: () => sdk.Backup.create(backup),
+      }),
+      invalidatesTags: [SliceTags.BACKUP],
+    }),
+    //delete backup
+    deleteBackup: build.mutation<boolean, string>({
+      query: (fileName: string) => ({
+        callback: () => sdk.Backup.delete(fileName),
+      }),
+      invalidatesTags: [SliceTags.BACKUP],
+    }),
+
+    //endregion
+    //region Authentication
+    getTenantsForEmail: build.mutation<TenantMetaData[], string>({
+      query: (email: string) => ({
+        callback: () => sdk.Authentication.getTenantsForEmail(email),
+      }),
+    }),
+    generateToken: build.mutation<Token, { email: string; password: string; tenantId: string }>({
+      query: ({
+        email,
+        password,
+        tenantId,
+      }: {
+        email: string;
+        password: string;
+        tenantId: string;
+      }) => ({
+        callback: () => sdk.Authentication.generateToken(email, password, tenantId),
+      }),
+    }),
+    getTokenDetails: build.mutation<Token, string>({
+      query: (token: string) => ({
+        callback: () => sdk.Authentication.getTokenDetails(token),
+      }),
+    }),
+    //endregion
   }),
 });
 
@@ -457,28 +532,28 @@ export const {
   useDeleteGraphMutation,
   useGetAllGraphsQuery,
   useUpdateGraphMutation,
-  useEnumerateNodeQuery,
+  useEnumerateAndSearchNodeQuery,
   useGetNodeByIdQuery,
   useCreateNodeMutation,
   useDeleteNodeMutation,
   useGetAllNodesQuery,
   useUpdateNodeMutation,
-  useEnumerateEdgeQuery,
+  useEnumerateAndSearchEdgeQuery,
   useCreateEdgeMutation,
   useDeleteEdgeMutation,
   useGetAllEdgesQuery,
   useUpdateEdgeMutation,
-  useEnumerateTagQuery,
+  useEnumerateAndSearchTagQuery,
   useCreateTagMutation,
   useDeleteTagMutation,
   useGetAllTagsQuery,
   useUpdateTagMutation,
-  useEnumerateLabelQuery,
+  useEnumerateAndSearchLabelQuery,
   useCreateLabelMutation,
   useDeleteLabelMutation,
   useGetAllLabelsQuery,
   useUpdateLabelMutation,
-  useEnumerateVectorQuery,
+  useEnumerateAndSearchVectorQuery,
   useCreateVectorMutation,
   useDeleteVectorMutation,
   useGetAllVectorsQuery,
@@ -506,4 +581,11 @@ export const {
   useGetUserByIdQuery,
   useGetEdgeByIdQuery,
   useGetGraphGexfContentByIdMutation,
+  useReadAllBackupsQuery,
+  useReadBackupMutation,
+  useCreateBackupMutation,
+  useDeleteBackupMutation,
+  useGetTenantsForEmailMutation,
+  useGenerateTokenMutation,
+  useGetTokenDetailsMutation,
 } = graphSlice;

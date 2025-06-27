@@ -1,11 +1,9 @@
 'use client';
-import { useDeleteUsersById } from '@/lib/sdk/litegraph.service';
 import { UserType } from '@/lib/store/user/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteUser } from '@/lib/store/user/actions';
 import toast from 'react-hot-toast';
+import { useDeleteUserMutation } from '@/lib/store/slice/slice';
 
 interface DeleteUserProps {
   title: string;
@@ -28,18 +26,15 @@ const DeleteUser = ({
 
   onUserDeleted,
 }: DeleteUserProps) => {
-  const dispatch = useAppDispatch();
-  const { deleteUserById, isLoading } = useDeleteUsersById();
+  const [deleteUserById, { isLoading }] = useDeleteUserMutation();
 
   const handleDelete = async () => {
     if (selectedUser) {
       const res = await deleteUserById(selectedUser.GUID);
       if (res) {
-        dispatch(deleteUser({ GUID: selectedUser.GUID }));
         toast.success('User deleted successfully');
         setIsDeleteModelVisible(false);
         setSelectedUser(null);
-
         onUserDeleted && onUserDeleted();
       }
     }

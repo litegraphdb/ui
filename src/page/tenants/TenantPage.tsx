@@ -9,14 +9,25 @@ import AddEditTenant from './components/AddEditTenant';
 import DeleteTenant from './components/DeleteTenant';
 import { tableColumns } from './constant';
 import FallBack from '@/components/base/fallback/FallBack';
-import { useTenants } from '@/hooks/entityHooks';
+import { usePagination } from '@/hooks/appHooks';
+import { useEnumerateTenantQuery } from '@/lib/store/slice/slice';
+import { tablePaginationConfig } from '@/constants/pagination';
 
 const TenantPage = () => {
   const [selectedTenant, setSelectedTenant] = useState<TenantType | null>(null);
   const [isAddEditTenantVisible, setIsAddEditTenantVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
-
-  const { tenantsList, fetchTenantsList, isLoading: isTenantsLoading, error } = useTenants();
+  const { page, pageSize, skip, handlePageChange } = usePagination();
+  const {
+    data,
+    refetch: fetchTenantsList,
+    isLoading: isTenantsLoading,
+    error,
+  } = useEnumerateTenantQuery({
+    maxKeys: pageSize,
+    skip: skip,
+  });
+  const tenantsList = data?.Objects || [];
 
   const handleCreateTenant = () => {
     setSelectedTenant(null);
@@ -56,6 +67,13 @@ const TenantPage = () => {
           columns={tableColumns(handleEditTenant, handleDeleteTenant)}
           dataSource={tenantsList}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: data?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 
@@ -64,7 +82,6 @@ const TenantPage = () => {
           isAddEditTenantVisible={isAddEditTenantVisible}
           setIsAddEditTenantVisible={setIsAddEditTenantVisible}
           tenant={selectedTenant || null}
-          onTenantUpdated={fetchTenantsList}
         />
       )}
 
@@ -76,7 +93,6 @@ const TenantPage = () => {
           setIsDeleteModelVisible={setIsDeleteModelVisible}
           selectedTenant={selectedTenant}
           setSelectedTenant={setSelectedTenant}
-          onTenantDeleted={fetchTenantsList}
         />
       )}
     </PageContainer>

@@ -14,7 +14,6 @@ export function transformToOptions<T extends { GUID: string; name?: string; Name
   data?: T[] | null,
   labelField: keyof T = 'name' // Field to use for label in options
 ) {
-  console.log(data);
   return data
     ? data?.map((item) => ({
         value: item.GUID,

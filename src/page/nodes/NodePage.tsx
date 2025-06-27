@@ -11,32 +11,36 @@ import FallBack from '@/components/base/fallback/FallBack';
 import AddEditNode from './components/AddEditNode';
 import DeleteNode from './components/DeleteNode';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
-import { useSearchNodeData } from '@/hooks/entityHooks';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import SearchByTLDModal from '@/components/search/SearchModal';
 import { SearchData } from '@/components/search/type';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
-import { useEnumerateNodeQuery, useGetAllNodesQuery } from '@/lib/store/slice/slice';
+import { useEnumerateAndSearchNodeQuery } from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
+import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 
 const NodePage = () => {
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const { page, pageSize, skip, handlePageChange } = usePagination();
+  const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
   const {
     data: nodesList,
     refetch: fetchNodesList,
     isLoading: isNodesLoading,
     isError: isNodesError,
-  } = useEnumerateNodeQuery({
+  } = useEnumerateAndSearchNodeQuery({
     graphId: selectedGraphRedux,
     request: {
-      maxKeys: pageSize,
-      skip: skip,
+      ...searchParams,
+      Skip: skip,
+      MaxResults: pageSize,
+      IncludeData: true,
+      IncludeSubordinates: true,
     },
   });
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(null);
@@ -44,13 +48,6 @@ const NodePage = () => {
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const {
-    searchNode,
-    searchResults,
-    isLoading: isSearchLoading,
-    setSearchResults,
-    refreshSearch,
-  } = useSearchNodeData();
 
   const handleCreateNode = () => {
     setSelectedNode(null);
@@ -67,19 +64,15 @@ const NodePage = () => {
     setIsDeleteModelVisible(true);
   };
   const onSearch = async (values: SearchData) => {
-    await searchNode({
-      Domain: values.embeddings ? 'Node' : undefined,
-      SearchType: values.embeddings ? 'CosineSimilarity' : undefined,
-      Ordering: !values.embeddings ? 'CreatedDescending' : undefined,
-      GraphGUID: selectedGraphRedux,
+    setSearchParams({
+      Ordering: 'CreatedDescending',
       Labels: values.labels,
       Expr: values.expr,
       Tags: convertTagsToRecord(values.tags),
-      Embeddings: values.embeddings ? values.embeddings : undefined,
     });
   };
 
-  const dataSource = isSearching ? searchResults || [] : nodesList?.Objects || [];
+  const dataSource = nodesList?.Objects || [];
   const hasScoreOrDistance = useMemo(
     () => hasScoreOrDistanceInData(dataSource || []),
     [dataSource]
@@ -87,7 +80,6 @@ const NodePage = () => {
 
   useEffect(() => {
     setIsSearching(false);
-    setSearchResults(null);
   }, [selectedGraphRedux]);
 
   return (
@@ -96,73 +88,72 @@ const NodePage = () => {
       id="nodes"
       pageTitle={
         <LitegraphFlex align="center" gap={10}>
-          <LitegraphText>{isSearching ? 'Search ' : 'Nodes'}</LitegraphText>
-          {selectedGraphRedux &&
-            (isSearching ? (
-              <CloseOutlined className="cursor-pointer" onClick={() => setIsSearching(false)} />
-            ) : (
-              <SearchOutlined
-                className="cursor-pointer"
-                onClick={() => {
-                  setIsSearching(true);
-                  setSearchResults(null);
-                }}
-              />
-            ))}
+          <LitegraphText>Nodes</LitegraphText>
+          {selectedGraphRedux && (
+            <SearchOutlined className="cursor-pointer" onClick={() => setShowSearchModal(true)} />
+          )}
         </LitegraphFlex>
       }
       pageTitleRightContent={
-        <>
-          {selectedGraphRedux &&
-            (isSearching ? (
-              <LitegraphFlex gap={20}>
-                <LitegraphButton
-                  icon={<SearchOutlined />}
-                  type="link"
-                  onClick={() => setShowSearchModal(true)}
-                >
-                  Search by labels, tags, data and embeddings
-                </LitegraphButton>
-              </LitegraphFlex>
-            ) : (
-              <LitegraphButton
-                type="link"
-                icon={<PlusSquareOutlined />}
-                onClick={handleCreateNode}
-                weight={500}
-              >
-                Create Node
-              </LitegraphButton>
-            ))}
-        </>
+        selectedGraphRedux ? (
+          <LitegraphButton
+            type="link"
+            icon={<PlusSquareOutlined />}
+            onClick={handleCreateNode}
+            weight={500}
+          >
+            Create Node
+          </LitegraphButton>
+        ) : undefined
       }
     >
       {isNodesError ? (
         <FallBack retry={fetchNodesList}>{'Something went wrong.'}</FallBack>
       ) : (
-        <LitegraphTable
-          columns={
-            hasScoreOrDistance
-              ? tableColumns(handleEditNode, handleDelete, true)
-              : tableColumns(handleEditNode, handleDelete, false)
-          }
-          dataSource={dataSource}
-          loading={isNodesLoading || isSearchLoading}
-          rowKey={'GUID'}
-          pagination={{
-            ...tablePaginationConfig,
-            total: nodesList?.TotalRecords,
-            pageSize: pageSize,
-            current: page,
-            onChange: handlePageChange,
-          }}
-        />
+        <>
+          <LitegraphFlex
+            style={{ marginTop: '-10px' }}
+            gap={20}
+            justify="space-between"
+            align="center"
+            className="mb-sm"
+          >
+            {Boolean(Object.keys(searchParams).length) && (
+              <LitegraphText>
+                {nodesList?.TotalRecords} node{`(s)`} found{' '}
+                <LitegraphButton
+                  icon={<CloseOutlined />}
+                  type="link"
+                  onClick={() => setSearchParams({})}
+                >
+                  Clear
+                </LitegraphButton>{' '}
+              </LitegraphText>
+            )}
+          </LitegraphFlex>
+          <LitegraphTable
+            columns={
+              hasScoreOrDistance
+                ? tableColumns(handleEditNode, handleDelete, true)
+                : tableColumns(handleEditNode, handleDelete, false)
+            }
+            dataSource={dataSource}
+            loading={isNodesLoading}
+            rowKey={'GUID'}
+            pagination={{
+              ...tablePaginationConfig,
+              total: nodesList?.TotalRecords,
+              pageSize: pageSize,
+              current: page,
+              onChange: handlePageChange,
+            }}
+          />
+        </>
       )}
 
       <AddEditNode
         onNodeUpdated={async () => {
           await fetchNodesList();
-          refreshSearch();
         }}
         isAddEditNodeVisible={isAddEditNodeVisible}
         setIsAddEditNodeVisible={setIsAddEditNodeVisible}

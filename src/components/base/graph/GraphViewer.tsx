@@ -1,11 +1,9 @@
 'use client';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { SigmaContainer } from '@react-sigma/core';
 import GraphLoader from './GraphLoader';
 import { MultiDirectedGraph } from 'graphology';
 import '@react-sigma/core/lib/react-sigma.min.css';
-import { useGetGexfByGraphId } from '@/lib/sdk/litegraph.service';
-import { getGexfOgGraphByID } from '@/lib/store/graph/actions';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import NodeToolTip from './NodeToolTip';
@@ -41,7 +39,7 @@ const GraphViewer = ({
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
 
-  const { data, refetch: fetchNodesList } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
+  const { data } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
   const nodesList = data || [];
   const {
     data: gexfContent,

@@ -3,10 +3,7 @@ import toast from 'react-hot-toast';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import LitegraphButton from '@/components/base/button/Button';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { useDeleteEdgeById } from '@/lib/sdk/litegraph.service';
 import { EdgeType } from '@/lib/store/edge/types';
-import { deleteEdge } from '@/lib/store/edge/actions';
 import { useDeleteEdgeMutation } from '@/lib/store/slice/slice';
 
 type DeleteEdgeProps = {
@@ -27,8 +24,6 @@ const DeleteEdge = ({
   setSelectedEdge,
   onEdgeDeleted,
 }: DeleteEdgeProps) => {
-  const dispatch = useAppDispatch();
-
   const [deleteEdgeById, { isLoading: isDeleteEdgeLoading }] = useDeleteEdgeMutation();
 
   const handleDeleteEdge = async () => {
@@ -38,7 +33,6 @@ const DeleteEdge = ({
         edgeId: selectedEdge.GUID,
       });
       if (res) {
-        dispatch(deleteEdge({ GUID: selectedEdge.GUID }));
         toast.success('Delete Edge successfully');
         setIsDeleteModelVisisble(false);
         setSelectedEdge(null);

@@ -11,27 +11,40 @@ import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditTag from './components/AddEditTag';
 import DeleteTag from './components/DeleteTag';
 import { transformTagsDataForTable } from './utils';
-import { useNodeAndEdge, useSelectedGraph, useTags } from '@/hooks/entityHooks';
+import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
+import { useEnumerateAndSearchTagQuery } from '@/lib/store/slice/slice';
+import { usePagination } from '@/hooks/appHooks';
+import { tablePaginationConfig } from '@/constants/pagination';
 
 const TagPage = () => {
   // Redux state for the list of graphs
   const selectedGraphRedux = useSelectedGraph();
   const { isGraphsLoading } = useLayoutContext();
-
+  const { page, pageSize, skip, handlePageChange } = usePagination();
   const {
-    nodesList,
-    edgesList,
+    nodesList = [],
+    edgesList = [],
     isLoading: isEdgesAndNodeLoading,
     fetchNodesAndEdges,
   } = useNodeAndEdge(selectedGraphRedux);
   const {
-    tagsList,
-    fetchTagsList,
+    data,
+    refetch: fetchTagsList,
     isLoading: isTagsLoading,
     error: isTagsError,
-  } = useTags(selectedGraphRedux);
-  const transformedTagsList = transformTagsDataForTable(tagsList, nodesList, edgesList);
+  } = useEnumerateAndSearchTagQuery(
+    {
+      MaxResults: pageSize,
+      Skip: skip,
+      GraphGUID: selectedGraphRedux,
+    },
+    {
+      skip: !selectedGraphRedux,
+    }
+  );
+  const tagsList = data?.Objects || [];
+  const transformedTagsList = transformTagsDataForTable(tagsList, nodesList || [], edgesList || []);
   const [selectedTag, setSelectedTag] = useState<TagType | null | undefined>(null);
   const [isAddEditTagVisible, setIsAddEditTagVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
@@ -78,6 +91,13 @@ const TagPage = () => {
           columns={tableColumns(handleEditTag, handleDelete)}
           dataSource={transformedTagsList}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: data?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 

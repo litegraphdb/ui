@@ -19,7 +19,7 @@ interface LabelInputProps {
 const LabelInput: React.FC<LabelInputProps> = ({
   value = [],
   onChange,
-  placeholder = 'Enter label',
+  placeholder = 'Enter labels, separated by commas',
   name,
   readonly,
   className,
@@ -31,7 +31,7 @@ const LabelInput: React.FC<LabelInputProps> = ({
         readonly={readonly}
         mode="tags"
         style={{ width: '100%' }}
-        placeholder={readonly ? 'N/A' : 'Enter labels, separated by commas'}
+        placeholder={readonly ? 'N/A' : placeholder}
         tokenSeparators={[',']}
         open={false}
         // value={labels}

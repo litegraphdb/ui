@@ -1,11 +1,9 @@
 'use client';
-import { useDeleteVectorById } from '@/lib/sdk/litegraph.service';
 import { VectorType } from '@/lib/store/vector/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteVector } from '@/lib/store/vector/actions';
 import toast from 'react-hot-toast';
+import { useDeleteVectorMutation } from '@/lib/store/slice/slice';
 
 interface DeleteVectorProps {
   title: string;
@@ -26,14 +24,12 @@ const DeleteVector = ({
   setSelectedVector,
   onVectorDeleted,
 }: DeleteVectorProps) => {
-  const dispatch = useAppDispatch();
-  const { deleteVectorById, isLoading } = useDeleteVectorById();
+  const [deleteVectorById, { isLoading }] = useDeleteVectorMutation();
 
   const handleDelete = async () => {
     if (selectedVector) {
       const res = await deleteVectorById(selectedVector.GUID);
       if (res) {
-        dispatch(deleteVector({ GUID: selectedVector.GUID }));
         toast.success('Vector deleted successfully');
         setIsDeleteModelVisible(false);
         setSelectedVector(null);

@@ -3,9 +3,6 @@ import toast from 'react-hot-toast';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import LitegraphButton from '@/components/base/button/Button';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteNode } from '@/lib/store/node/actions';
-import { useDeleteNodeById } from '@/lib/sdk/litegraph.service';
 import { NodeType } from '@/lib/store/node/types';
 import { useDeleteNodeMutation } from '@/lib/store/slice/slice';
 
@@ -27,8 +24,6 @@ const DeleteNode = ({
   setSelectedNode,
   onNodeDeleted,
 }: DeleteNodeProps) => {
-  const dispatch = useAppDispatch();
-
   const [deleteNodeById, { isLoading: isDeleteNodeLoading }] = useDeleteNodeMutation();
 
   const handleDeleteNode = async () => {
@@ -38,7 +33,6 @@ const DeleteNode = ({
         nodeId: selectedNode.GUID,
       });
       if (res) {
-        dispatch(deleteNode({ GUID: selectedNode.GUID }));
         toast.success('Delete Node successfully');
         setIsDeleteModelVisible(false);
         setSelectedNode(null);
