@@ -1,9 +1,9 @@
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 
 import { getNodeNameByGUID } from '../edges/utils';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import { TagMetaData } from 'litegraphdb/dist/types/types';
-import { TagType } from '@/lib/store/tag/types';
+import { TagType } from '@/types/types';
 
 // Utility to find the name by GUID
 export const getEdgeNameByGUID = (guid: string, edgesList: EdgeType[]) => {

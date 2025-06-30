@@ -1,5 +1,5 @@
 'use client';
-import { VectorType } from '@/lib/store/vector/types';
+import { VectorType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import toast from 'react-hot-toast';

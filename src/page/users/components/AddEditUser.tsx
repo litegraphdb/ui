@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form, Switch, Input } from 'antd';
-import { UserType } from '@/lib/store/user/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
@@ -12,7 +11,7 @@ import { UserMetadata, UserMetadataCreateRequest } from 'litegraphdb/dist/types/
 interface AddEditUserProps {
   isAddEditUserVisible: boolean;
   setIsAddEditUserVisible: (visible: boolean) => void;
-  user: UserType | null;
+  user: UserMetadata | null;
   onUserUpdated?: () => Promise<void>;
 }
 

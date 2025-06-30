@@ -1,5 +1,5 @@
 'use client';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import toast from 'react-hot-toast';

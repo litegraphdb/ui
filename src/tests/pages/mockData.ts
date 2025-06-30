@@ -1,4 +1,4 @@
-import { GraphData } from '@/lib/store/graph/types';
+import { GraphData } from '@/types/types';
 import {
   BackupMetaData,
   CredentialMetadata,
@@ -170,9 +170,11 @@ export const tagListingData = {
   results: mockTagData.allTags,
 };
 
+export const mockTenantGUID = '00000000-0000-0000-0000-000000000000';
+
 export const mockTenantData: TenantMetaData[] = [
   {
-    GUID: '00000000-0000-0000-0000-000000000001',
+    GUID: mockTenantGUID,
     Name: 'Test Tenant',
     Active: true,
     CreatedUtc: '2024-01-01T00:00:00Z' as any,

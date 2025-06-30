@@ -1,1 +1,1 @@
-export const mockEndpoint = 'http://localhost:3232/';
+export const mockEndpoint = 'http://localhost:8701/';

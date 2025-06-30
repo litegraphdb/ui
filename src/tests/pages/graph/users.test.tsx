@@ -4,9 +4,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import UserPage from '../../../page/users/UserPage';
 import { Provider } from 'react-redux';
 import { createMockStore } from '../../store/mockStore';
-import { mockUserData } from '../mockData';
+import { mockTenantData, mockUserData } from '../mockData';
 
 jest.mock('@/hooks/entityHooks', () => ({
+  useSelectedTenant: () => ({
+    tenant: mockTenantData[0],
+  }),
   useUsers: () => ({
     usersList: mockUserData,
     isLoading: false,

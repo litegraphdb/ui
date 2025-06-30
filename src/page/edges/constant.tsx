@@ -1,7 +1,7 @@
 import React from 'react';
 import { MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';

@@ -1,16 +1,16 @@
 import React from 'react';
 import { Button, Dropdown, TableProps } from 'antd';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
-import { TenantType } from '@/lib/store/tenants/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '@/components/table-search/TableSearch';
 import { onGUIDFilter, onNameFilter } from '@/constants/table';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
 
 export const tableColumns = (
-  handleEdit: (tenant: TenantType) => void,
-  handleDelete: (tenant: TenantType) => void
-): TableProps<TenantType>['columns'] => [
+  handleEdit: (tenant: TenantMetaData) => void,
+  handleDelete: (tenant: TenantMetaData) => void
+): TableProps<TenantMetaData>['columns'] => [
   {
     title: 'GUID',
     dataIndex: 'GUID',
@@ -33,7 +33,7 @@ export const tableColumns = (
     ),
     onFilter: (value, record) => onNameFilter(value, record.Name),
     responsive: ['md'],
-    sorter: (a: TenantType, b: TenantType) => a.Name.localeCompare(b.Name),
+    sorter: (a: TenantMetaData, b: TenantMetaData) => a.Name.localeCompare(b.Name),
     render: (Name: string) => <div>{Name}</div>,
   },
 
@@ -43,7 +43,7 @@ export const tableColumns = (
     key: 'Active',
     width: 100,
     responsive: ['md'],
-    sorter: (a: TenantType, b: TenantType) => Number(b.Active) - Number(a.Active),
+    sorter: (a: TenantMetaData, b: TenantMetaData) => Number(b.Active) - Number(a.Active),
     render: (active: boolean) =>
       active ? (
         <CheckCircleFilled style={{ color: 'green' }} />
@@ -54,7 +54,7 @@ export const tableColumns = (
   {
     title: 'Created UTC',
     dataIndex: 'CreatedUtc',
-    sorter: (a: TenantType, b: TenantType) =>
+    sorter: (a: TenantMetaData, b: TenantMetaData) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     key: 'CreatedUtc',
     width: 200,
@@ -65,7 +65,7 @@ export const tableColumns = (
     title: 'Actions',
     key: 'actions',
     width: 100,
-    render: (_: any, record: TenantType) => {
+    render: (_: any, record: TenantMetaData) => {
       const items = [
         {
           key: 'edit',

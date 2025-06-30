@@ -4,7 +4,6 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
-import { UserType } from '@/lib/store/user/types';
 import AddEditUser from './components/AddEditUser';
 import DeleteUser from './components/DeleteUser';
 import { tableColumns } from './constant';
@@ -13,9 +12,10 @@ import { usePagination } from '@/hooks/appHooks';
 import { useEnumerateUserQuery } from '@/lib/store/slice/slice';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { useSelectedTenant } from '@/hooks/entityHooks';
+import { UserMetadata } from 'litegraphdb/dist/types/types';
 
 const UserPage = () => {
-  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserMetadata | null>(null);
   const [isAddEditUserVisible, setIsAddEditUserVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
   const { page, pageSize, skip, handlePageChange } = usePagination();
@@ -41,12 +41,12 @@ const UserPage = () => {
     setIsAddEditUserVisible(true);
   };
 
-  const handleEditUser = (data: UserType) => {
+  const handleEditUser = (data: UserMetadata) => {
     setSelectedUser(data);
     setIsAddEditUserVisible(true);
   };
 
-  const handleDeleteUser = (data: UserType) => {
+  const handleDeleteUser = (data: UserMetadata) => {
     setSelectedUser(data);
     setIsDeleteModelVisible(true);
   };

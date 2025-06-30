@@ -1,19 +1,19 @@
 'use client';
 
-import { BackupType } from '@/lib/store/backup/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import toast from 'react-hot-toast';
 import { globalToastId } from '@/constants/config';
 import { useDeleteBackupMutation } from '@/lib/store/slice/slice';
+import { BackupMetaData } from 'litegraphdb/dist/types/types';
 
 interface DeleteBackupProps {
   title: string;
   paragraphText: string;
   isDeleteModelVisible: boolean;
   setIsDeleteModelVisible: (visible: boolean) => void;
-  selectedBackup: BackupType | null | undefined;
-  setSelectedBackup: (backup: BackupType | null) => void;
+  selectedBackup: BackupMetaData | null | undefined;
+  setSelectedBackup: (backup: BackupMetaData | null) => void;
 
   onBackupDeleted?: () => Promise<void>;
 }

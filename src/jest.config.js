@@ -16,7 +16,9 @@ const customJestConfig = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
-  testMatch: ['**/*.test.{ts,tsx}'],
+  transformIgnorePatterns: [
+    '<rootDir>/node_modules/(?!react-hot-toast|@react-sigma/core|graphology|sigma)/',
+  ],
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',
     'components/**/*.{ts,tsx}',

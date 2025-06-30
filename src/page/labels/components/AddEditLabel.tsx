@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form } from 'antd';
-import { LabelType } from '@/lib/store/label/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
@@ -14,7 +13,7 @@ import { LabelMetadata, LabelMetadataCreateRequest } from 'litegraphdb/dist/type
 interface AddEditLabelProps {
   isAddEditLabelVisible: boolean;
   setIsAddEditLabelVisible: (visible: boolean) => void;
-  label: LabelType | null;
+  label: LabelMetadata | null;
   selectedGraph: string;
   onLabelUpdated?: () => Promise<void>;
 }

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
 import { tableColumns } from './constant';
 import { useGetGraphGexfContentByIdMutation } from '@/lib/store/slice/slice';
-import { GraphData } from '@/lib/store/graph/types';
+import { GraphData } from '@/types/types';
 import toast from 'react-hot-toast';
 import FallBack from '@/components/base/fallback/FallBack';
 import LitegraphButton from '@/components/base/button/Button';

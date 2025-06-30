@@ -1,5 +1,5 @@
 'use client';
-import { TagType } from '@/lib/store/tag/types';
+import { TagType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import toast from 'react-hot-toast';

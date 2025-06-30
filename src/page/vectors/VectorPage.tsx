@@ -4,7 +4,7 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
-import { VectorType } from '@/lib/store/vector/types';
+import { VectorType } from '@/types/types';
 import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditVector from './components/AddEditVector';

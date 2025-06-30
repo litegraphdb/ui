@@ -1,5 +1,5 @@
-import { EdgeType } from '@/lib/store/edge/types';
-import { NodeType } from '@/lib/store/node/types';
+import { EdgeType } from '@/types/types';
+import { NodeType } from '@/types/types';
 
 // Utility to find the name by GUID
 export const getNodeNameByGUID = (guid: string, nodesList: NodeType[]) => {

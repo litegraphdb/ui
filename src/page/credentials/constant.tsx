@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Dropdown, TableProps } from 'antd';
 import { MoreOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '@/components/table-search/TableSearch';

@@ -1,6 +1,6 @@
 'use client';
 import { Form } from 'antd';
-import { GraphData } from '@/lib/store/graph/types';
+import { GraphData } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import { useEffect, useState } from 'react';

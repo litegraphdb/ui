@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MoreOutlined } from '@ant-design/icons';
-import { GraphData } from '@/lib/store/graph/types';
+import { GraphData } from '@/types/types';
 import { TableProps, Dropdown, Button, Menu, Input } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';

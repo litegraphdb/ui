@@ -12,7 +12,7 @@ import FallBack from '@/components/base/fallback/FallBack';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphButton from '@/components/base/button/Button';
 import AddEditNode from '@/page/nodes/components/AddEditNode';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import DeleteNode from '@/page/nodes/components/DeleteNode';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';

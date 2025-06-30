@@ -1,7 +1,7 @@
 import React from 'react';
 import { MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
-import { VectorType } from '@/lib/store/vector/types';
+import { VectorType } from '@/types/types';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import { formatDateTime } from '@/utils/dateUtils';
 import { FilterDropdownProps } from 'antd/es/table/interface';

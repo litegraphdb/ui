@@ -1,6 +1,6 @@
-import { EdgeType } from '@/lib/store/edge/types';
-import { GraphData } from '@/lib/store/graph/types';
-import { NodeType } from '@/lib/store/node/types';
+import { EdgeType } from '@/types/types';
+import { GraphData } from '@/types/types';
+import { NodeType } from '@/types/types';
 import { VectorSearchResult } from 'litegraphdb/dist/types/types';
 
 export const transformToGraphData = (data: VectorSearchResult[]) => {

@@ -6,7 +6,7 @@ import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import { tableColumns } from './constant';
 import AddEditEdge from './components/AddEditEdge';
 import DeleteEdge from './components/DeleteEdge';

@@ -7,7 +7,7 @@ import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
 import { validationRules } from './constant';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
 import LabelInput from '@/components/inputs/label-input/LabelInput';

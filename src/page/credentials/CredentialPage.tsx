@@ -4,7 +4,7 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import AddEditCredential from './components/AddEditCredential';
 import DeleteCredential from './components/DeleteCredential';
 

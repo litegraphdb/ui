@@ -1,9 +1,9 @@
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import { getNodeNameByGUID } from '../edges/utils';
 
 import { getEdgeNameByGUID } from '../tags/utils';
 import { LabelMetadata } from 'litegraphdb/dist/types/types';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import { LabelMetadataForTable } from './types';
 
 export const transformLabelsDataForTable = (

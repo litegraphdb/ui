@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form } from 'antd';
-import { TagType } from '@/lib/store/tag/types';
+import { TagType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';

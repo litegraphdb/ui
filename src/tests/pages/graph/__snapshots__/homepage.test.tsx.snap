@@ -371,44 +371,42 @@ exports[`HomePage with Mock API renders the GraphViewer and select one graph 1`]
             </span>
             <select
               data-testid="litegraph-select"
-            >
-              <option
-                value="e6d4294e-6f49-4d67-8260-5e44c2b077a6"
-              >
-                Test Demo Graph
-              </option>
-              <option
-                value="d52aeab4-4de7-4076-98dd-461d4a61ac88"
-              >
-                testttt 2
-              </option>
-            </select>
+            />
           </div>
         </div>
         <div
           class="userSection"
         >
-          <span
-            class="ant-typography userName css-dev-only-do-not-override-98ntnt"
-            style="font-weight: 100;"
-          >
-            <strong>
-              undefined undefined
-            </strong>
-          </span>
           <div
-            class="logoutLink"
-            role="button"
-            tabindex="0"
+            class="ant-dropdown-trigger container ant-flex css-dev-only-do-not-override-98ntnt ant-flex-align-center"
+            style="gap: 10px;"
           >
             <span
-              aria-label="logout"
-              class="anticon anticon-logout logoutIcon"
+              class="ant-typography ant-color-white css-dev-only-do-not-override-98ntnt"
+              style="font-weight: 400;"
+            >
+              <strong>
+                User
+              </strong>
+            </span>
+            <span
+              class="ant-avatar ant-avatar-sm ant-avatar-circle css-dev-only-do-not-override-98ntnt"
+            >
+              <span
+                class="ant-avatar-string"
+                style="transform: scale(1);"
+              >
+                U
+              </span>
+            </span>
+            <span
+              aria-label="down-circle"
+              class="anticon anticon-down-circle ant-color-white"
               role="img"
             >
               <svg
                 aria-hidden="true"
-                data-icon="logout"
+                data-icon="down-circle"
                 fill="currentColor"
                 focusable="false"
                 height="1em"
@@ -416,12 +414,12 @@ exports[`HomePage with Mock API renders the GraphViewer and select one graph 1`]
                 width="1em"
               >
                 <path
-                  d="M868 732h-70.3c-4.8 0-9.3 2.1-12.3 5.8-7 8.5-14.5 16.7-22.4 24.5a353.84 353.84 0 01-112.7 75.9A352.8 352.8 0 01512.4 866c-47.9 0-94.3-9.4-137.9-27.8a353.84 353.84 0 01-112.7-75.9 353.28 353.28 0 01-76-112.5C167.3 606.2 158 559.9 158 512s9.4-94.2 27.8-137.8c17.8-42.1 43.4-80 76-112.5s70.5-58.1 112.7-75.9c43.6-18.4 90-27.8 137.9-27.8 47.9 0 94.3 9.3 137.9 27.8 42.2 17.8 80.1 43.4 112.7 75.9 7.9 7.9 15.3 16.1 22.4 24.5 3 3.7 7.6 5.8 12.3 5.8H868c6.3 0 10.2-7 6.7-12.3C798 160.5 663.8 81.6 511.3 82 271.7 82.6 79.6 277.1 82 516.4 84.4 751.9 276.2 942 512.4 942c152.1 0 285.7-78.8 362.3-197.7 3.4-5.3-.4-12.3-6.7-12.3zm88.9-226.3L815 393.7c-5.3-4.2-13-.4-13 6.3v76H488c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h314v76c0 6.7 7.8 10.5 13 6.3l141.9-112a8 8 0 000-12.6z"
+                  d="M690 405h-46.9c-10.2 0-19.9 4.9-25.9 13.2L512 563.6 406.8 418.2c-6-8.3-15.6-13.2-25.9-13.2H334c-6.5 0-10.3 7.4-6.5 12.7l178 246c3.2 4.4 9.7 4.4 12.9 0l178-246c3.9-5.3.1-12.7-6.4-12.7z"
+                />
+                <path
+                  d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
                 />
               </svg>
-            </span>
-            <span>
-              Logout
             </span>
           </div>
         </div>
@@ -431,97 +429,40 @@ exports[`HomePage with Mock API renders the GraphViewer and select one graph 1`]
         style="min-height: 280px; background: rgb(255, 255, 255);"
       >
         <main
-          class="ant-layout-content pb-0 pageContainer css-dev-only-do-not-override-98ntnt"
-          id="homepage"
+          class="ant-layout-content pageContainer css-dev-only-do-not-override-98ntnt"
         >
           <div
-            class="pageTitleContainer ant-flex css-dev-only-do-not-override-98ntnt ant-flex-wrap-wrap ant-flex-align-center ant-flex-justify-space-between ant-flex-gap-small"
+            class="pageContent"
           >
-            <span
-              class="ant-typography css-dev-only-do-not-override-98ntnt"
-              data-testid="heading"
-              style="font-weight: 600; font-size: 16px;"
-            >
-              Home
-            </span>
             <div
-              class="ant-flex css-dev-only-do-not-override-98ntnt"
+              class="ant-flex css-dev-only-do-not-override-98ntnt ant-flex-align-center ant-flex-justify-center ant-flex-vertical"
             >
-              <button
-                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-link"
-                style="font-weight: 600;"
-                type="button"
+              <span
+                class="ant-typography css-dev-only-do-not-override-98ntnt"
               >
-                <span
-                  class="ant-btn-icon"
-                >
-                  <span
-                    aria-label="plus-square"
-                    class="anticon anticon-plus-square"
-                    role="img"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      data-icon="plus-square"
-                      fill="currentColor"
-                      focusable="false"
-                      height="1em"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"
-                      />
-                      <path
-                        d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z"
-                      />
-                    </svg>
-                  </span>
-                </span>
-                <span>
-                  Add Node
-                </span>
-              </button>
-              <button
-                class="ant-btn css-dev-only-do-not-override-98ntnt ant-btn-link"
-                style="font-weight: 600;"
-                type="button"
+                Loading...
+              </span>
+              <span
+                aria-label="loading"
+                class="anticon anticon-loading anticon-spin pageLoader"
+                role="img"
               >
-                <span
-                  class="ant-btn-icon"
+                <svg
+                  aria-hidden="true"
+                  data-icon="loading"
+                  fill="currentColor"
+                  focusable="false"
+                  height="1em"
+                  viewBox="0 0 1024 1024"
+                  width="1em"
                 >
-                  <span
-                    aria-label="plus-square"
-                    class="anticon anticon-plus-square"
-                    role="img"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      data-icon="plus-square"
-                      fill="currentColor"
-                      focusable="false"
-                      height="1em"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"
-                      />
-                      <path
-                        d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z"
-                      />
-                    </svg>
-                  </span>
-                </span>
-                <span>
-                  Add Edge
-                </span>
-              </button>
+                  <path
+                    d="M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 00-94.3-139.9 437.71 437.71 0 00-139.9-94.3C629 83.6 571.4 72 512 72c-19.9 0-36-16.1-36-36s16.1-36 36-36c69.1 0 136.2 13.5 199.3 40.3C772.3 66 827 103 874 150c47 47 83.9 101.8 109.7 162.7 26.7 63.1 40.2 130.2 40.2 199.3.1 19.9-16 36-35.9 36z"
+                  />
+                </svg>
+              </span>
             </div>
           </div>
-          <div
-            class="pageContent"
-          />
         </main>
       </main>
     </div>

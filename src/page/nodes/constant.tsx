@@ -1,7 +1,7 @@
 import React from 'react';
 import { MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
 import { isNumber } from 'lodash';

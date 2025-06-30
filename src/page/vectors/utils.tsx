@@ -1,6 +1,6 @@
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import { getNodeNameByGUID } from '../edges/utils';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import { getEdgeNameByGUID } from '../tags/utils';
 import { VectorMetadata } from 'litegraphdb/dist/types/types';
 

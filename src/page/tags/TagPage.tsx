@@ -4,7 +4,7 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
-import { TagType } from '@/lib/store/tag/types';
+import { TagType } from '@/types/types';
 import { tableColumns } from './constant';
 
 import PageContainer from '@/components/base/pageContainer/PageContainer';

@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import LitegraphButton from '@/components/base/button/Button';
-import { EdgeType } from '@/lib/store/edge/types';
+import { EdgeType } from '@/types/types';
 import { useDeleteEdgeMutation } from '@/lib/store/slice/slice';
 
 type DeleteEdgeProps = {

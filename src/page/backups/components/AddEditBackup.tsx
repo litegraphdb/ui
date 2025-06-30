@@ -7,15 +7,14 @@ import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphModal from '@/components/base/modal/Modal';
 
 import LitegraphInput from '@/components/base/input/Input';
-import { BackupType } from '@/lib/store/backup/types';
 import { toast } from 'react-hot-toast';
-import { BackupMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
+import { BackupMetaData, BackupMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
 import { useCreateBackupMutation } from '@/lib/store/slice/slice';
 
 interface AddEditBackupProps {
   isAddEditBackupVisible: boolean;
   setIsAddEditBackupVisible: (visible: boolean) => void;
-  backup: BackupType | null;
+  backup: BackupMetaData | null;
   onBackupUpdated?: () => Promise<void>;
 }
 

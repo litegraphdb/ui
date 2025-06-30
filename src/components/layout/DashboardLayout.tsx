@@ -9,24 +9,17 @@ import styles from './dashboard.module.scss';
 import { MenuItemProps } from '../menu-item/types';
 import LitegraphSelect from '../base/select/Select';
 import { useSelectedGraph, useSelectedTenant } from '@/hooks/entityHooks';
-import { clearNodes } from '@/lib/store/node/actions';
-import { clearEdges } from '@/lib/store/edge/actions';
 import { storeSelectedGraph, storeTenant } from '@/lib/store/litegraph/actions';
 import { LayoutContext } from './context';
-import { clearLabels } from '@/lib/store/label/actions';
-import { clearTags } from '@/lib/store/tag/actions';
-import { clearVectors } from '@/lib/store/vector/actions';
 import { setTenant } from '@/lib/sdk/litegraph.service';
-import { clearCredentials } from '@/lib/store/credential/actions';
-import { clearUsers } from '@/lib/store/user/actions';
 import { localStorageKeys } from '@/constants/constant';
 import LitegraphFlex from '../base/flex/Flex';
-import { TenantType } from '@/lib/store/tenants/types';
 import { useGetAllGraphsQuery, useGetAllTenantsQuery } from '@/lib/store/slice/slice';
 import { transformToOptions } from '@/lib/graph/utils';
 import LoggedUserInfo from '../logged-in-user/LoggedUserInfo';
 import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
 import { SliceTags } from '@/lib/store/slice/types';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
 
 const { Header, Content } = Layout;
 
@@ -82,19 +75,12 @@ const DashboardLayout = ({
   }, [selectedTenantRedux, tenantsList, dispatch]);
 
   const handleGraphSelect = async (graphId: any) => {
-    dispatch(clearNodes());
-    dispatch(clearEdges());
-    dispatch(clearLabels());
-    dispatch(clearTags());
-    dispatch(clearVectors());
     dispatch(storeSelectedGraph({ graph: graphId.toString() }));
   };
 
   const handleTenantSelect = async (tenantId: any) => {
     if (!useTenantSelector) return;
-    dispatch(clearCredentials());
-    dispatch(clearUsers());
-    const tenant = tenantsList.find((tenant: TenantType) => tenant.GUID === tenantId);
+    const tenant = tenantsList.find((tenant: TenantMetaData) => tenant.GUID === tenantId);
     if (tenant) {
       localStorage.setItem(localStorageKeys.tenant, JSON.stringify(tenant));
       setTenant(tenant.GUID);

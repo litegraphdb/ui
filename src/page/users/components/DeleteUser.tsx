@@ -1,17 +1,17 @@
 'use client';
-import { UserType } from '@/lib/store/user/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import toast from 'react-hot-toast';
 import { useDeleteUserMutation } from '@/lib/store/slice/slice';
+import { UserMetadata } from 'litegraphdb/dist/types/types';
 
 interface DeleteUserProps {
   title: string;
   paragraphText: string;
   isDeleteModelVisible: boolean;
   setIsDeleteModelVisible: (visible: boolean) => void;
-  selectedUser: UserType | null | undefined;
-  setSelectedUser: (user: UserType | null) => void;
+  selectedUser: UserMetadata | null | undefined;
+  setSelectedUser: (user: UserMetadata | null) => void;
 
   onUserDeleted?: () => Promise<void>;
 }

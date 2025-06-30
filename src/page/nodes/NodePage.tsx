@@ -6,7 +6,7 @@ import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
 import { tableColumns } from './constant';
 import LitegraphButton from '@/components/base/button/Button';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import FallBack from '@/components/base/fallback/FallBack';
 import AddEditNode from './components/AddEditNode';
 import DeleteNode from './components/DeleteNode';

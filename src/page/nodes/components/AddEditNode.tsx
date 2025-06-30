@@ -8,7 +8,7 @@ import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { validationRules } from './constant';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import toast from 'react-hot-toast';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import LabelInput from '@/components/inputs/label-input/LabelInput';

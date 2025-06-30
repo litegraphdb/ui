@@ -16,6 +16,7 @@ export const sdkBaseQuery: BaseQueryFn<SdkBaseQueryArgs, unknown, unknown> = asy
     const result = await callback();
     return { data: result };
   } catch (error) {
+    console.error(error, 'chk error');
     return { error };
   }
 };

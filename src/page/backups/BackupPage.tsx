@@ -6,24 +6,25 @@ import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
 import FallBack from '@/components/base/fallback/FallBack';
 import { tableColumns } from './constant';
-import { BackupType } from '@/lib/store/backup/types';
 import DeleteBackup from './components/DeleteBackup';
 import AddEditBackup from './components/AddEditBackup';
 import { downloadBase64File } from '@/utils/appUtils';
 import { toast } from 'react-hot-toast';
 import { globalToastId } from '@/constants/config';
 import { useReadAllBackupsQuery, useReadBackupMutation } from '@/lib/store/slice/slice';
+import { BackupMetaData } from 'litegraphdb/dist/types/types';
 
 const BackupPage = () => {
   const [isDeleteBackupVisible, setIsDeleteBackupVisible] = useState(false);
   const [isAddEditBackupVisible, setIsAddEditBackupVisible] = useState(false);
-  const [selectedBackup, setSelectedBackup] = useState<BackupType | null>(null);
+  const [selectedBackup, setSelectedBackup] = useState<BackupMetaData | null>(null);
   const {
     data: backupsList = [],
     refetch: fetchBackupsList,
     isLoading,
     error,
   } = useReadAllBackupsQuery();
+  console.log({ backupsList }, 'chk backupsList');
   const [fetchBackupByFilename, { isLoading: isDownloading }] = useReadBackupMutation();
 
   const handleCreateBackup = () => {
@@ -31,12 +32,12 @@ const BackupPage = () => {
     setIsAddEditBackupVisible(true);
   };
 
-  const handleDeleteBackup = (backup: BackupType) => {
+  const handleDeleteBackup = (backup: BackupMetaData) => {
     setSelectedBackup(backup);
     setIsDeleteBackupVisible(true);
   };
 
-  const handleDownload = async (backup: BackupType) => {
+  const handleDownload = async (backup: BackupMetaData) => {
     if (!backup.Filename) {
       toast.error('Missing backup filename', { id: globalToastId });
       return;

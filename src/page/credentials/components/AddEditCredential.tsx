@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form, Switch, Select } from 'antd';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';

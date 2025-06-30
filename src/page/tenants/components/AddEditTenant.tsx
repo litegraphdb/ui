@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form, Switch, Select } from 'antd';
-import { TenantType } from '@/lib/store/tenants/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
@@ -13,7 +12,7 @@ import { TenantMetaData, TenantMetaDataCreateRequest } from 'litegraphdb/dist/ty
 interface AddEditTenantProps {
   isAddEditTenantVisible: boolean;
   setIsAddEditTenantVisible: (visible: boolean) => void;
-  tenant: TenantType | null;
+  tenant: TenantMetaData | null;
   onTenantUpdated?: () => Promise<void>;
 }
 

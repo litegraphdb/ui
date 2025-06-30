@@ -14,11 +14,6 @@ export const useSelectedGraph = () => {
   return selectedGraphRedux;
 };
 
-export const useGraphList = () => {
-  const graphsList = useAppSelector((state: RootState) => state.graphsList.graphs);
-  return graphsList || [];
-};
-
 export const useSelectedTenant = () => {
   const selectedTenantRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
   return selectedTenantRedux;

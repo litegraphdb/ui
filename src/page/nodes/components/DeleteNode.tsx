@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import LitegraphButton from '@/components/base/button/Button';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import { useDeleteNodeMutation } from '@/lib/store/slice/slice';
 
 type DeleteNodeProps = {

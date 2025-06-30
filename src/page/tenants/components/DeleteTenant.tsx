@@ -1,17 +1,17 @@
 'use client';
-import { TenantType } from '@/lib/store/tenants/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import toast from 'react-hot-toast';
 import { useDeleteTenantMutation } from '@/lib/store/slice/slice';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
 
 interface DeleteTenantProps {
   title: string;
   paragraphText: string;
   isDeleteModelVisible: boolean;
   setIsDeleteModelVisible: (visible: boolean) => void;
-  selectedTenant: TenantType | null | undefined;
-  setSelectedTenant: (tenant: TenantType | null) => void;
+  selectedTenant: TenantMetaData | null | undefined;
+  setSelectedTenant: (tenant: TenantMetaData | null) => void;
 
   onTenantDeleted?: () => Promise<void>;
 }
