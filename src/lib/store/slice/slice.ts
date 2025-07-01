@@ -167,6 +167,9 @@ const graphSlice = enhancedSdk.injectEndpoints({
         callback: () => sdk.Edge.readAll(graphId),
       }),
       providesTags: [SliceTags.EDGE],
+      transformResponse: (response: any) => {
+        return typeof response === 'object' ? response : [];
+      },
     }),
     getEdgeById: build.query<Edge, { graphId: string; edgeId: string }>({
       query: ({ graphId, edgeId }: { graphId: string; edgeId: string }) => ({

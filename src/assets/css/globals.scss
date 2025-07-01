@@ -207,6 +207,13 @@
 .ant-table-container {
   border: 1px solid var(--ant-color-border);
   border-radius: var(--ant-border-radius-lg);
+  .ant-table-content {
+    overflow-x: auto;
+    table {
+      width: 99% !important;
+      margin: 0 auto;
+    }
+  }
   .ant-table-thead {
     tr {
       th:first-child,

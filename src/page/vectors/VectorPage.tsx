@@ -43,6 +43,7 @@ const VectorPage = () => {
     }
   );
   const vectorsList = data?.Objects || [];
+  console.log(edgesList, typeof edgesList, 'edgesList');
   const transformedVectorsList = transformVectorsDataForTable(vectorsList, nodesList, edgesList);
   const [selectedVector, setSelectedVector] = useState<VectorType | null | undefined>(null);
   const [isAddEditVectorVisible, setIsAddEditVectorVisible] = useState<boolean>(false);

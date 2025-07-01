@@ -48,6 +48,7 @@ const LabelPage = () => {
   const [isAddEditLabelVisible, setIsAddEditLabelVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
 
+  console.log(edgesList, typeof edgesList, 'edgesList');
   const transformedLabelsList = transformLabelsDataForTable(
     labelsList?.Objects || [],
     nodesList || [],

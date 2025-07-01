@@ -26,7 +26,7 @@ type VectorDisplayData = {
 export const transformVectorsDataForTable = (
   vectorsList: VectorMetadata[],
   nodesList: NodeType[],
-  edgesList: EdgeType[]
+  edgesList: EdgeType[] = []
 ): VectorDisplayData[] => {
   return (
     vectorsList?.map((data) => ({

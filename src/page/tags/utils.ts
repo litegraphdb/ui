@@ -7,6 +7,7 @@ import { TagType } from '@/types/types';
 
 // Utility to find the name by GUID
 export const getEdgeNameByGUID = (guid: string, edgesList: EdgeType[]) => {
+  console.log(edgesList, typeof edgesList, 'edgesList');
   if (!guid) return 'N/A';
   const edge = edgesList.find((n: EdgeType) => n.GUID === guid);
   return edge ? edge.Name : guid;
