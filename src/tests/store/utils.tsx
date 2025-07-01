@@ -31,15 +31,5 @@ export const renderWithRedux = (
             serializableCheck: false,
           }).concat([sdkSlice.middleware]),
       });
-  return render(
-    <Provider store={reduxStore}>
-      <DashboardLayout
-        menuItems={useGraphsSelector ? tenantDashboardRoutes : adminDashboardRoutes}
-        useGraphsSelector={useGraphsSelector}
-        useTenantSelector={useTenantSelector}
-      >
-        {ui}
-      </DashboardLayout>
-    </Provider>
-  );
+  return render(<Provider store={reduxStore}>{ui}</Provider>);
 };

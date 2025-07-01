@@ -34,6 +34,7 @@ const UserPage = () => {
       skip: !selectedTenantRedux,
     }
   );
+  console.log(data, 'chk users data');
   const usersList = data?.Objects || [];
 
   const handleCreateUser = () => {

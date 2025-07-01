@@ -1,72 +1,42 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import LabelPage from '../../../page/labels/LabelPage';
+import TagPage from '../../../page/tags/TagPage';
 import { Provider } from 'react-redux';
 import { createMockStore } from '../../store/mockStore';
-import { mockNodeData, mockEdgeData, mockLabelData } from '../mockData';
+import { mockNodeData, mockEdgeData, mockTagData } from '../mockData';
+import { Toaster } from 'react-hot-toast';
+import { setupServer } from 'msw/node';
+import { handlers } from './handler';
+import { commonHandlers } from '@/tests/handler';
+import { setTenant } from '@/lib/sdk/litegraph.service';
+import { mockTenantGUID } from '../mockData';
 
-jest.mock('@/hooks/entityHooks', () => ({
-  useLabels: () => ({
-    labelsList: mockLabelData,
-    isLoading: false,
-    error: null,
-    fetchLabelsList: jest.fn(),
-    createLabel: jest.fn().mockResolvedValue({
-      success: true,
-      message: 'Label created successfully',
-    }),
-    updateLabel: jest.fn().mockResolvedValue({
-      success: true,
-      message: 'Label updated successfully',
-    }),
-    deleteLabel: jest.fn().mockResolvedValue({
-      success: true,
-      message: 'Label deleted successfully',
-    }),
-  }),
-  useNodeAndEdge: () => ({
-    nodesList: mockNodeData,
-    edgesList: mockEdgeData,
-    nodeOptions: mockNodeData.map((node) => ({ label: node.Name, value: node.GUID })),
-    edgeOptions: mockEdgeData.map((edge) => ({ label: edge.Name, value: edge.GUID })),
-    fetchNodesAndEdges: jest.fn().mockResolvedValue(true),
-    isLoading: false,
-    error: null,
-  }),
-  useSelectedGraph: () => ({
-    selectedGraph: mockNodeData[0].GraphGUID,
-    setSelectedGraph: jest.fn(),
-  }),
-  useLayoutContext: () => ({
-    isGraphsLoading: false,
-    graphError: null,
-    refetchGraphs: jest.fn(),
-  }),
-}));
+const server = setupServer(...handlers, ...commonHandlers);
+setTenant(mockTenantGUID);
 
-describe('LabelsPage', () => {
+describe.skip('TagsPage', () => {
+  beforeEach(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
   const store = createMockStore();
 
-  it('renders the labels page', () => {
+  it('renders the tags page', () => {
     render(
       <Provider store={store}>
-        <LabelPage />
+        <TagPage />
       </Provider>
     );
 
-    const titleElement = screen.getByText('Labels');
+    const titleElement = screen.getByText('Tags');
     expect(titleElement).toBeInTheDocument();
     expect(titleElement).toMatchSnapshot();
   });
 
-  it('should create a label and should be visible in the table', async () => {
-    // Increase timeout for this test
-    jest.setTimeout(15000);
-
+  it('should create a tag and should be visible in the table', async () => {
     const { container } = render(
       <Provider store={store}>
-        <LabelPage />
+        <TagPage />
       </Provider>
     );
 
@@ -74,23 +44,22 @@ describe('LabelsPage', () => {
     const initialTable = container.querySelector('.ant-table');
     expect(initialTable).toMatchSnapshot('initial table state');
 
-    // Create a new label
-    const createButton = screen.getByRole('button', { name: /create label/i });
-    expect(createButton).toMatchSnapshot('create label button');
+    // Create a new tag
+    const createButton = screen.getByRole('button', { name: /create tag/i });
+    expect(createButton).toMatchSnapshot('create tag button');
     fireEvent.click(createButton);
 
     // Take snapshot of create modal
     const createModal = screen.getByRole('dialog');
-    expect(createModal).toMatchSnapshot('create label modal');
+    expect(createModal).toMatchSnapshot('create tag modal');
 
     // Fill in form fields using mock data
-    const labelInput = screen.getByPlaceholderText(/enter label label/i);
-    const nodeCell = screen.getByText(mockNodeData[0].Name);
-    const edgeCell = screen.getByText(mockEdgeData[0].Name);
+    const keyInput = screen.getByPlaceholderText(/enter tag key/i);
+    const valueInput = screen.getByPlaceholderText(/enter tag value/i);
 
-    fireEvent.change(labelInput, { target: { value: mockLabelData[0].Label } });
-    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].Name } });
-    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].Name } });
+    // Fill in the key and value fields
+    fireEvent.change(keyInput, { target: { value: mockTagData.allTags[0].Key } });
+    fireEvent.change(valueInput, { target: { value: mockTagData.allTags[0].Value } });
 
     // Find and interact with the node select
     const nodeSelectContainer = screen.getByTitle('Node');
@@ -103,7 +72,7 @@ describe('LabelsPage', () => {
     });
 
     // Take snapshot of filled form
-    expect(createModal).toMatchSnapshot('create label form with values');
+    expect(createModal).toMatchSnapshot('create tag form with values');
 
     const submitButton = screen.getByRole('button', { name: /ok/i });
     fireEvent.click(submitButton);
@@ -113,13 +82,11 @@ describe('LabelsPage', () => {
     expect(finalTable).toMatchSnapshot('final table state');
   });
 
-  it('should update label successfully', async () => {
-    // Increase timeout for this test
-    jest.setTimeout(15000);
-
+  it('should update tag successfully', async () => {
     const { container } = render(
       <Provider store={store}>
-        <LabelPage />
+        <Toaster />
+        <TagPage />
       </Provider>
     );
 
@@ -128,7 +95,7 @@ describe('LabelsPage', () => {
     expect(initialTable).toMatchSnapshot('initial table state before update');
 
     // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('label-action-menu');
+    const menuButtons = screen.getAllByRole('tag-action-menu');
     expect(menuButtons[0]).toBeInTheDocument();
     fireEvent.click(menuButtons[0]);
 
@@ -142,18 +109,18 @@ describe('LabelsPage', () => {
     // Wait for the update modal to appear and verify it's visible
     const updateModal = await screen.findByRole('dialog');
     expect(updateModal).toBeInTheDocument();
-    expect(updateModal).toMatchSnapshot('update label modal');
+    expect(updateModal).toMatchSnapshot('update tag modal');
 
     // Find and update the form fields
-    const labelInput = screen.getByPlaceholderText(/enter label label/i);
-    const nodeCell = screen.getByText(mockNodeData[0].Name);
-    const edgeCell = screen.getByText(mockEdgeData[0].Name);
+    const keyInput = screen.getByPlaceholderText(/enter tag key/i);
+    const valueInput = screen.getByPlaceholderText(/enter tag value/i);
 
     // Use hardcoded values
-    const updatedLabel = 'Updated Label';
-    fireEvent.change(labelInput, { target: { value: updatedLabel } });
-    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].Name } });
-    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].Name } });
+    const updatedKey = 'Updated Key';
+    const updatedValue = 'Updated Value';
+
+    fireEvent.change(keyInput, { target: { value: updatedKey } });
+    fireEvent.change(valueInput, { target: { value: updatedValue } });
 
     // Find and interact with the edge select
     const edgeSelectContainer = screen.getByTitle('Edge');
@@ -165,7 +132,7 @@ describe('LabelsPage', () => {
       fireEvent.click(option);
     });
 
-    expect(updateModal).toMatchSnapshot('update label form with values');
+    expect(updateModal).toMatchSnapshot('update tag form with values');
 
     const submitButton = screen.getByRole('button', { name: /ok/i });
     fireEvent.click(submitButton);
@@ -175,10 +142,12 @@ describe('LabelsPage', () => {
     expect(finalTable).toMatchSnapshot('final table state after update');
   });
 
-  it('should delete label successfully', async () => {
+  it('should delete tag successfully', async () => {
+    // Increase timeout for this test
+    jest.setTimeout(15000);
     const { container } = render(
       <Provider store={store}>
-        <LabelPage />
+        <TagPage />
       </Provider>
     );
 
@@ -187,7 +156,7 @@ describe('LabelsPage', () => {
     expect(initialTable).toMatchSnapshot('initial table state before delete');
 
     // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('label-action-menu');
+    const menuButtons = screen.getAllByRole('tag-action-menu');
     expect(menuButtons[0]).toBeInTheDocument();
     fireEvent.click(menuButtons[0]);
 

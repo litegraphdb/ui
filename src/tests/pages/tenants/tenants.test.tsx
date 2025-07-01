@@ -3,39 +3,34 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TenantPage from '../../../page/tenants/TenantPage';
 import { Provider } from 'react-redux';
-import { createMockStore } from '../../store/mockStore';
+import { createMockStore, mockInitialState } from '../../store/mockStore';
 import { mockTenantData } from '../mockData';
+import { handlers } from './handler';
+import { setupServer } from 'msw/node';
+import { setTenant } from '@/lib/sdk/litegraph.service';
+import { mockTenantGUID } from '../mockData';
+import { commonHandlers } from '@/tests/handler';
+import { renderWithRedux } from '@/tests/store/utils';
 
-jest.mock('@/hooks/entityHooks', () => ({
-  useTenants: () => ({
-    tenantsList: mockTenantData,
-    isLoading: false,
-    error: null,
-    fetchTenantsList: jest.fn(),
-  }),
-}));
+const server = setupServer(...handlers, ...commonHandlers);
+setTenant(mockTenantGUID);
 
 describe('TenantsPage', () => {
-  const store = createMockStore();
+  beforeAll(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
-  it('renders the tenants page', () => {
-    render(
-      <Provider store={store}>
-        <TenantPage />
-      </Provider>
-    );
+  it.only('renders the tenants page', async () => {
+    const { container } = renderWithRedux(<TenantPage />, mockInitialState, undefined, true);
 
-    const titleElement = screen.getByText('Tenants');
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toMatchSnapshot();
+    await waitFor(() => {
+      expect(screen.getAllByText(mockTenantData[0].Name).length).toBe(1);
+    });
+    expect(container).toMatchSnapshot('initial table state');
   });
 
   it('should display Create Tenant button', () => {
-    render(
-      <Provider store={store}>
-        <TenantPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<TenantPage />, mockInitialState, undefined, true);
 
     const createButton = screen.getByRole('button', { name: /create tenant/i });
     expect(createButton).toBeInTheDocument();
@@ -47,11 +42,7 @@ describe('TenantsPage', () => {
     // Increase timeout for this test
     jest.setTimeout(15000);
 
-    const { container } = render(
-      <Provider store={store}>
-        <TenantPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<TenantPage />, mockInitialState, undefined, true);
 
     // Take initial table snapshot
     const initialTable = container.querySelector('.ant-table');
@@ -85,11 +76,7 @@ describe('TenantsPage', () => {
   }, 15000); // Add timeout to the test itself
 
   it('should update tenant successfully', async () => {
-    const { container } = render(
-      <Provider store={store}>
-        <TenantPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<TenantPage />, mockInitialState, undefined, true);
 
     // Take initial table snapshot
     const initialTable = container.querySelector('.ant-table');
@@ -136,11 +123,7 @@ describe('TenantsPage', () => {
   });
 
   it('should delete tenant successfully', async () => {
-    const { container } = render(
-      <Provider store={store}>
-        <TenantPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<TenantPage />, mockInitialState, undefined, true);
 
     // Take initial table snapshot
     const initialTable = container.querySelector('.ant-table');

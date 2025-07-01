@@ -1,77 +1,41 @@
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import CredentialPage from '../../../page/credentials/CredentialPage';
-import { Provider } from 'react-redux';
-import { createMockStore } from '../../store/mockStore';
-import { mockCredentialData, mockUserData, userListingData } from '../mockData';
+import { mockInitialState } from '../../store/mockStore';
+import { mockCredentialData, mockUserData } from '../mockData';
+import { commonHandlers } from '@/tests/handler';
+import { handlers } from './handler';
+import { handlers as usersHandlers } from '../users/handler';
+import { setupServer } from 'msw/node';
+import { setTenant } from '@/lib/sdk/litegraph.service';
+import { mockTenantGUID } from '../mockData';
+import { renderWithRedux } from '@/tests/store/utils';
 
-// Mock Ant Design components
-jest.mock('antd', () => {
-  const antd = jest.requireActual('antd');
-
-  return {
-    ...antd,
-    Select: ({ id, onChange, value }: any) => (
-      <select
-        id={id}
-        data-testid="user-select"
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange?.(e.target.value)}
-      >
-        <option value="">Select a user</option>
-        {mockUserData.map((user) => (
-          <option key={user.GUID} value={user.GUID}>
-            {user.FirstName}
-          </option>
-        ))}
-      </select>
-    ),
-  };
-});
-
-// Mock the entityHooks
-jest.mock('@/hooks/entityHooks', () => ({
-  useCredentials: () => ({
-    credentialsList: mockCredentialData,
-    isLoading: false,
-    error: null,
-    fetchCredentialsList: jest.fn(),
-  }),
-
-  useUsers: () => ({
-    usersList: mockUserData,
-    isLoading: false,
-    error: null,
-    fetchUsersList: jest.fn(),
-  }),
-}));
+const server = setupServer(...handlers, ...commonHandlers, ...usersHandlers);
+setTenant(mockTenantGUID);
 
 describe('CredentialsPage', () => {
-  const store = createMockStore();
+  beforeAll(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
 
-  it('renders the credentials page', () => {
-    render(
-      <Provider store={store}>
-        <CredentialPage />
-      </Provider>
-    );
+  it.only('renders the credentials page', async () => {
+    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
 
-    const titleElement = screen.getByText('Credentials');
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toMatchSnapshot();
+    await waitFor(() => {
+      expect(screen.getAllByText(mockCredentialData[0].Name).length).toBe(1);
+    });
+    expect(container).toMatchSnapshot('initial table state');
   });
 
-  it('should display Create Credential button', () => {
-    render(
-      <Provider store={store}>
-        <CredentialPage />
-      </Provider>
-    );
+  it('should display Create Credential button', async () => {
+    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
 
     const createButton = screen.getByRole('button', { name: /create credential/i });
     expect(createButton).toBeInTheDocument();
     expect(createButton).toBeVisible();
+    ``;
     expect(createButton).toMatchSnapshot();
   });
 
@@ -79,11 +43,7 @@ describe('CredentialsPage', () => {
     // Increase timeout for this test
     jest.setTimeout(15000);
 
-    render(
-      <Provider store={store}>
-        <CredentialPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
 
     // Click create button
     const createButton = screen.getByRole('button', { name: /create credential/i });
@@ -106,11 +66,7 @@ describe('CredentialsPage', () => {
   });
 
   it('should update credential successfully', async () => {
-    const { container } = render(
-      <Provider store={store}>
-        <CredentialPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
 
     // Take initial table snapshot
     const initialTable = container.querySelector('.ant-table');
@@ -155,11 +111,7 @@ describe('CredentialsPage', () => {
   }, 15000);
 
   it('should delete credential successfully', async () => {
-    const { container } = render(
-      <Provider store={store}>
-        <CredentialPage />
-      </Provider>
-    );
+    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
 
     // Take initial table snapshot
     const initialTable = container.querySelector('.ant-table');

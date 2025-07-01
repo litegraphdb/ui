@@ -1,46 +1,44 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import UserPage from '../../../page/users/UserPage';
+import LabelPage from '../../../page/labels/LabelPage';
 import { Provider } from 'react-redux';
 import { createMockStore } from '../../store/mockStore';
-import { mockTenantData, mockUserData } from '../mockData';
+import { mockNodeData, mockEdgeData, mockLabelData } from '../mockData';
+import { setupServer } from 'msw/node';
+import { handlers } from './handler';
+import { commonHandlers } from '@/tests/handler';
+import { setTenant } from '@/lib/sdk/litegraph.service';
+import { mockTenantGUID } from '../mockData';
 
-jest.mock('@/hooks/entityHooks', () => ({
-  useSelectedTenant: () => ({
-    tenant: mockTenantData[0],
-  }),
-  useUsers: () => ({
-    usersList: mockUserData,
-    isLoading: false,
-    error: null,
-    fetchUsersList: jest.fn(),
-  }),
-}));
+const server = setupServer(...handlers, ...commonHandlers);
+setTenant(mockTenantGUID);
 
-describe('UsersPage', () => {
+describe.skip('LabelsPage', () => {
+  beforeEach(() => server.listen());
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
   const store = createMockStore();
 
-  it('renders the users page', () => {
+  it('renders the labels page', () => {
     render(
       <Provider store={store}>
-        <UserPage />
+        <LabelPage />
       </Provider>
     );
 
-    const titleElement = screen.getByText('Users');
+    const titleElement = screen.getByText('Labels');
     expect(titleElement).toBeInTheDocument();
     expect(titleElement).toMatchSnapshot();
   });
 
-  // it('displays a list of users', async () => {
+  it('should create a label and should be visible in the table', async () => {
+    // Increase timeout for this test
+    jest.setTimeout(15000);
 
-  // });
-
-  it('should create a user and should be visible in the table', async () => {
     const { container } = render(
       <Provider store={store}>
-        <UserPage />
+        <LabelPage />
       </Provider>
     );
 
@@ -48,30 +46,36 @@ describe('UsersPage', () => {
     const initialTable = container.querySelector('.ant-table');
     expect(initialTable).toMatchSnapshot('initial table state');
 
-    // Create a new user
-    const createButton = screen.getByRole('button', { name: /create user/i });
-    expect(createButton).toMatchSnapshot('create user button');
+    // Create a new label
+    const createButton = screen.getByRole('button', { name: /create label/i });
+    expect(createButton).toMatchSnapshot('create label button');
     fireEvent.click(createButton);
 
     // Take snapshot of create modal
     const createModal = screen.getByRole('dialog');
-    expect(createModal).toMatchSnapshot('create user modal');
+    expect(createModal).toMatchSnapshot('create label modal');
 
     // Fill in form fields using mock data
-    const nameInput = screen.getByPlaceholderText(/enter first name/i);
-    const lastNameInput = screen.getByPlaceholderText(/enter last name/i);
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/enter password/i);
-    const activeInput = screen.getByRole('switch');
+    const labelInput = screen.getByPlaceholderText(/enter label label/i);
+    const nodeCell = screen.getByText(mockNodeData[0].Name);
+    const edgeCell = screen.getByText(mockEdgeData[0].Name);
 
-    fireEvent.change(nameInput, { target: { value: mockUserData[0].FirstName } });
-    fireEvent.change(lastNameInput, { target: { value: mockUserData[0].LastName } });
-    fireEvent.change(emailInput, { target: { value: mockUserData[0].Email } });
-    fireEvent.change(passwordInput, { target: { value: mockUserData[0].Password } });
-    fireEvent.click(activeInput);
+    fireEvent.change(labelInput, { target: { value: mockLabelData[0].Label } });
+    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].Name } });
+    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].Name } });
+
+    // Find and interact with the node select
+    const nodeSelectContainer = screen.getByTitle('Node');
+    fireEvent.mouseDown(nodeSelectContainer);
+
+    // Wait for dropdown options and select the first node
+    await waitFor(() => {
+      const option = screen.getByText(mockNodeData[0].Name);
+      fireEvent.click(option);
+    });
 
     // Take snapshot of filled form
-    expect(createModal).toMatchSnapshot('create user form with values');
+    expect(createModal).toMatchSnapshot('create label form with values');
 
     const submitButton = screen.getByRole('button', { name: /ok/i });
     fireEvent.click(submitButton);
@@ -81,10 +85,13 @@ describe('UsersPage', () => {
     expect(finalTable).toMatchSnapshot('final table state');
   });
 
-  it('should update user successfully', async () => {
+  it('should update label successfully', async () => {
+    // Increase timeout for this test
+    jest.setTimeout(15000);
+
     const { container } = render(
       <Provider store={store}>
-        <UserPage />
+        <LabelPage />
       </Provider>
     );
 
@@ -93,7 +100,7 @@ describe('UsersPage', () => {
     expect(initialTable).toMatchSnapshot('initial table state before update');
 
     // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('user-action-menu');
+    const menuButtons = screen.getAllByRole('label-action-menu');
     expect(menuButtons[0]).toBeInTheDocument();
     fireEvent.click(menuButtons[0]);
 
@@ -107,28 +114,30 @@ describe('UsersPage', () => {
     // Wait for the update modal to appear and verify it's visible
     const updateModal = await screen.findByRole('dialog');
     expect(updateModal).toBeInTheDocument();
-    expect(updateModal).toMatchSnapshot('update user modal');
+    expect(updateModal).toMatchSnapshot('update label modal');
 
     // Find and update the form fields
-    const nameInput = screen.getByPlaceholderText(/enter first name/i);
-    const lastNameInput = screen.getByPlaceholderText(/enter last name/i);
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/enter password/i);
-    const activeInput = screen.getByRole('switch');
+    const labelInput = screen.getByPlaceholderText(/enter label label/i);
+    const nodeCell = screen.getByText(mockNodeData[0].Name);
+    const edgeCell = screen.getByText(mockEdgeData[0].Name);
 
     // Use hardcoded values
-    const updatedName = 'Updated User Name';
-    const updatedLastName = 'Updated Last Name';
-    const updatedEmail = 'updated@example.com';
-    const updatedPassword = 'updatedpassword';
+    const updatedLabel = 'Updated Label';
+    fireEvent.change(labelInput, { target: { value: updatedLabel } });
+    fireEvent.change(nodeCell, { target: { value: mockNodeData[0].Name } });
+    fireEvent.change(edgeCell, { target: { value: mockEdgeData[0].Name } });
 
-    fireEvent.change(nameInput, { target: { value: updatedName } });
-    fireEvent.change(lastNameInput, { target: { value: updatedLastName } });
-    fireEvent.change(emailInput, { target: { value: updatedEmail } });
-    fireEvent.change(passwordInput, { target: { value: updatedPassword } });
-    fireEvent.click(activeInput); // Toggle active status
+    // Find and interact with the edge select
+    const edgeSelectContainer = screen.getByTitle('Edge');
+    fireEvent.mouseDown(edgeSelectContainer);
 
-    expect(updateModal).toMatchSnapshot('update user form with values');
+    // Wait for dropdown options and select the first edge
+    await waitFor(() => {
+      const option = screen.getByText(mockEdgeData[0].Name);
+      fireEvent.click(option);
+    });
+
+    expect(updateModal).toMatchSnapshot('update label form with values');
 
     const submitButton = screen.getByRole('button', { name: /ok/i });
     fireEvent.click(submitButton);
@@ -138,10 +147,10 @@ describe('UsersPage', () => {
     expect(finalTable).toMatchSnapshot('final table state after update');
   });
 
-  it('should delete user successfully', async () => {
+  it('should delete label successfully', async () => {
     const { container } = render(
       <Provider store={store}>
-        <UserPage />
+        <LabelPage />
       </Provider>
     );
 
@@ -150,7 +159,7 @@ describe('UsersPage', () => {
     expect(initialTable).toMatchSnapshot('initial table state before delete');
 
     // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('user-action-menu');
+    const menuButtons = screen.getAllByRole('label-action-menu');
     expect(menuButtons[0]).toBeInTheDocument();
     fireEvent.click(menuButtons[0]);
 

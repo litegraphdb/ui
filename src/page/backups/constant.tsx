@@ -50,20 +50,18 @@ export const tableColumns = (
     dataIndex: 'Filename',
     key: 'Filename',
     width: 200,
-    responsive: ['md'],
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Filename" />
     ),
     sorter: (a: BackupMetaData, b: BackupMetaData) => a.Filename.localeCompare(b.Filename),
     onFilter: (value, record) => onNameFilter(value, record.Filename),
-    render: (Filename: string) => <div>{Filename}</div>,
+    render: (Filename: string) => <div data-testid="backup-filename">{Filename}</div>,
   },
   {
     title: 'Size',
     dataIndex: 'Length',
     key: 'Length',
     width: 200,
-    responsive: ['md'],
     render: (Length: number) => <div>{formatBytes(Length)}</div>,
   },
   {
@@ -71,7 +69,6 @@ export const tableColumns = (
     dataIndex: 'SHA256Hash',
     key: 'SHA256Hash',
     width: 200,
-    responsive: ['md'],
     render: (hash: string) => <Sha256ToggleCell hash={hash} />,
   },
   {
@@ -79,7 +76,6 @@ export const tableColumns = (
     dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 200,
-    responsive: ['md'],
     sorter: (a: BackupMetaData, b: BackupMetaData) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,

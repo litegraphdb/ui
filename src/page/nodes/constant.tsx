@@ -36,7 +36,6 @@ export const tableColumns = (
     dataIndex: 'GUID' as keyof NodeType,
     key: 'GUID',
     width: 350,
-    responsive: ['md'],
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search GUID" />
     ),
@@ -82,7 +81,6 @@ export const tableColumns = (
     dataIndex: 'Vectors',
     key: 'Vectors',
     width: 250,
-    responsive: ['md'],
     render: (_: any, record: NodeType) => (
       <div>{record?.Vectors?.length > 0 ? pluralize(record?.Vectors?.length, 'vector') : NONE}</div>
     ),
@@ -92,7 +90,6 @@ export const tableColumns = (
     dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 250,
-    responsive: ['md'],
     sorter: (a: NodeType, b: NodeType) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => (

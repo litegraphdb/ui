@@ -20,7 +20,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search GUID" />
     ),
     onFilter: (value, record) => onGUIDFilter(value, record.GUID),
-    responsive: ['md'],
     render: (GUID: string) => <div>{GUID}</div>,
   },
   {
@@ -32,7 +31,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search First Name" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.FirstName),
-    responsive: ['md'],
     sorter: (a: UserMetadata, b: UserMetadata) => a.FirstName.localeCompare(b.FirstName),
     render: (FirstName: string) => <div>{FirstName}</div>,
   },
@@ -45,7 +43,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Last Name" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.LastName),
-    responsive: ['md'],
     sorter: (a: UserMetadata, b: UserMetadata) => a.LastName.localeCompare(b.LastName),
     render: (LastName: string) => <div>{LastName}</div>,
   },
@@ -58,7 +55,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Email" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.Email),
-    responsive: ['md'],
     render: (Email: string) => <div>{Email}</div>,
   },
   {
@@ -66,7 +62,6 @@ export const tableColumns = (
     dataIndex: 'Password',
     key: 'Password',
     width: 200,
-    responsive: ['md'],
     render: (Password: string) => <div>{Password}</div>,
   },
   {
@@ -74,7 +69,6 @@ export const tableColumns = (
     dataIndex: 'Active',
     key: 'Active',
     width: 100,
-    responsive: ['md'],
     sorter: (a: UserMetadata, b: UserMetadata) => Number(b.Active) - Number(a.Active),
     render: (active: boolean) =>
       active ? (
@@ -88,7 +82,6 @@ export const tableColumns = (
     dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 200,
-    responsive: ['md'],
     sorter: (a: UserMetadata, b: UserMetadata) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,

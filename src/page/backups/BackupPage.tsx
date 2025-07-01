@@ -24,7 +24,6 @@ const BackupPage = () => {
     isLoading,
     error,
   } = useReadAllBackupsQuery();
-  console.log({ backupsList }, 'chk backupsList');
   const [fetchBackupByFilename, { isLoading: isDownloading }] = useReadBackupMutation();
 
   const handleCreateBackup = () => {
@@ -72,7 +71,7 @@ const BackupPage = () => {
           loading={isLoading || isDownloading}
           columns={tableColumns(handleDeleteBackup, handleDownload, isDownloading)}
           dataSource={backupsList}
-          rowKey={'GUID'}
+          rowKey={'Filename'}
         />
       )}
 

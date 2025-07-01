@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { Table } from 'antd';
 import { LiteGraphSdk } from 'litegraphdb';
 
 // Mock next/navigation
@@ -250,6 +251,16 @@ jest.mock('@/components/base/select/Select', () => (props) => {
     </select>
   );
 });
+
+jest.mock('jsoneditor-react', () => ({
+  JsonEditor: ({ value, onChange }) => (
+    <input
+      data-testid="json-editor-textarea"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  ),
+}));
 
 window.matchMedia =
   window.matchMedia ||

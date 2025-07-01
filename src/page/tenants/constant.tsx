@@ -20,7 +20,6 @@ export const tableColumns = (
     onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     key: 'GUID',
     width: 450,
-    responsive: ['md'],
     render: (GUID: string) => <div>{GUID}</div>,
   },
   {
@@ -32,7 +31,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Name" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.Name),
-    responsive: ['md'],
     sorter: (a: TenantMetaData, b: TenantMetaData) => a.Name.localeCompare(b.Name),
     render: (Name: string) => <div>{Name}</div>,
   },
@@ -42,7 +40,6 @@ export const tableColumns = (
     dataIndex: 'Active',
     key: 'Active',
     width: 100,
-    responsive: ['md'],
     sorter: (a: TenantMetaData, b: TenantMetaData) => Number(b.Active) - Number(a.Active),
     render: (active: boolean) =>
       active ? (
@@ -58,7 +55,6 @@ export const tableColumns = (
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     key: 'CreatedUtc',
     width: 200,
-    responsive: ['md'],
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,
   },
   {
