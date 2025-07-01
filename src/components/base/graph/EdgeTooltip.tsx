@@ -1,6 +1,6 @@
 import { defaultEdgeTooltip } from './constant';
 import { GraphEdgeTooltip } from './types';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
 import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
@@ -9,40 +9,27 @@ import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphButton from '@/components/base/button/Button';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { useGetEdgeById, useGetGexfByGraphId } from '@/lib/sdk/litegraph.service';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store/store';
-import { updateEdgeGroupWithGraph } from '@/lib/store/edge/actions';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
-import { EdgeType } from '@/lib/store/edge/types';
-import { getGexfOgGraphByID } from '@/lib/store/graph/actions';
+import { EdgeType } from '@/types/types';
 import DeleteEdge from '@/page/edges/components/DeleteEdge';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import { getNodeNameByGUID } from '@/page/edges/utils';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import { JsonEditor } from 'jsoneditor-react';
 import { pluralize } from '@/utils/stringUtils';
 import styles from './tooltip.module.scss';
 import classNames from 'classnames';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
+import { useGetEdgeByIdQuery, useGetGraphGexfContentQuery } from '@/lib/store/slice/slice';
 
 type EdgeTooltipProps = {
   tooltip: GraphEdgeTooltip;
   setTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
   graphId: string;
-  setSelectedGraphContext: any;
   nodesList: NodeType[];
 };
 
-const EdgeToolTip = ({
-  tooltip,
-  setTooltip,
-  graphId,
-  setSelectedGraphContext,
-  nodesList,
-}: EdgeTooltipProps) => {
-  const dispatch = useAppDispatch();
+const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   // State for AddEditDeleteNode visibility and selected node
@@ -50,51 +37,23 @@ const EdgeToolTip = ({
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
   const [selectedEdge, setSelectedEdge] = useState<EdgeType | null | undefined>(undefined);
 
-  const { fetchEdgeById, isLoading, error } = useGetEdgeById();
-  const { fetchGexfByGraphId } = useGetGexfByGraphId();
-
-  const edge = useSelector((state: RootState) => {
-    const graphGroup = state.edgesList.edges.find((group: any) => group[graphId]);
-    const existEdge = graphGroup
-      ? graphGroup[graphId].find((n: any) => n.GUID === tooltip.edgeId)
-      : null;
-    return existEdge;
-  });
+  const { data: edge, isLoading, error } = useGetEdgeByIdQuery({ graphId, edgeId: tooltip.edgeId });
+  const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
 
   // Callback for handling edge update
   const handleEdgeUpdate = async () => {
     if (graphId && tooltip.edgeId) {
-      const updatedEdge = await fetchEdgeById(graphId, tooltip.edgeId); // Fetch updated node
-      if (updatedEdge) {
-        dispatch(updateEdgeGroupWithGraph({ edgeId: tooltip.edgeId, edgeData: updatedEdge })); // Update Redux store
-      }
+      await fetchGexfByGraphId();
     }
   };
 
   // Callback for handling edge deletion
   const handleEdgeDelete = async () => {
-    const data = await fetchGexfByGraphId(graphId);
-    if (data) {
-      dispatch(getGexfOgGraphByID({ GUID: graphId, gexfContent: data }));
-      setSelectedGraphContext(data); // Keep the selected graph context locally
-    }
+    await fetchGexfByGraphId();
 
     // Clear the tooltip after deletion
     setTooltip(defaultEdgeTooltip);
   };
-
-  useEffect(() => {
-    const getEdge = async () => {
-      if (!edge && graphId) {
-        const fetchedEdge = await fetchEdgeById(graphId, tooltip.edgeId);
-        if (fetchedEdge) {
-          dispatch(updateEdgeGroupWithGraph({ edgeId: tooltip.edgeId, edgeData: fetchedEdge }));
-        }
-      }
-    };
-    getEdge();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graphId, tooltip]);
 
   return (
     <>

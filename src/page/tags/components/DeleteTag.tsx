@@ -1,11 +1,9 @@
 'use client';
-import { useDeleteTagById } from '@/lib/sdk/litegraph.service';
-import { TagType } from '@/lib/store/tag/types';
+import { TagType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteTag } from '@/lib/store/tag/actions';
 import toast from 'react-hot-toast';
+import { useDeleteTagMutation } from '@/lib/store/slice/slice';
 
 interface DeleteTagProps {
   title: string;
@@ -26,14 +24,12 @@ const DeleteTag = ({
   setSelectedTag,
   onTagDeleted,
 }: DeleteTagProps) => {
-  const dispatch = useAppDispatch();
-  const { deleteTagById, isLoading } = useDeleteTagById();
+  const [deleteTagById, { isLoading }] = useDeleteTagMutation();
 
   const handleDelete = async () => {
     if (selectedTag) {
       const res = await deleteTagById(selectedTag.GUID);
       if (res) {
-        dispatch(deleteTag({ GUID: selectedTag.GUID }));
         toast.success('Tag deleted successfully');
         setIsDeleteModelVisible(false);
         setSelectedTag(null);

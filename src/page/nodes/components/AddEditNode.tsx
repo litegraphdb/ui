@@ -6,21 +6,24 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
-import { useCreateNode, useUpdateNodeById } from '@/lib/sdk/litegraph.service';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { validationRules } from './constant';
-import { NodeType } from '@/lib/store/node/types';
-import { updateNode, createNode } from '@/lib/store/node/actions';
+import { NodeType } from '@/types/types';
 import toast from 'react-hot-toast';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
 import TagsInput from '@/components/inputs/tags-input/TagsInput';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
-import { useGraphs } from '@/hooks/entityHooks';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import { CopyOutlined } from '@ant-design/icons';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
+import {
+  useCreateNodeMutation,
+  useGetAllGraphsQuery,
+  useUpdateNodeMutation,
+} from '@/lib/store/slice/slice';
+import { Node, NodeCreateRequest } from 'litegraphdb/dist/types/types';
 
 const initialValues = {
   graphName: '',
@@ -55,10 +58,10 @@ const AddEditNode = ({
   const [formValid, setFormValid] = useState(false);
   const [uniqueKey, setUniqueKey] = useState(v4());
 
-  const { graphsList } = useGraphs();
+  const { data: graphsList } = useGetAllGraphsQuery();
 
-  const { createNodes, isLoading: isCreateLoading } = useCreateNode();
-  const { updateNodeById, isLoading: isUpdateLoading } = useUpdateNodeById();
+  const [createNodes, { isLoading: isCreateLoading }] = useCreateNodeMutation();
+  const [updateNodeById, { isLoading: isUpdateLoading }] = useUpdateNodeMutation();
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -80,7 +83,9 @@ const AddEditNode = ({
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
       if (node) {
         // Edit Node
-        const data = {
+        const data: Node = {
+          TenantGUID: node.TenantGUID,
+          LastUpdateUtc: node.LastUpdateUtc,
           GUID: node.GUID,
           GraphGUID: node.GraphGUID,
           CreatedUtc: node.CreatedUtc,
@@ -92,7 +97,6 @@ const AddEditNode = ({
         };
         const res = await updateNodeById(data);
         if (res) {
-          dispatch(updateNode(res));
           toast.success('Update Node successfully');
           setIsAddEditNodeVisible(false);
           onNodeUpdated && (await onNodeUpdated());
@@ -101,8 +105,7 @@ const AddEditNode = ({
         }
       } else {
         // Add Node
-        const data = {
-          GUID: v4(),
+        const data: NodeCreateRequest = {
           GraphGUID: selectedGraph,
           Name: values.name,
           Data: values.data,
@@ -112,7 +115,6 @@ const AddEditNode = ({
         };
         const res = await createNodes(data);
         if (res) {
-          dispatch(createNode(res));
           toast.success('Add Node successfully');
           setIsAddEditNodeVisible(false);
           onNodeUpdated && (await onNodeUpdated());

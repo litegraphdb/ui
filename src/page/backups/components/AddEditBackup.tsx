@@ -2,20 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { Form } from 'antd';
-import { useCreateBackup } from '@/lib/sdk/litegraph.service';
 import { globalToastId } from '@/constants/config';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphModal from '@/components/base/modal/Modal';
 
 import LitegraphInput from '@/components/base/input/Input';
-import { BackupType } from '@/lib/store/backup/types';
 import { toast } from 'react-hot-toast';
-import { BackupMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
+import { BackupMetaData, BackupMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
+import { useCreateBackupMutation } from '@/lib/store/slice/slice';
 
 interface AddEditBackupProps {
   isAddEditBackupVisible: boolean;
   setIsAddEditBackupVisible: (visible: boolean) => void;
-  backup: BackupType | null;
+  backup: BackupMetaData | null;
   onBackupUpdated?: () => Promise<void>;
 }
 
@@ -27,7 +26,7 @@ const AddEditBackup = ({
 }: AddEditBackupProps) => {
   const [form] = Form.useForm<BackupMetaDataCreateRequest>();
   const [formValid, setFormValid] = useState(false);
-  const { createBackup: createBackupService, isLoading: createBackupLoading } = useCreateBackup();
+  const [createBackupService, { isLoading: createBackupLoading }] = useCreateBackupMutation();
   const [formValues, setFormValues] = useState({});
 
   useEffect(() => {

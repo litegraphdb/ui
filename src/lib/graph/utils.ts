@@ -14,10 +14,10 @@ export function transformToOptions<T extends { GUID: string; name?: string; Name
   data?: T[] | null,
   labelField: keyof T = 'name' // Field to use for label in options
 ) {
-  return (
-    data?.map((item) => ({
-      value: item.GUID,
-      label: (item[labelField] as string) || item.Name || item.GUID,
-    })) || []
-  );
+  return data
+    ? data?.map((item) => ({
+        value: item.GUID,
+        label: (item[labelField] as string) || item.Name || item.GUID,
+      }))
+    : [];
 }

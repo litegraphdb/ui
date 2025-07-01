@@ -8,9 +8,10 @@ import {
   setAccessToken,
   setTenant,
   useGetTenants,
-  useGetTokenDetails,
 } from '@/lib/sdk/litegraph.service';
-import { useAppSelector } from '@/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { storeUser } from '@/lib/store/litegraph/actions';
+import { useGetTokenDetailsMutation } from '@/lib/store/slice/slice';
 import { RootState } from '@/lib/store/store';
 import { TenantMetaData, Token } from 'litegraphdb/dist/types/types';
 import { useRouter } from 'next/navigation';
@@ -20,15 +21,18 @@ export const withAuth = (WrappedComponent: React.ElementType) => {
   const WithAuth = (props: any) => {
     const token = useAppSelector((state: RootState) => state.liteGraph.token);
     const [hasValidAuth, setHasValidAuth] = useState<boolean | null>(null);
-    const { fetchTokenDetails, isLoading: isFetchUserDetailsLoading, error } = useGetTokenDetails();
+    const [fetchTokenDetails, { isLoading: isFetchUserDetailsLoading }] =
+      useGetTokenDetailsMutation();
     const logout = useLogout();
+    const dispatch = useAppDispatch();
 
     const authToken = token?.Token;
 
     useEffect(() => {
       if (authToken) {
-        fetchTokenDetails(token.Token, true).then((response: Token | null) => {
-          if (response?.User.GUID) {
+        fetchTokenDetails(token.Token).then(({ data: response }: { data?: Token }) => {
+          if (response?.User?.GUID) {
+            dispatch(storeUser(response.User));
             setHasValidAuth(true);
           } else {
             setHasValidAuth(false);
@@ -40,7 +44,7 @@ export const withAuth = (WrappedComponent: React.ElementType) => {
       //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return isFetchUserDetailsLoading ? (
+    return hasValidAuth === null ? (
       <PageLoading />
     ) : hasValidAuth ? (
       <WrappedComponent {...props} />
@@ -70,17 +74,17 @@ export const withAdminAuth = (WrappedComponent: React.ElementType) => {
               setLogoutMessage('No Tenant Found.');
               setHasValidAuth(false);
             } else {
-              // logout();
+              logout();
             }
           })
           .catch(() => {
-            // logout();
+            logout();
           });
       }
       //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return isValidateConnectivityLoading ? (
+    return hasValidAuth === null ? (
       <PageLoading />
     ) : hasValidAuth ? (
       <WrappedComponent {...props} />
@@ -99,6 +103,7 @@ export const forGuest = (WrappedComponent: React.ElementType) => {
     const { serializePath } = useAppDynamicNavigation();
     const router = useRouter();
     useEffect(() => {
+      console.log('token', token);
       if (token?.Token && tenant?.GUID) {
         setAccessToken(token.Token);
         setTenant(tenant.GUID);

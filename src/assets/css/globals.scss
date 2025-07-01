@@ -124,6 +124,9 @@
 .pl-lg {
   padding-left: var(--ant-padding-lg);
 }
+.pl-0 {
+  padding-left: 0 !important;
+}
 
 .pr-lg {
   padding-right: var(--ant-padding-lg);
@@ -135,6 +138,9 @@
 
 .pr-sm {
   padding-right: var(--ant-padding-sm);
+}
+.ml-auto {
+  margin-left: auto;
 }
 
 .pl-xs {
@@ -200,8 +206,14 @@
 
 .ant-table-container {
   border: 1px solid var(--ant-color-border);
-  // padding: 0 30px 10px 30px;
   border-radius: var(--ant-border-radius-lg);
+  .ant-table-content {
+    overflow-x: auto;
+    table {
+      width: 99% !important;
+      margin: 0 auto;
+    }
+  }
   .ant-table-thead {
     tr {
       th:first-child,
@@ -256,7 +268,7 @@
         border: none;
       }
       td {
-        border: none;
+        border: none !important;
       }
     }
   }

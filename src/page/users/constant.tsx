@@ -1,16 +1,16 @@
 import React from 'react';
 import { Button, Dropdown, TableProps } from 'antd';
 import { MoreOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import { UserType } from '@/lib/store/user/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '@/components/table-search/TableSearch';
 import { onGUIDFilter, onNameFilter } from '@/constants/table';
+import { UserMetadata } from 'litegraphdb/dist/types/types';
 
 export const tableColumns = (
-  handleEdit: (user: UserType) => void,
-  handleDelete: (user: UserType) => void
-): TableProps<UserType>['columns'] => [
+  handleEdit: (user: UserMetadata) => void,
+  handleDelete: (user: UserMetadata) => void
+): TableProps<UserMetadata>['columns'] => [
   {
     title: 'GUID',
     dataIndex: 'GUID',
@@ -20,7 +20,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search GUID" />
     ),
     onFilter: (value, record) => onGUIDFilter(value, record.GUID),
-    responsive: ['md'],
     render: (GUID: string) => <div>{GUID}</div>,
   },
   {
@@ -32,8 +31,7 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search First Name" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.FirstName),
-    responsive: ['md'],
-    sorter: (a: UserType, b: UserType) => a.FirstName.localeCompare(b.FirstName),
+    sorter: (a: UserMetadata, b: UserMetadata) => a.FirstName.localeCompare(b.FirstName),
     render: (FirstName: string) => <div>{FirstName}</div>,
   },
   {
@@ -45,8 +43,7 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Last Name" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.LastName),
-    responsive: ['md'],
-    sorter: (a: UserType, b: UserType) => a.LastName.localeCompare(b.LastName),
+    sorter: (a: UserMetadata, b: UserMetadata) => a.LastName.localeCompare(b.LastName),
     render: (LastName: string) => <div>{LastName}</div>,
   },
   {
@@ -58,7 +55,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Email" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.Email),
-    responsive: ['md'],
     render: (Email: string) => <div>{Email}</div>,
   },
   {
@@ -66,7 +62,6 @@ export const tableColumns = (
     dataIndex: 'Password',
     key: 'Password',
     width: 200,
-    responsive: ['md'],
     render: (Password: string) => <div>{Password}</div>,
   },
   {
@@ -74,8 +69,7 @@ export const tableColumns = (
     dataIndex: 'Active',
     key: 'Active',
     width: 100,
-    responsive: ['md'],
-    sorter: (a: UserType, b: UserType) => Number(b.Active) - Number(a.Active),
+    sorter: (a: UserMetadata, b: UserMetadata) => Number(b.Active) - Number(a.Active),
     render: (active: boolean) =>
       active ? (
         <CheckCircleFilled style={{ color: 'green' }} />
@@ -88,8 +82,7 @@ export const tableColumns = (
     dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 200,
-    responsive: ['md'],
-    sorter: (a: UserType, b: UserType) =>
+    sorter: (a: UserMetadata, b: UserMetadata) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,
   },
@@ -97,7 +90,7 @@ export const tableColumns = (
     title: 'Actions',
     key: 'actions',
     width: 100,
-    render: (_: any, record: UserType) => {
+    render: (_: any, record: UserMetadata) => {
       const items = [
         {
           key: 'edit',

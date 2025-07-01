@@ -24,3 +24,12 @@ v0.1.3
 
 - added search functionality to the table columns
 - added flush db to disk functionality
+
+v0.1.4
+
+- added table filters
+
+v0.1.5
+
+- integrated enumerate graph api
+- rtk query for cache management

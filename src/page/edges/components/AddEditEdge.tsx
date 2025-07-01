@@ -1,19 +1,15 @@
 'use client';
-import { Form, Select } from 'antd';
+import { Form } from 'antd';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
-import { useCreateEdge, useUpdateEdgeById } from '@/lib/sdk/litegraph.service';
-import { useAppDispatch } from '@/lib/store/hooks';
 import { validationRules } from './constant';
-import { EdgeType } from '@/lib/store/edge/types';
-import { createEdge, updateEdge } from '@/lib/store/edge/actions';
+import { EdgeType } from '@/types/types';
 import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
-import { useNodes, useGraphs } from '@/hooks/entityHooks';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import TagsInput from '@/components/inputs/tags-input/TagsInput';
@@ -22,6 +18,14 @@ import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 import { CopyOutlined } from '@ant-design/icons';
+import {
+  useCreateEdgeMutation,
+  useGetAllGraphsQuery,
+  useGetAllNodesQuery,
+  useUpdateEdgeMutation,
+} from '@/lib/store/slice/slice';
+import { transformToOptions } from '@/lib/graph/utils';
+import { Edge, EdgeCreateRequest } from 'litegraphdb/dist/types/types';
 
 const initialValues = {
   graphName: '',
@@ -54,14 +58,16 @@ const AddEditEdge = ({
   onClose,
   readonly,
 }: AddEditEdgeProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [uniqueKey, setUniqueKey] = useState(v4());
   const [formValid, setFormValid] = useState(false);
-  const { nodeOptions, isLoading: isNodesLoading } = useNodes(selectedGraph);
-  const { createEdges, isLoading: isCreateLoading } = useCreateEdge();
-  const { updateEdgeById, isLoading: isUpdateLoading } = useUpdateEdgeById();
-  const { graphsList } = useGraphs();
+  const { data: nodesList, isLoading: isNodesLoading } = useGetAllNodesQuery({
+    graphId: selectedGraph,
+  });
+  const nodeOptions = transformToOptions(nodesList);
+  const [createEdges, { isLoading: isCreateLoading }] = useCreateEdgeMutation();
+  const [updateEdgeById, { isLoading: isUpdateLoading }] = useUpdateEdgeMutation();
+  const { data: graphsList } = useGetAllGraphsQuery();
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -110,7 +116,9 @@ const AddEditEdge = ({
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
       if (edge) {
         // Edit edge
-        const data = {
+        const data: Edge = {
+          TenantGUID: edge.TenantGUID,
+          LastUpdateUtc: edge.LastUpdateUtc,
           GUID: edge.GUID,
           GraphGUID: edge.GraphGUID,
           CreatedUtc: edge.CreatedUtc,
@@ -125,7 +133,6 @@ const AddEditEdge = ({
         };
         const res = await updateEdgeById(data);
         if (res) {
-          dispatch(updateEdge(res));
           toast.success('Update Edge successfully');
           setIsAddEditEdgeVisible(false);
           onEdgeUpdated && (await onEdgeUpdated());
@@ -134,8 +141,7 @@ const AddEditEdge = ({
         }
       } else {
         // Add edge
-        const data = {
-          GUID: v4(),
+        const data: EdgeCreateRequest = {
           GraphGUID: selectedGraph,
           Name: values.name,
           From: values.from,
@@ -148,7 +154,6 @@ const AddEditEdge = ({
         };
         const res = await createEdges(data);
         if (res) {
-          dispatch(createEdge(res));
           toast.success('Add Edge successfully');
           setIsAddEditEdgeVisible(false);
           onEdgeUpdated && (await onEdgeUpdated());

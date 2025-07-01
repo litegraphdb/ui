@@ -1,20 +1,18 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Form, Switch, Select } from 'antd';
-import { useCreateTenants, useUpdateTenantsById, useGetTenants } from '@/lib/sdk/litegraph.service';
-import { TenantType } from '@/lib/store/tenants/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
 import { useAppDispatch } from '@/lib/store/hooks';
-import { createTenant, updateTenant } from '@/lib/store/tenants/actions';
 import toast from 'react-hot-toast';
-import { v4 } from 'uuid';
+import { useCreateTenantMutation, useUpdateTenantMutation } from '@/lib/store/slice/slice';
+import { TenantMetaData, TenantMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditTenantProps {
   isAddEditTenantVisible: boolean;
   setIsAddEditTenantVisible: (visible: boolean) => void;
-  tenant: TenantType | null;
+  tenant: TenantMetaData | null;
   onTenantUpdated?: () => Promise<void>;
 }
 
@@ -27,8 +25,8 @@ const AddEditTenant = ({
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
-  const { createTenants: createTenantService, isLoading: isCreateLoading } = useCreateTenants();
-  const { updateTenantById, isLoading: isUpdateLoading } = useUpdateTenantsById();
+  const [createTenants, { isLoading: isCreateLoading }] = useCreateTenantMutation();
+  const [updateTenantById, { isLoading: isUpdateLoading }] = useUpdateTenantMutation();
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -56,16 +54,17 @@ const AddEditTenant = ({
       const values = await form.validateFields();
       if (tenant) {
         // Update existing tenant
-        const updatedTenant = {
-          ...tenant,
-          ...values,
+        const updatedTenant: TenantMetaData = {
+          GUID: tenant.GUID,
+          Name: values.Name,
+          Active: values.Active,
+          CreatedUtc: tenant.CreatedUtc,
           LastUpdateUtc: new Date().toISOString(),
         };
 
         const res = await updateTenantById(updatedTenant);
 
         if (res) {
-          dispatch(updateTenant(res)); // Use the response data instead of updatedTenant
           toast.success('Tenant updated successfully');
           setIsAddEditTenantVisible(false);
           form.resetFields();
@@ -75,15 +74,12 @@ const AddEditTenant = ({
         }
       } else {
         // Create new tenant
-        const newTenant = {
-          ...values,
-          GUID: v4(),
-          CreatedUtc: new Date().toISOString(),
-          LastUpdateUtc: new Date().toISOString(),
+        const newTenant: TenantMetaDataCreateRequest = {
+          Name: values.Name,
+          Active: values.Active,
         };
-        const res = await createTenantService(newTenant);
+        const res = await createTenants(newTenant);
         if (res) {
-          dispatch(createTenant(newTenant));
           toast.success('Tenant created successfully');
           setIsAddEditTenantVisible(false);
           form.resetFields();

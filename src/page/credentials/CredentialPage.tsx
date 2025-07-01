@@ -4,26 +4,33 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import AddEditCredential from './components/AddEditCredential';
 import DeleteCredential from './components/DeleteCredential';
 
 import { tableColumns } from './constant';
 import FallBack from '@/components/base/fallback/FallBack';
-import { useCredentials, useUsers } from '@/hooks/entityHooks';
+import { usePagination } from '@/hooks/appHooks';
+import { useEnumerateCredentialQuery, useGetAllUsersQuery } from '@/lib/store/slice/slice';
+import { tablePaginationConfig } from '@/constants/pagination';
 
 const CredentialPage = () => {
   const [selectedCredential, setSelectedCredential] = useState<CredentialType | null>(null);
   const [isAddEditCredentialVisible, setIsAddEditCredentialVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
-  const { usersList, isLoading: isUsersLoading } = useUsers();
+  const { data: usersList = [], isLoading: isUsersLoading } = useGetAllUsersQuery();
+  const { skip, page, pageSize, handlePageChange } = usePagination();
 
   const {
-    credentialsList,
-    fetchCredentialsList,
+    data,
+    refetch: fetchCredentialsList,
     isLoading: isCredentialsLoading,
     error,
-  } = useCredentials();
+  } = useEnumerateCredentialQuery({
+    skip: skip,
+    maxKeys: pageSize,
+  });
+  const credentialsList = data?.Objects || [];
 
   const credentialsListWithUsers = credentialsList.map((credential) => {
     const user = usersList.find((user) => user.GUID === credential.UserGUID);
@@ -71,6 +78,13 @@ const CredentialPage = () => {
           columns={tableColumns(handleEditCredential, handleDeleteCredential)}
           dataSource={credentialsListWithUsers}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: data?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 
@@ -79,7 +93,6 @@ const CredentialPage = () => {
           isAddEditCredentialVisible={isAddEditCredentialVisible}
           setIsAddEditCredentialVisible={setIsAddEditCredentialVisible}
           credential={selectedCredential || null}
-          onCredentialUpdated={fetchCredentialsList}
         />
       )}
 
@@ -91,7 +104,6 @@ const CredentialPage = () => {
           setIsDeleteModelVisible={setIsDeleteModelVisible}
           selectedCredential={selectedCredential}
           setSelectedCredential={setSelectedCredential}
-          onCredentialDeleted={fetchCredentialsList}
         />
       )}
     </PageContainer>

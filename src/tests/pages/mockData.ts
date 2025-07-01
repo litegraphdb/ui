@@ -1,19 +1,22 @@
-import { GraphData } from '@/lib/store/graph/types';
+import { GraphData } from '@/types/types';
 import {
   BackupMetaData,
   CredentialMetadata,
   Edge,
   LabelMetadata,
   Node,
+  EnumerateResponse,
   TenantMetaData,
   UserMetadata,
 } from 'litegraphdb/dist/types/types';
+
+export const mockGraphGUID = 'e6d4294e-6f49-4d67-8260-5e44c2b077a6';
 
 export const mockGraphData: GraphData[] = [
   {
     TenantGUID: '00000000-0000-0000-0000-000000000000',
     LastUpdateUtc: '2024-12-23T15:36:07.816289Z' as any,
-    GUID: 'e6d4294e-6f49-4d67-8260-5e44c2b077a6',
+    GUID: mockGraphGUID,
     Name: 'Test Demo Graph',
     CreatedUtc: '2024-12-23T15:36:07.816289Z' as any,
     Data: {
@@ -170,9 +173,11 @@ export const tagListingData = {
   results: mockTagData.allTags,
 };
 
+export const mockTenantGUID = '00000000-0000-0000-0000-000000000000';
+
 export const mockTenantData: TenantMetaData[] = [
   {
-    GUID: '00000000-0000-0000-0000-000000000001',
+    GUID: mockTenantGUID,
     Name: 'Test Tenant',
     Active: true,
     CreatedUtc: '2024-01-01T00:00:00Z' as any,
@@ -320,3 +325,21 @@ export const mockBackupData: BackupMetaData[] = [
     LastAccessUtc: '2025-01-02T00:00:00Z' as any,
   },
 ];
+
+export function getMockEnumerateQueryData<T>(data: T[]): EnumerateResponse<T> {
+  return {
+    Success: true,
+    Timestamp: {
+      Start: '2025-01-01T00:00:00Z',
+      End: '2025-01-01T00:00:00Z',
+      TotalMs: 0,
+      Messages: {},
+    },
+    ContinuationToken: undefined,
+    MaxResults: 10,
+    EndOfResults: false,
+    TotalRecords: data.length,
+    RecordsRemaining: 0,
+    Objects: data,
+  } as EnumerateResponse<T>;
+}

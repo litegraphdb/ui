@@ -4,25 +4,38 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
-import { LabelType } from '@/lib/store/label/types';
 import { tableColumns } from './constant';
 
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditLabel from './components/AddEditLabel';
 import DeleteLabel from './components/DeleteLabel';
 import { transformLabelsDataForTable } from './utils';
-import { useLabels, useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
+import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
+import { useEnumerateAndSearchLabelQuery } from '@/lib/store/slice/slice';
+import { usePagination } from '@/hooks/appHooks';
+import { tablePaginationConfig } from '@/constants/pagination';
+import { LabelMetadata } from 'litegraphdb/dist/types/types';
 
 const LabelPage = () => {
   const selectedGraphRedux = useSelectedGraph();
   const { isGraphsLoading } = useLayoutContext();
+  const { page, pageSize, skip, handlePageChange } = usePagination();
   const {
-    labelsList,
-    fetchLabelsList,
+    data: labelsList,
     isLoading,
     error: isLabelsError,
-  } = useLabels(selectedGraphRedux);
+    refetch: fetchLabelsList,
+  } = useEnumerateAndSearchLabelQuery(
+    {
+      MaxResults: pageSize,
+      Skip: skip,
+      GraphGUID: selectedGraphRedux,
+    },
+    {
+      skip: !selectedGraphRedux,
+    }
+  );
   const {
     nodesList,
     edgesList,
@@ -31,11 +44,16 @@ const LabelPage = () => {
   } = useNodeAndEdge(selectedGraphRedux);
   // Redux state for the list of graphs
 
-  const [selectedLabel, setSelectedLabel] = useState<LabelType | null | undefined>(null);
+  const [selectedLabel, setSelectedLabel] = useState<LabelMetadata | null | undefined>(null);
   const [isAddEditLabelVisible, setIsAddEditLabelVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
 
-  const transformedLabelsList = transformLabelsDataForTable(labelsList, nodesList, edgesList);
+  console.log(edgesList, typeof edgesList, 'edgesList');
+  const transformedLabelsList = transformLabelsDataForTable(
+    labelsList?.Objects || [],
+    nodesList || [],
+    edgesList || []
+  );
 
   // Check if litegraphURL present or not
 
@@ -44,12 +62,12 @@ const LabelPage = () => {
     setIsAddEditLabelVisible(true);
   };
 
-  const handleEditLabel = (data: LabelType) => {
+  const handleEditLabel = (data: LabelMetadata) => {
     setSelectedLabel(data);
     setIsAddEditLabelVisible(true);
   };
 
-  const handleDelete = (record: LabelType) => {
+  const handleDelete = (record: LabelMetadata) => {
     setSelectedLabel(record);
     setIsDeleteModelVisible(true);
   };
@@ -86,6 +104,13 @@ const LabelPage = () => {
           columns={tableColumns(handleEditLabel, handleDelete)}
           dataSource={transformedLabelsList}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: labelsList?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 

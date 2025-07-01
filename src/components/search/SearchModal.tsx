@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Form } from 'antd';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LabelInput from '../inputs/label-input/LabelInput';
@@ -26,17 +26,7 @@ const SearchModal = ({
   onClose,
 }: SearchModalProps) => {
   const [form] = Form.useForm<SearchData>();
-  const [formValid, setFormValid] = useState(false);
   const uniqueKey = useRef(v4());
-
-  // Add form validation watcher
-  const [formValues, setFormValues] = useState({});
-  useEffect(() => {
-    form
-      .validateFields({ validateOnly: true })
-      .then(() => setFormValid(true))
-      .catch(() => setFormValid(false));
-  }, [formValues, form]);
 
   const handleSearch = async () => {
     try {
@@ -62,11 +52,10 @@ const SearchModal = ({
       open={isSearchModalVisible}
       onCancel={() => {
         setIsSearchModalVisible(false);
-        form.resetFields();
+        // form.resetFields();
       }}
       onOk={handleSearch}
       okText="Search"
-      okButtonProps={{ disabled: !formValid }}
       onClose={onClose}
     >
       <Form
@@ -74,14 +63,9 @@ const SearchModal = ({
         form={form}
         clearOnDestroy={false}
         layout="vertical"
-        onValuesChange={(_, values) => {
-          console.log('values', values);
-          setFormValues(values);
-        }}
+        onFinish={handleSearch}
       >
-        <Form.Item label="Labels" rules={[{ validator: validateAtLeastOne(form) }]}>
-          <LabelInput name="labels" />
-        </Form.Item>
+        <LabelInput name="labels" />
         <Form.Item label="Tags" rules={[{ validator: validateAtLeastOne(form) }]}>
           <TagsInput name="tags" />
         </Form.Item>
@@ -117,7 +101,7 @@ const SearchModal = ({
           />
         </LitegraphFormItem>
 
-        <LitegraphFormItem
+        {/* <LitegraphFormItem
           label="Embeddings"
           name="embeddings"
           rules={[{ validator: validateAtLeastOne(form) }]}
@@ -133,7 +117,7 @@ const SearchModal = ({
             mode="code"
             data-testid="vector-search-input"
           />
-        </LitegraphFormItem>
+        </LitegraphFormItem> */}
       </Form>
     </LitegraphModal>
   );

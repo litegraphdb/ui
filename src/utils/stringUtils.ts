@@ -1,3 +1,4 @@
+import { UserMetadata } from 'litegraphdb/dist/types/types';
 import { v4 } from 'uuid';
 
 export const toTitleCase = (str: string): string => {
@@ -15,6 +16,10 @@ export const getFirstLetterOfTheWord = (value: string) => {
 
 export const uuid = () => {
   return v4();
+};
+
+export const getUserName = (user: UserMetadata | null) => {
+  return user?.FirstName || user?.LastName ? [user?.FirstName, user?.LastName].join(' ') : 'User';
 };
 
 export const pluralize = (count: number, word: string, suffix: string = 's'): string => {

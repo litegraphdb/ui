@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 export const LayoutContext = createContext<{
   isGraphsLoading: boolean;
-  graphError: Error | null;
+  graphError: any;
   refetchGraphs: () => void;
 }>({
   isGraphsLoading: false,

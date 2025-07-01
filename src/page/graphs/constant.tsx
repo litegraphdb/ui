@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MoreOutlined } from '@ant-design/icons';
-import { GraphData } from '@/lib/store/graph/types';
+import { GraphData } from '@/types/types';
 import { TableProps, Dropdown, Button, Menu, Input } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
@@ -76,11 +76,14 @@ export const tableColumns = (
     ),
     onFilter: (val, record) => onTagFilter(val, record.Tags),
     responsive: ['sm'],
-    render: (tags: any) => (
-      <div>
-        <div>{Object.keys(tags).length > 0 ? JSON.stringify(tags) : NONE}</div>
-      </div>
-    ),
+    render: (tags: any) => {
+      console.log(tags);
+      return (
+        <div>
+          <div>{tags && Object.keys(tags).length > 0 ? JSON.stringify(tags) : NONE}</div>
+        </div>
+      );
+    },
   },
   {
     title: 'Vectors',

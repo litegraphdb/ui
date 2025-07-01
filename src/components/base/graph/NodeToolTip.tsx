@@ -1,48 +1,36 @@
 'use client';
 import LiteGraphCard from '@/components/base/card/Card';
 import LiteGraphSpace from '@/components/base/space/Space';
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { GraphNodeTooltip } from './types';
 import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
 import { defaultNodeTooltip } from './constant';
-import { useGetGexfByGraphId, useGetNodeById } from '@/lib/sdk/litegraph.service';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import { JsonEditor } from 'jsoneditor-react';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store/store';
 import FallBack from '@/components/base/fallback/FallBack';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphButton from '@/components/base/button/Button';
 import AddEditNode from '@/page/nodes/components/AddEditNode';
-import { NodeType } from '@/lib/store/node/types';
+import { NodeType } from '@/types/types';
 import DeleteNode from '@/page/nodes/components/DeleteNode';
-import { getGexfOgGraphByID } from '@/lib/store/graph/actions';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
 import { pluralize } from '@/utils/stringUtils';
 import classNames from 'classnames';
 import styles from './tooltip.module.scss';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
+import { useGetGraphGexfContentQuery, useGetNodeByIdQuery } from '@/lib/store/slice/slice';
 
 type NodeTooltipProps = {
   tooltip: GraphNodeTooltip;
   setTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
   graphId: string;
-  setSelectedGraphContext: any;
 };
-const NodeToolTip = ({
-  tooltip,
-  setTooltip,
-  graphId,
-  setSelectedGraphContext,
-}: NodeTooltipProps) => {
-  const dispatch = useAppDispatch();
+const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  console.log('isExpanded', isExpanded);
-  const { fetchNodeById, isLoading, error } = useGetNodeById();
-  const { fetchGexfByGraphId } = useGetGexfByGraphId();
+  const { data: node, isLoading, error } = useGetNodeByIdQuery({ graphId, nodeId: tooltip.nodeId });
+  const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
 
   // State for AddEditDeleteNode visibility and selected node
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
@@ -50,27 +38,11 @@ const NodeToolTip = ({
   const [isAddEditEdgeVisible, setIsAddEditEdgeVisible] = useState<boolean>(false);
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(undefined);
 
-  // Find Node from redux
-  const node = useSelector((state: RootState) => {
-    const graphGroup = state.nodesList.nodes?.find((group: any) => group[graphId]);
-    const existNode = graphGroup
-      ? graphGroup[graphId].find((n: any) => n.GUID === tooltip.nodeId)
-      : null;
-    return existNode;
-  });
-
   // Callback for handling node update
   const handleNodeUpdate = async () => {
     if (graphId && tooltip.nodeId) {
       //Graph re-renders
-      const data: any = await fetchGexfByGraphId(graphId);
-      if (data) {
-        dispatch(getGexfOgGraphByID({ GUID: graphId, gexfContent: data }));
-        setSelectedGraphContext(data); // Keep the selected graph context locally
-      }
-
-      //Tooltip re-renders
-      await fetchNodeById(graphId, tooltip.nodeId, true); // Fetch updated node
+      await fetchGexfByGraphId();
 
       // Clear node tooltip
       setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
@@ -79,11 +51,7 @@ const NodeToolTip = ({
 
   // Callback for handling node deletion
   const handleNodeDelete = async () => {
-    const data = await fetchGexfByGraphId(graphId);
-    if (data) {
-      dispatch(getGexfOgGraphByID({ GUID: graphId, gexfContent: data }));
-      setSelectedGraphContext(data); // Keep the selected graph context locally
-    }
+    await fetchGexfByGraphId();
 
     // Clear the tooltip after deletion
     setTooltip(defaultNodeTooltip);
@@ -91,28 +59,21 @@ const NodeToolTip = ({
 
   // Callback for handling edge update
   const handleEdgeUpdate = async () => {
-    const data = await fetchGexfByGraphId(graphId);
-    if (data) {
-      dispatch(getGexfOgGraphByID({ GUID: graphId, gexfContent: data }));
-      setSelectedGraphContext(data); // Keep the selected graph context locally
-    }
-
-    //Tooltip re-renders
-    await fetchNodeById(graphId, tooltip.nodeId, true); // Fetch updated node
+    await fetchGexfByGraphId();
 
     // Clear node tooltip
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
   };
 
-  useEffect(() => {
-    const getNode = async () => {
-      if (!node && graphId) {
-        await fetchNodeById(graphId, tooltip.nodeId, true);
-      }
-    };
-    getNode();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [node, graphId, tooltip]);
+  // useEffect(() => {
+  //   const getNode = async () => {
+  //     if (!node && graphId) {
+  //       await fetchGexfByGraphId();
+  //     }
+  //   };
+  //   getNode();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [node, graphId, tooltip]);
 
   return (
     <>

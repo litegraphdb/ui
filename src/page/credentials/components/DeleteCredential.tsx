@@ -1,11 +1,9 @@
 'use client';
-import { useDeleteCredentialsById } from '@/lib/sdk/litegraph.service';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { deleteCredential } from '@/lib/store/credential/actions';
 import toast from 'react-hot-toast';
+import { useDeleteCredentialMutation } from '@/lib/store/slice/slice';
 
 interface DeleteCredentialProps {
   title: string;
@@ -28,14 +26,12 @@ const DeleteCredential = ({
 
   onCredentialDeleted,
 }: DeleteCredentialProps) => {
-  const dispatch = useAppDispatch();
-  const { deleteCredentialById, isLoading } = useDeleteCredentialsById();
+  const [deleteCredentialById, { isLoading }] = useDeleteCredentialMutation();
 
   const handleDelete = async () => {
     if (selectedCredential) {
       const res = await deleteCredentialById(selectedCredential.GUID);
       if (res) {
-        dispatch(deleteCredential({ GUID: selectedCredential.GUID }));
         toast.success('Credential deleted successfully');
         setIsDeleteModelVisible(false);
         setSelectedCredential(null);

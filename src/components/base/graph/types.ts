@@ -11,3 +11,8 @@ export interface GraphEdgeTooltip {
   x: number;
   y: number;
 }
+
+export interface GraphEnumerateRequest {
+  token?: string;
+  maxKeys?: number;
+}

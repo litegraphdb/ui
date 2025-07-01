@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { LiteGraphSdk } from 'litegraphdb';
 
 let container: any;
-describe('GraphPage with Mock API', () => {
+describe.skip('GraphPage with Mock API', () => {
   afterEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);

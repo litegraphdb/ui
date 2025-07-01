@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Dropdown, TableProps } from 'antd';
 import { MoreOutlined, CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import { CredentialType } from '@/lib/store/credential/types';
+import { CredentialType } from '@/types/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import TableSearch from '@/components/table-search/TableSearch';
@@ -20,7 +20,6 @@ export const tableColumns = (
     ),
     onFilter: (value, record) => onGUIDFilter(value, record.GUID),
     width: 350,
-    responsive: ['md'],
     render: (GUID: string) => <div>{GUID}</div>,
   },
   {
@@ -32,7 +31,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search User" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.userName || ''),
-    responsive: ['md'],
     render: (userName: string) => <div>{userName}</div>,
   },
   {
@@ -44,7 +42,6 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Name" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.Name),
-    responsive: ['md'],
     sorter: (a: CredentialType, b: CredentialType) => a.Name.localeCompare(b.Name),
     render: (name: string) => <div>{name}</div>,
   },
@@ -53,7 +50,6 @@ export const tableColumns = (
     dataIndex: 'BearerToken',
     key: 'BearerToken',
     width: 200,
-    responsive: ['md'],
     render: (BearerToken: string) => <div>{BearerToken}</div>,
   },
   {
@@ -61,7 +57,6 @@ export const tableColumns = (
     dataIndex: 'Active',
     key: 'Active',
     width: 100,
-    responsive: ['md'],
     sorter: (a: CredentialType, b: CredentialType) => Number(b.Active) - Number(a.Active),
     render: (active: boolean) =>
       active ? (
@@ -75,7 +70,6 @@ export const tableColumns = (
     dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 200,
-    responsive: ['md'],
     sorter: (a: CredentialType, b: CredentialType) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,

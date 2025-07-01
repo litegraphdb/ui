@@ -2,10 +2,8 @@
 import { useMemo, useState } from 'react';
 import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
 import { tableColumns } from './constant';
-import { deleteGraph } from '@/lib/store/graph/actions';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { useDeleteGraphById, useGetGexfByGraphId } from '@/lib/sdk/litegraph.service';
-import { GraphData } from '@/lib/store/graph/types';
+import { useGetGraphGexfContentByIdMutation } from '@/lib/store/slice/slice';
+import { GraphData } from '@/types/types';
 import toast from 'react-hot-toast';
 import FallBack from '@/components/base/fallback/FallBack';
 import LitegraphButton from '@/components/base/button/Button';
@@ -14,8 +12,6 @@ import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphTable from '@/components/base/table/Table';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import dynamic from 'next/dynamic';
-import { useGraphList, useSearchGraphData } from '@/hooks/entityHooks';
-import { useLayoutContext } from '@/components/layout/context';
 import { saveAs } from 'file-saver';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -23,44 +19,49 @@ import SearchByTLDModal from '@/components/search/SearchModal';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { SearchData } from '@/components/search/type';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
-import { SEARCH_BUTTON_LABEL } from '@/constants/uiLabels';
+import { usePagination } from '@/hooks/appHooks';
+import { useDeleteGraphMutation, useSearchAndEnumerateGraphQuery } from '@/lib/store/slice/slice';
+import { tablePaginationConfig } from '@/constants/pagination';
+import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
   ssr: false,
 });
 
 const GraphPage = () => {
-  const dispatch = useAppDispatch();
-  const graphsList = useGraphList();
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const { page, pageSize, skip, handlePageChange } = usePagination();
+  const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
+  const {
+    data,
+    isLoading: isGraphsLoading,
+    refetch: refetchGraphs,
+    error: graphError,
+  } = useSearchAndEnumerateGraphQuery({
+    ...searchParams,
+    MaxResults: pageSize,
+    Skip: skip,
+    IncludeSubordinates: true,
+    IncludeData: true,
+  });
+  const graphsList = data?.Objects || [];
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
   const [selectedGraph, setSelectedGraph] = useState<GraphData | null>(null);
-  const { fetchGexfByGraphId } = useGetGexfByGraphId();
-  const {
-    searchGraph,
-    isLoading: isSearchLoading,
-    searchResults,
-    refreshSearch,
-    setSearchResults,
-  } = useSearchGraphData();
+  const [fetchGexfByGraphId, { isLoading: isFetchGexfByGraphIdLoading }] =
+    useGetGraphGexfContentByIdMutation();
 
-  const { deleteGraphById, isLoading: isDeleteGraphLoading } = useDeleteGraphById();
-  const { isGraphsLoading, graphError, refetchGraphs } = useLayoutContext();
+  const [deleteGraphById, { isLoading: isDeleteGraphLoading }] = useDeleteGraphMutation();
 
   const handleCreateGraph = () => {
     setSelectedGraph(null);
     setIsAddEditGraphVisible(true);
   };
   const onSearch = async (values: SearchData) => {
-    await searchGraph({
-      Domain: values.embeddings ? 'Graph' : undefined,
-      SearchType: values.embeddings ? 'CosineSimilarity' : undefined,
-      Ordering: !values.embeddings ? 'CreatedDescending' : undefined,
+    setSearchParams({
+      Ordering: 'CreatedDescending',
       Labels: values.labels,
       Expr: values.expr,
       Tags: convertTagsToRecord(values.tags),
-      Embeddings: values.embeddings ? values.embeddings : undefined,
     });
   };
   const handleEdit = async (data: GraphData) => {
@@ -75,7 +76,8 @@ const GraphPage = () => {
 
   const handleExportGexf = async (graph: GraphData) => {
     try {
-      const gexfContent = await fetchGexfByGraphId(graph.GUID);
+      const res = await fetchGexfByGraphId({ graphId: graph.GUID });
+      const gexfContent = res?.data;
       if (!gexfContent) {
         throw new Error('No GEXF content received');
       }
@@ -94,7 +96,6 @@ const GraphPage = () => {
     if (selectedGraph) {
       const res = await deleteGraphById(selectedGraph.GUID);
       if (res) {
-        dispatch(deleteGraph({ GUID: selectedGraph.GUID }));
         toast.success('Delete Graph successfully');
         setIsDeleteModelVisisble(false);
         setSelectedGraph(null);
@@ -102,7 +103,7 @@ const GraphPage = () => {
     }
   };
 
-  const graphDataSource = isSearching ? searchResults || [] : graphsList;
+  const graphDataSource = graphsList || [];
   const hasScoreOrDistance = useMemo(
     () => hasScoreOrDistanceInData(graphDataSource),
     [graphDataSource]
@@ -113,41 +114,19 @@ const GraphPage = () => {
       id="graphs"
       pageTitle={
         <LitegraphFlex align="center" gap={10}>
-          <LitegraphText>{isSearching ? 'Search ' : 'Graphs'}</LitegraphText>
-          {isSearching ? (
-            <CloseOutlined className="cursor-pointer" onClick={() => setIsSearching(false)} />
-          ) : (
-            <SearchOutlined
-              className="cursor-pointer"
-              onClick={() => {
-                setIsSearching(true);
-                setSearchResults(null);
-              }}
-            />
-          )}
+          <LitegraphText>Graphs</LitegraphText>
+          <SearchOutlined className="cursor-pointer" onClick={() => setShowSearchModal(true)} />
         </LitegraphFlex>
       }
       pageTitleRightContent={
-        isSearching ? (
-          <LitegraphFlex gap={20}>
-            <LitegraphButton
-              type="link"
-              icon={<SearchOutlined />}
-              onClick={() => setShowSearchModal(true)}
-            >
-              {SEARCH_BUTTON_LABEL}
-            </LitegraphButton>
-          </LitegraphFlex>
-        ) : (
-          <LitegraphButton
-            type="link"
-            icon={<PlusSquareOutlined />}
-            onClick={handleCreateGraph}
-            weight={500}
-          >
-            Create Graph
-          </LitegraphButton>
-        )
+        <LitegraphButton
+          type="link"
+          icon={<PlusSquareOutlined />}
+          onClick={handleCreateGraph}
+          weight={500}
+        >
+          Create Graph
+        </LitegraphButton>
       }
     >
       {graphError ? (
@@ -155,12 +134,41 @@ const GraphPage = () => {
           {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
         </FallBack>
       ) : (
-        <LitegraphTable
-          columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
-          dataSource={graphDataSource}
-          loading={isGraphsLoading || isSearchLoading}
-          rowKey={'GUID'}
-        />
+        <>
+          <LitegraphFlex
+            style={{ marginTop: '-10px' }}
+            gap={20}
+            justify="space-between"
+            align="center"
+            className="mb-sm"
+          >
+            {Boolean(Object.keys(searchParams).length) && (
+              <LitegraphText>
+                {data?.TotalRecords} graph{`(s)`} found{' '}
+                <LitegraphButton
+                  icon={<CloseOutlined />}
+                  type="link"
+                  onClick={() => setSearchParams({})}
+                >
+                  Clear
+                </LitegraphButton>{' '}
+              </LitegraphText>
+            )}
+          </LitegraphFlex>
+          <LitegraphTable
+            columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
+            dataSource={graphDataSource}
+            loading={isGraphsLoading || isFetchGexfByGraphIdLoading}
+            rowKey={'GUID'}
+            pagination={{
+              ...tablePaginationConfig,
+              total: data?.TotalRecords,
+              pageSize: pageSize,
+              current: page,
+              onChange: handlePageChange,
+            }}
+          />
+        </>
       )}
 
       <AddEditGraph
@@ -169,7 +177,6 @@ const GraphPage = () => {
         graph={selectedGraph ? selectedGraph : null}
         onDone={() => {
           refetchGraphs();
-          refreshSearch();
         }}
       />
 

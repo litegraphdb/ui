@@ -4,31 +4,42 @@ import { PlusSquareOutlined } from '@ant-design/icons';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
-import { TenantType } from '@/lib/store/tenants/types';
 import AddEditTenant from './components/AddEditTenant';
 import DeleteTenant from './components/DeleteTenant';
 import { tableColumns } from './constant';
 import FallBack from '@/components/base/fallback/FallBack';
-import { useTenants } from '@/hooks/entityHooks';
+import { usePagination } from '@/hooks/appHooks';
+import { useEnumerateTenantQuery } from '@/lib/store/slice/slice';
+import { tablePaginationConfig } from '@/constants/pagination';
+import { TenantMetaData } from 'litegraphdb/dist/types/types';
 
 const TenantPage = () => {
-  const [selectedTenant, setSelectedTenant] = useState<TenantType | null>(null);
+  const [selectedTenant, setSelectedTenant] = useState<TenantMetaData | null>(null);
   const [isAddEditTenantVisible, setIsAddEditTenantVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
-
-  const { tenantsList, fetchTenantsList, isLoading: isTenantsLoading, error } = useTenants();
+  const { page, pageSize, skip, handlePageChange } = usePagination();
+  const {
+    data,
+    refetch: fetchTenantsList,
+    isLoading: isTenantsLoading,
+    error,
+  } = useEnumerateTenantQuery({
+    maxKeys: pageSize,
+    skip: skip,
+  });
+  const tenantsList = data?.Objects || [];
 
   const handleCreateTenant = () => {
     setSelectedTenant(null);
     setIsAddEditTenantVisible(true);
   };
 
-  const handleEditTenant = (data: TenantType) => {
+  const handleEditTenant = (data: TenantMetaData) => {
     setSelectedTenant(data);
     setIsAddEditTenantVisible(true);
   };
 
-  const handleDeleteTenant = (data: TenantType) => {
+  const handleDeleteTenant = (data: TenantMetaData) => {
     setSelectedTenant(data);
     setIsDeleteModelVisible(true);
   };
@@ -56,6 +67,13 @@ const TenantPage = () => {
           columns={tableColumns(handleEditTenant, handleDeleteTenant)}
           dataSource={tenantsList}
           rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: data?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
         />
       )}
 
@@ -64,7 +82,6 @@ const TenantPage = () => {
           isAddEditTenantVisible={isAddEditTenantVisible}
           setIsAddEditTenantVisible={setIsAddEditTenantVisible}
           tenant={selectedTenant || null}
-          onTenantUpdated={fetchTenantsList}
         />
       )}
 
@@ -76,7 +93,6 @@ const TenantPage = () => {
           setIsDeleteModelVisible={setIsDeleteModelVisible}
           selectedTenant={selectedTenant}
           setSelectedTenant={setSelectedTenant}
-          onTenantDeleted={fetchTenantsList}
         />
       )}
     </PageContainer>

@@ -1,20 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Form, Switch, Select, Input } from 'antd';
-import { useCreateUsers, useUpdateUsersById, useGetTenants } from '@/lib/sdk/litegraph.service';
-import { UserType } from '@/lib/store/user/types';
+import { Form, Switch, Input } from 'antd';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { createUser, updateUser } from '@/lib/store/user/actions';
 import toast from 'react-hot-toast';
-import { v4 } from 'uuid';
+import { useCreateUserMutation, useUpdateUserMutation } from '@/lib/store/slice/slice';
+import { UserMetadata, UserMetadataCreateRequest } from 'litegraphdb/dist/types/types';
 
 interface AddEditUserProps {
   isAddEditUserVisible: boolean;
   setIsAddEditUserVisible: (visible: boolean) => void;
-  user: UserType | null;
+  user: UserMetadata | null;
   onUserUpdated?: () => Promise<void>;
 }
 
@@ -24,11 +21,10 @@ const AddEditUser = ({
   user,
   onUserUpdated,
 }: AddEditUserProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
-  const { createUsers: createUserService, isLoading: isCreateLoading } = useCreateUsers();
-  const { updateUserById, isLoading: isUpdateLoading } = useUpdateUsersById();
+  const [createUser, { isLoading: isCreateLoading }] = useCreateUserMutation();
+  const [updateUserById, { isLoading: isUpdateLoading }] = useUpdateUserMutation();
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -59,16 +55,20 @@ const AddEditUser = ({
       const values = await form.validateFields();
       if (user) {
         // Update existing user
-        const updatedUser = {
-          ...user,
-          ...values,
+        const updatedUser: UserMetadata = {
+          GUID: user.GUID,
+          FirstName: values.FirstName,
+          LastName: values.LastName,
+          Email: values.Email,
+          Password: values.Password,
+          Active: values.Active,
+          CreatedUtc: user.CreatedUtc,
           LastUpdateUtc: new Date().toISOString(),
         };
 
         const res = await updateUserById(updatedUser);
 
         if (res) {
-          dispatch(updateUser(res)); // Use the response data instead of updatedUser
           toast.success('User updated successfully');
           setIsAddEditUserVisible(false);
           form.resetFields();
@@ -78,15 +78,15 @@ const AddEditUser = ({
         }
       } else {
         // Create new user
-        const newUser = {
-          ...values,
-          GUID: v4(),
-          CreatedUtc: new Date().toISOString(),
-          LastUpdateUtc: new Date().toISOString(),
+        const newUser: UserMetadataCreateRequest = {
+          FirstName: values.FirstName,
+          LastName: values.LastName,
+          Email: values.Email,
+          Password: values.Password,
+          Active: values.Active,
         };
-        const res = await createUserService(newUser);
+        const res = await createUser(newUser);
         if (res) {
-          dispatch(createUser(newUser));
           toast.success('User created successfully');
           setIsAddEditUserVisible(false);
           form.resetFields();

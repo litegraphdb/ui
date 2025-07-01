@@ -1,6 +1,6 @@
 'use client';
-import { Form, Select } from 'antd';
-import { GraphData } from '@/lib/store/graph/types';
+import { Form } from 'antd';
+import { GraphData } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import { useEffect, useState } from 'react';
@@ -8,16 +8,15 @@ import LitegraphInput from '@/components/base/input/Input';
 import { validationRules } from './constant';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
-import { useCreateGraph, useUpdateGraphById } from '@/lib/sdk/litegraph.service';
-import { createGraph, updateGraph } from '@/lib/store/graph/actions';
 import { useAppDispatch } from '@/lib/store/hooks';
 import toast from 'react-hot-toast';
-import { useLabels, useTags, useSelectedGraph } from '@/hooks/entityHooks';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
 import TagsInput from '@/components/inputs/tags-input/TagsInput';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
+import { useCreateGraphMutation, useUpdateGraphMutation } from '@/lib/store/slice/slice';
+import { GraphCreateRequest } from 'litegraphdb/dist/types/types';
 
 const initialValues = {
   name: '',
@@ -46,8 +45,8 @@ const AddEditGraph = ({
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
 
-  const { createGraphs, isLoading: isCreateLoading } = useCreateGraph();
-  const { updateGraphById, isLoading: isUpdateLoading } = useUpdateGraphById();
+  const [createGraph, { isLoading: isCreateLoading }] = useCreateGraphMutation();
+  const [updateGraphById, { isLoading: isUpdateLoading }] = useUpdateGraphMutation();
 
   const [uniqueKey, setUniqueKey] = useState(v4());
 
@@ -68,6 +67,7 @@ const AddEditGraph = ({
         // Edit Graph
         console.log('graph', graph);
         const data = {
+          ...graph,
           GUID: graph.GUID,
           Name: values.name,
           Data: values.data || {},
@@ -78,7 +78,6 @@ const AddEditGraph = ({
         console.log('data', data);
         const res = await updateGraphById(data);
         if (res) {
-          dispatch(updateGraph(res));
           toast.success('Update Graph successfully');
           setIsAddEditGraphVisible(false);
           onDone?.();
@@ -87,8 +86,7 @@ const AddEditGraph = ({
         }
       } else {
         // Add Graph
-        const data = {
-          GUID: v4(),
+        const data: GraphCreateRequest = {
           Name: values.name,
           Data: values.data || {},
           Labels: values.labels || [],
@@ -96,9 +94,8 @@ const AddEditGraph = ({
           Vectors: convertVectorsToAPIRecord(values.vectors),
         };
         console.log('data', data);
-        const res = await createGraphs(data);
+        const res = await createGraph(data);
         if (res) {
-          dispatch(createGraph(res));
           toast.success('Add Graph successfully');
           setIsAddEditGraphVisible(false);
           onDone?.();
@@ -167,9 +164,7 @@ const AddEditGraph = ({
         <LitegraphFormItem label="Name" name="name" rules={validationRules.name}>
           <LitegraphInput placeholder="Enter graph name" data-testid="graph-name-input" />
         </LitegraphFormItem>
-        <Form.Item label="Labels">
-          <LabelInput name="labels" />
-        </Form.Item>
+        <LabelInput name="labels" />
         <Form.Item label="Tags">
           <TagsInput name="tags" />
         </Form.Item>
