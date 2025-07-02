@@ -163,6 +163,7 @@ const AddEditNode = ({
 
   return (
     <LitegraphModal
+      maskClosable={false}
       title={node ? `${readonly ? 'View' : 'Edit'} Node` : 'Create Node'}
       okText={node ? 'Update' : 'Create'}
       open={isAddEditNodeVisible}

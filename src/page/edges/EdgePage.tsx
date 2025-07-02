@@ -10,7 +10,7 @@ import { EdgeType } from '@/types/types';
 import { tableColumns } from './constant';
 import AddEditEdge from './components/AddEditEdge';
 import DeleteEdge from './components/DeleteEdge';
-import { transformEdgeDataForTable } from './utils';
+import { getNodeGUIDsByEdgeList, transformEdgeDataForTable } from './utils';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
@@ -20,7 +20,11 @@ import SearchByTLDModal from '@/components/search/SearchModal';
 import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
-import { useEnumerateAndSearchEdgeQuery, useGetAllNodesQuery } from '@/lib/store/slice/slice';
+import {
+  useEnumerateAndSearchEdgeQuery,
+  useGetAllNodesQuery,
+  useGetManyNodesQuery,
+} from '@/lib/store/slice/slice';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 
 const EdgePage = () => {
@@ -28,26 +32,32 @@ const EdgePage = () => {
   const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const { page, pageSize, skip, handlePageChange } = usePagination();
-  const { data: nodesList, isLoading: isNodesLoading } = useGetAllNodesQuery({
-    graphId: selectedGraphRedux,
-  });
+
   const {
     data: edgesList,
     refetch: fetchEdgesList,
     isLoading: isEdgesLoading,
     error: isEdgesError,
-  } = useEnumerateAndSearchEdgeQuery({
-    graphId: selectedGraphRedux,
-    request: {
-      ...searchParams,
-      IncludeData: true,
-      IncludeSubordinates: true,
-      MaxResults: pageSize,
-      Skip: skip,
+  } = useEnumerateAndSearchEdgeQuery(
+    {
+      graphId: selectedGraphRedux,
+      request: {
+        ...searchParams,
+        IncludeData: true,
+        IncludeSubordinates: true,
+        MaxResults: pageSize,
+        Skip: skip,
+      },
     },
-  });
-
-  const isNodesAndEdgesLoading = isNodesLoading || isEdgesLoading;
+    { skip: !selectedGraphRedux }
+  );
+  const { data: nodesList, isLoading: isNodesLoading } = useGetManyNodesQuery(
+    {
+      graphId: selectedGraphRedux,
+      nodeIds: getNodeGUIDsByEdgeList(edgesList?.Objects || []),
+    },
+    { skip: !edgesList?.Objects.length }
+  );
 
   const [selectedEdge, setSelectedEdge] = useState<EdgeType | null | undefined>(null);
 
@@ -134,9 +144,9 @@ const EdgePage = () => {
             )}
           </LitegraphFlex>
           <LitegraphTable
-            columns={tableColumns(handleEditEdge, handleDelete, hasScoreOrDistance)}
+            columns={tableColumns(handleEditEdge, handleDelete, hasScoreOrDistance, isNodesLoading)}
             dataSource={transformedEdgesList}
-            loading={isNodesAndEdgesLoading}
+            loading={isEdgesLoading}
             rowKey={'GUID'}
             pagination={{
               ...tablePaginationConfig,

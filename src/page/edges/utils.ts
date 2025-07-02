@@ -20,3 +20,9 @@ export const transformEdgeDataForTable = (edgesList: EdgeType[], nodesList: Node
     }) || []
   );
 };
+
+export const getNodeGUIDsByEdgeList = (edgesList: EdgeType[]) => {
+  const fromGUIDs = edgesList.map((edge) => edge.From).filter((guid) => guid !== '');
+  const toGUIDs = edgesList.map((edge) => edge.To).filter((guid) => guid !== '');
+  return Array.from(new Set([...fromGUIDs, ...toGUIDs]));
+};

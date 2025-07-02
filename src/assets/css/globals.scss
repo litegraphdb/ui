@@ -205,9 +205,9 @@
 }
 
 .ant-table-container {
-  border: 1px solid var(--ant-color-border);
-  border-radius: var(--ant-border-radius-lg);
   .ant-table-content {
+    border: 1px solid var(--ant-color-border);
+    border-radius: var(--ant-border-radius-lg);
     overflow-x: auto;
     table {
       width: 99% !important;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { MoreOutlined } from '@ant-design/icons';
-import { Button, Dropdown, TableProps } from 'antd';
+import { LoadingOutlined, MoreOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Skeleton, TableProps } from 'antd';
 import { EdgeType } from '@/types/types';
 import { formatDateTime } from '@/utils/dateUtils';
 import { pluralize } from '@/utils/stringUtils';
@@ -13,7 +13,8 @@ import { onGUIDFilter, onLabelFilter, onNameFilter, onTagFilter } from '@/consta
 export const tableColumns = (
   handleEdit: (record: EdgeType) => void,
   handleDelete: (record: EdgeType) => void,
-  hasScoreOrDistance: boolean
+  hasScoreOrDistance: boolean,
+  isNodesLoading: boolean
 ): TableProps<EdgeType>['columns'] => [
   {
     title: 'Name',
@@ -57,11 +58,14 @@ export const tableColumns = (
     ),
     onFilter: (value, record) => onNameFilter(value, record.FromName || ''),
     responsive: ['md'],
-    render: (FromName: string) => (
-      <div>
-        <div>{FromName}</div>
-      </div>
-    ),
+    render: (FromName: string) =>
+      isNodesLoading ? (
+        <LoadingOutlined />
+      ) : (
+        <div>
+          <div>{FromName}</div>
+        </div>
+      ),
   },
   {
     title: 'To',
@@ -73,11 +77,14 @@ export const tableColumns = (
     ),
     onFilter: (value, record) => onNameFilter(value, record.ToName || ''),
     responsive: ['md'],
-    render: (ToName: string) => (
-      <div>
-        <div>{ToName}</div>
-      </div>
-    ),
+    render: (ToName: string) =>
+      isNodesLoading ? (
+        <LoadingOutlined />
+      ) : (
+        <div>
+          <div>{ToName}</div>
+        </div>
+      ),
   },
   {
     title: 'Cost',

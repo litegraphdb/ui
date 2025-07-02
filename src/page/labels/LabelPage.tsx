@@ -9,10 +9,14 @@ import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditLabel from './components/AddEditLabel';
 import DeleteLabel from './components/DeleteLabel';
-import { transformLabelsDataForTable } from './utils';
-import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
+import { getNodeAndEdgeGUIDsByLabelList, transformLabelsDataForTable } from './utils';
+import { useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
-import { useEnumerateAndSearchLabelQuery } from '@/lib/store/slice/slice';
+import {
+  useEnumerateAndSearchLabelQuery,
+  useGetManyEdgesQuery,
+  useGetManyNodesQuery,
+} from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { LabelMetadata } from 'litegraphdb/dist/types/types';
@@ -36,26 +40,39 @@ const LabelPage = () => {
       skip: !selectedGraphRedux,
     }
   );
+  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByLabelList(labelsList?.Objects || []);
   const {
-    nodesList,
-    edgesList,
-    fetchNodesAndEdges,
-    isLoading: isNodeAndEdgeLoading,
-  } = useNodeAndEdge(selectedGraphRedux);
+    data: nodesList,
+    isLoading: isNodesLoading,
+    refetch: fetchNodesList,
+  } = useGetManyNodesQuery({
+    graphId: selectedGraphRedux,
+    nodeIds: nodeGUIDs,
+  });
+  const {
+    data: edgesList,
+    isLoading: isEdgesLoading,
+    refetch: fetchEdgesList,
+  } = useGetManyEdgesQuery({
+    graphId: selectedGraphRedux,
+    edgeIds: edgeGUIDs,
+  });
+  const isNodeAndEdgeLoading = isNodesLoading || isEdgesLoading;
+  const fetchNodesAndEdges = async () => {
+    fetchNodesList();
+    fetchEdgesList();
+  };
   // Redux state for the list of graphs
 
   const [selectedLabel, setSelectedLabel] = useState<LabelMetadata | null | undefined>(null);
   const [isAddEditLabelVisible, setIsAddEditLabelVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
 
-  console.log(edgesList, typeof edgesList, 'edgesList');
   const transformedLabelsList = transformLabelsDataForTable(
     labelsList?.Objects || [],
     nodesList || [],
     edgesList || []
   );
-
-  // Check if litegraphURL present or not
 
   const handleCreateLabel = () => {
     setSelectedLabel(null);
@@ -101,7 +118,7 @@ const LabelPage = () => {
       ) : (
         <LitegraphTable
           loading={isNodeAndEdgeLoading || isLoading || isGraphsLoading}
-          columns={tableColumns(handleEditLabel, handleDelete)}
+          columns={tableColumns(handleEditLabel, handleDelete, isNodesLoading, isEdgesLoading)}
           dataSource={transformedLabelsList}
           rowKey={'GUID'}
           pagination={{

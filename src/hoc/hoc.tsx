@@ -103,7 +103,6 @@ export const forGuest = (WrappedComponent: React.ElementType) => {
     const { serializePath } = useAppDynamicNavigation();
     const router = useRouter();
     useEffect(() => {
-      console.log('token', token);
       if (token?.Token && tenant?.GUID) {
         setAccessToken(token.Token);
         setTenant(tenant.GUID);

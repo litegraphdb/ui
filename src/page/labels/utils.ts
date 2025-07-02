@@ -22,3 +22,12 @@ export const transformLabelsDataForTable = (
     }) || []
   );
 };
+
+export const getNodeAndEdgeGUIDsByLabelList = (labelsList: LabelMetadata[]) => {
+  const nodeGUIDs = labelsList.map((label) => label.NodeGUID);
+  const edgeGUIDs = labelsList.map((label) => label.EdgeGUID);
+  return {
+    nodeGUIDs: Array.from(new Set(nodeGUIDs)),
+    edgeGUIDs: Array.from(new Set(edgeGUIDs)),
+  };
+};

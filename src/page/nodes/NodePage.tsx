@@ -33,16 +33,19 @@ const NodePage = () => {
     refetch: fetchNodesList,
     isLoading: isNodesLoading,
     isError: isNodesError,
-  } = useEnumerateAndSearchNodeQuery({
-    graphId: selectedGraphRedux,
-    request: {
-      ...searchParams,
-      Skip: skip,
-      MaxResults: pageSize,
-      IncludeData: true,
-      IncludeSubordinates: true,
+  } = useEnumerateAndSearchNodeQuery(
+    {
+      graphId: selectedGraphRedux,
+      request: {
+        ...searchParams,
+        Skip: skip,
+        MaxResults: pageSize,
+        IncludeData: true,
+        IncludeSubordinates: true,
+      },
     },
-  });
+    { skip: !selectedGraphRedux }
+  );
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(null);
 
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);

@@ -33,3 +33,9 @@ v0.1.5
 
 - integrated enumerate graph api
 - rtk query for cache management
+
+v1.0.0
+
+- version tag to 1.0.0
+- Read many api is integrated
+- integrated litegraphdb sdk 1.0.8
