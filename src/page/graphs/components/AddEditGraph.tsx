@@ -8,7 +8,6 @@ import LitegraphInput from '@/components/base/input/Input';
 import { validationRules } from './constant';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
-import { useAppDispatch } from '@/lib/store/hooks';
 import toast from 'react-hot-toast';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
 import TagsInput from '@/components/inputs/tags-input/TagsInput';
@@ -41,7 +40,6 @@ const AddEditGraph = ({
   graph,
   onDone,
 }: AddEditGraphProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
 
@@ -143,6 +141,7 @@ const AddEditGraph = ({
 
   return (
     <LitegraphModal
+      maskClosable={false}
       title={graph ? 'Edit Graph' : 'Create Graph'}
       okText={graph ? 'Update' : 'Create'}
       open={isAddEditGraphVisible}

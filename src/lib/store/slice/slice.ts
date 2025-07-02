@@ -121,6 +121,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       providesTags: [SliceTags.NODE],
     }),
+    getManyNodes: build.query<Node[], { graphId: string; nodeIds: string[] }>({
+      query: ({ graphId, nodeIds }: { graphId: string; nodeIds: string[] }) => ({
+        callback: () => sdk.Node.readMany(graphId, nodeIds),
+      }),
+      providesTags: [SliceTags.NODE],
+    }),
     getNodeById: build.query<Node, { graphId: string; nodeId: string }>({
       query: ({ graphId, nodeId }: { graphId: string; nodeId: string }) => ({
         callback: () => sdk.Node.read(graphId, nodeId),
@@ -170,6 +176,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
       transformResponse: (response: any) => {
         return typeof response === 'object' ? response : [];
       },
+    }),
+    getManyEdges: build.query<Edge[], { graphId: string; edgeIds: string[] }>({
+      query: ({ graphId, edgeIds }: { graphId: string; edgeIds: string[] }) => ({
+        callback: () => sdk.Edge.readMany(graphId, edgeIds),
+      }),
+      providesTags: [SliceTags.EDGE],
     }),
     getEdgeById: build.query<Edge, { graphId: string; edgeId: string }>({
       query: ({ graphId, edgeId }: { graphId: string; edgeId: string }) => ({
@@ -591,4 +603,6 @@ export const {
   useGetTenantsForEmailMutation,
   useGenerateTokenMutation,
   useGetTokenDetailsMutation,
+  useGetManyNodesQuery,
+  useGetManyEdgesQuery,
 } = graphSlice;

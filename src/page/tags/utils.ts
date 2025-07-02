@@ -29,3 +29,12 @@ export const transformTagsDataForTable = (
     }) || []
   );
 };
+
+export const getNodeAndEdgeGUIDsByTagList = (tagsList: TagMetaData[]) => {
+  const nodeGUIDs = tagsList.map((tag) => tag.NodeGUID);
+  const edgeGUIDs = tagsList.map((tag) => tag.EdgeGUID);
+  return {
+    nodeGUIDs: Array.from(new Set(nodeGUIDs)),
+    edgeGUIDs: Array.from(new Set(edgeGUIDs)),
+  };
+};

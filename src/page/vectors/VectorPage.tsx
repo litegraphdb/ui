@@ -9,10 +9,14 @@ import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditVector from './components/AddEditVector';
 import DeleteVector from './components/DeleteVector';
-import { transformVectorsDataForTable } from './utils';
-import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
+import { getNodeAndEdgeGUIDsByVectorList, transformVectorsDataForTable } from './utils';
+import { useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
-import { useEnumerateAndSearchVectorQuery } from '@/lib/store/slice/slice';
+import {
+  useEnumerateAndSearchVectorQuery,
+  useGetManyEdgesQuery,
+  useGetManyNodesQuery,
+} from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 
@@ -21,12 +25,6 @@ const VectorPage = () => {
   const selectedGraphRedux = useSelectedGraph();
   const { isGraphsLoading } = useLayoutContext();
   const { page, pageSize, skip, handlePageChange } = usePagination();
-  const {
-    nodesList = [],
-    edgesList = [],
-    isLoading: isEdgesAndNodeLoading,
-    fetchNodesAndEdges,
-  } = useNodeAndEdge(selectedGraphRedux);
   const {
     data,
     refetch: fetchVectorsList,
@@ -43,8 +41,33 @@ const VectorPage = () => {
     }
   );
   const vectorsList = data?.Objects || [];
-  console.log(edgesList, typeof edgesList, 'edgesList');
-  const transformedVectorsList = transformVectorsDataForTable(vectorsList, nodesList, edgesList);
+  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByVectorList(vectorsList);
+  const {
+    data: nodesList,
+    isLoading: isNodesLoading,
+    refetch: fetchNodesList,
+  } = useGetManyNodesQuery({
+    graphId: selectedGraphRedux,
+    nodeIds: nodeGUIDs,
+  });
+  const {
+    data: edgesList,
+    isLoading: isEdgesLoading,
+    refetch: fetchEdgesList,
+  } = useGetManyEdgesQuery({
+    graphId: selectedGraphRedux,
+    edgeIds: edgeGUIDs,
+  });
+  const isNodeAndEdgeLoading = isNodesLoading || isEdgesLoading;
+  const fetchNodesAndEdges = async () => {
+    fetchNodesList();
+    fetchEdgesList();
+  };
+  const transformedVectorsList = transformVectorsDataForTable(
+    vectorsList,
+    nodesList || [],
+    edgesList || []
+  );
   const [selectedVector, setSelectedVector] = useState<VectorType | null | undefined>(null);
   const [isAddEditVectorVisible, setIsAddEditVectorVisible] = useState<boolean>(false);
   const [isDeleteModelVisible, setIsDeleteModelVisible] = useState<boolean>(false);
@@ -87,8 +110,8 @@ const VectorPage = () => {
         <FallBack retry={fetchVectorsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable
-          loading={isGraphsLoading || isEdgesAndNodeLoading || isVectorsLoading}
-          columns={tableColumns(handleEditVector, handleDelete)}
+          loading={isGraphsLoading || isNodeAndEdgeLoading || isVectorsLoading}
+          columns={tableColumns(handleEditVector, handleDelete, isNodesLoading, isEdgesLoading)}
           dataSource={transformedVectorsList}
           rowKey={'GUID'}
           pagination={{

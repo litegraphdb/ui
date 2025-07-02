@@ -4,7 +4,7 @@ import { SigmaContainer } from '@react-sigma/core';
 import GraphLoader from './GraphLoader';
 import { MultiDirectedGraph } from 'graphology';
 import '@react-sigma/core/lib/react-sigma.min.css';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { useAppSelector } from '@/lib/store/hooks';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import NodeToolTip from './NodeToolTip';
 import { RootState } from '@/lib/store/store';
@@ -14,7 +14,10 @@ import AddEditNode from '@/page/nodes/components/AddEditNode';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
 import FallBack, { FallBackEnums } from '../fallback/FallBack';
 import styles from './graph.module.scss';
-import { useGetAllNodesQuery, useGetGraphGexfContentQuery } from '@/lib/store/slice/slice';
+import {
+  useEnumerateAndSearchNodeQuery,
+  useGetGraphGexfContentQuery,
+} from '@/lib/store/slice/slice';
 
 const GraphViewer = ({
   isAddEditNodeVisible,
@@ -35,17 +38,21 @@ const GraphViewer = ({
   isAddEditEdgeVisible: boolean;
   setIsAddEditEdgeVisible: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const dispatch = useAppDispatch();
   // Redux state for the list of graphs
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
 
-  const { data } = useGetAllNodesQuery({ graphId: selectedGraphRedux });
-  const nodesList = data || [];
+  const { data } = useEnumerateAndSearchNodeQuery({
+    graphId: selectedGraphRedux,
+    request: {
+      MaxResults: 1,
+    },
+  });
+  const nodesList = data?.Objects || [];
   const {
     data: gexfContent,
     refetch: fetchGexfByGraphId,
     isLoading: isGetGexfByGraphIdLoading,
-  } = useGetGraphGexfContentQuery(selectedGraphRedux);
+  } = useGetGraphGexfContentQuery(selectedGraphRedux, { skip: !nodesList.length });
 
   // Callback for handling node update
   const handleNodeUpdate = async () => {
@@ -84,11 +91,7 @@ const GraphViewer = ({
           <PageLoading />
         ) : (
           <>
-            {!gexfContent ? (
-              <FallBack className="mt-lg" type={FallBackEnums.INFO}>
-                Select a graph to visualize
-              </FallBack>
-            ) : !nodesList.length ? (
+            {!nodesList.length ? (
               <FallBack className="mt-lg" type={FallBackEnums.WARNING}>
                 This graph has no nodes.
               </FallBack>
@@ -123,7 +126,7 @@ const GraphViewer = ({
                 graph={MultiDirectedGraph}
               >
                 <GraphLoader
-                  gexfContent={gexfContent}
+                  gexfContent={gexfContent || ''}
                   setTooltip={setNodeTooltip}
                   setEdgeTooltip={setEdgeTooltip}
                   nodeTooltip={nodeTooltip}

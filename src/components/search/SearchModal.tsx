@@ -46,6 +46,7 @@ const SearchModal = ({
 
   return (
     <LitegraphModal
+      maskClosable={false}
       destroyOnClose={false}
       title="Search"
       centered

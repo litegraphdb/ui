@@ -61,9 +61,12 @@ const AddEditEdge = ({
   const [form] = Form.useForm();
   const [uniqueKey, setUniqueKey] = useState(v4());
   const [formValid, setFormValid] = useState(false);
-  const { data: nodesList, isLoading: isNodesLoading } = useGetAllNodesQuery({
-    graphId: selectedGraph,
-  });
+  const { data: nodesList, isLoading: isNodesLoading } = useGetAllNodesQuery(
+    {
+      graphId: selectedGraph,
+    },
+    { skip: !isAddEditEdgeVisible }
+  );
   const nodeOptions = transformToOptions(nodesList);
   const [createEdges, { isLoading: isCreateLoading }] = useCreateEdgeMutation();
   const [updateEdgeById, { isLoading: isUpdateLoading }] = useUpdateEdgeMutation();
@@ -170,6 +173,7 @@ const AddEditEdge = ({
 
   return (
     <LitegraphModal
+      maskClosable={false}
       title={edge ? 'Edit Edge' : 'Create Edge'}
       okText={edge ? 'Update' : 'Create'}
       open={isAddEditEdgeVisible}

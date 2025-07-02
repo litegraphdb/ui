@@ -1,5 +1,5 @@
 import React from 'react';
-import { MoreOutlined } from '@ant-design/icons';
+import { LoadingOutlined, MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
 import { VectorType } from '@/types/types';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
@@ -10,7 +10,9 @@ import TableSearch from '@/components/table-search/TableSearch';
 
 export const tableColumns = (
   handleEdit: (record: VectorType) => void,
-  handleDelete: (record: VectorType) => void
+  handleDelete: (record: VectorType) => void,
+  isNodesLoading: boolean,
+  isEdgesLoading: boolean
 ): TableProps<VectorType>['columns'] => [
   {
     title: 'Model',
@@ -56,11 +58,14 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Node" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.NodeName || ''),
-    render: (NodeGUID: string) => (
-      <div>
-        <div>{NodeGUID}</div>
-      </div>
-    ),
+    render: (NodeGUID: string) =>
+      isNodesLoading ? (
+        <LoadingOutlined />
+      ) : (
+        <div>
+          <div>{NodeGUID}</div>
+        </div>
+      ),
   },
   {
     title: 'Edge',
@@ -73,11 +78,14 @@ export const tableColumns = (
       <TableSearch {...props} placeholder="Search Edge" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.EdgeName || ''),
-    render: (EdgeName: string) => (
-      <div>
-        <div>{EdgeName}</div>
-      </div>
-    ),
+    render: (EdgeName: string) =>
+      isEdgesLoading ? (
+        <LoadingOutlined />
+      ) : (
+        <div>
+          <div>{EdgeName}</div>
+        </div>
+      ),
   },
 
   {

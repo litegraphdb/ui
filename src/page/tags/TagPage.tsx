@@ -10,10 +10,14 @@ import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditTag from './components/AddEditTag';
 import DeleteTag from './components/DeleteTag';
-import { transformTagsDataForTable } from './utils';
-import { useNodeAndEdge, useSelectedGraph } from '@/hooks/entityHooks';
+import { getNodeAndEdgeGUIDsByTagList, transformTagsDataForTable } from './utils';
+import { useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
-import { useEnumerateAndSearchTagQuery } from '@/lib/store/slice/slice';
+import {
+  useEnumerateAndSearchTagQuery,
+  useGetManyEdgesQuery,
+  useGetManyNodesQuery,
+} from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 
@@ -22,12 +26,6 @@ const TagPage = () => {
   const selectedGraphRedux = useSelectedGraph();
   const { isGraphsLoading } = useLayoutContext();
   const { page, pageSize, skip, handlePageChange } = usePagination();
-  const {
-    nodesList = [],
-    edgesList = [],
-    isLoading: isEdgesAndNodeLoading,
-    fetchNodesAndEdges,
-  } = useNodeAndEdge(selectedGraphRedux);
   const {
     data,
     refetch: fetchTagsList,
@@ -43,6 +41,28 @@ const TagPage = () => {
       skip: !selectedGraphRedux,
     }
   );
+  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByTagList(data?.Objects || []);
+  const {
+    data: nodesList,
+    isLoading: isNodesLoading,
+    refetch: fetchNodesList,
+  } = useGetManyNodesQuery({
+    graphId: selectedGraphRedux,
+    nodeIds: nodeGUIDs,
+  });
+  const {
+    data: edgesList,
+    isLoading: isEdgesLoading,
+    refetch: fetchEdgesList,
+  } = useGetManyEdgesQuery({
+    graphId: selectedGraphRedux,
+    edgeIds: edgeGUIDs,
+  });
+  const isNodeAndEdgeLoading = isNodesLoading || isEdgesLoading;
+  const fetchNodesAndEdges = async () => {
+    fetchNodesList();
+    fetchEdgesList();
+  };
   const tagsList = data?.Objects || [];
   const transformedTagsList = transformTagsDataForTable(tagsList, nodesList || [], edgesList || []);
   const [selectedTag, setSelectedTag] = useState<TagType | null | undefined>(null);
@@ -87,8 +107,8 @@ const TagPage = () => {
         <FallBack retry={fetchTagsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable
-          loading={isGraphsLoading || isEdgesAndNodeLoading || isTagsLoading}
-          columns={tableColumns(handleEditTag, handleDelete)}
+          loading={isGraphsLoading || isNodeAndEdgeLoading || isTagsLoading}
+          columns={tableColumns(handleEditTag, handleDelete, isNodesLoading, isEdgesLoading)}
           dataSource={transformedTagsList}
           rowKey={'GUID'}
           pagination={{

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MoreOutlined } from '@ant-design/icons';
+import { LoadingOutlined, MoreOutlined } from '@ant-design/icons';
 import { Button, Dropdown, TableProps } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
 import { onGUIDFilter, onNameFilter } from '@/constants/table';
@@ -9,7 +9,9 @@ import { LabelMetadataForTable } from './types';
 
 export const tableColumns = (
   handleEdit: (record: LabelMetadataForTable) => void,
-  handleDelete: (record: LabelMetadataForTable) => void
+  handleDelete: (record: LabelMetadataForTable) => void,
+  isNodesLoading: boolean,
+  isEdgesLoading: boolean
 ): TableProps<LabelMetadataForTable>['columns'] => [
   {
     title: 'Label',
@@ -33,7 +35,6 @@ export const tableColumns = (
     dataIndex: 'GUID',
     key: 'GUID',
     width: 350,
-    responsive: ['md'],
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search GUID" />
     ),
@@ -49,43 +50,46 @@ export const tableColumns = (
     dataIndex: 'NodeName',
     key: 'NodeName',
     width: 200,
-    responsive: ['md'],
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Node" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.NodeName || ''),
     sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) =>
       a.NodeName.localeCompare(b.NodeName),
-    render: (NodeName: string) => (
-      <div>
-        <div>{NodeName}</div>
-      </div>
-    ),
+    render: (NodeName: string) =>
+      isNodesLoading ? (
+        <LoadingOutlined />
+      ) : (
+        <div>
+          <div>{NodeName}</div>
+        </div>
+      ),
   },
   {
     title: 'Edge',
     dataIndex: 'EdgeName',
     key: 'EdgeName',
     width: 200,
-    responsive: ['md'],
     filterDropdown: (props: FilterDropdownProps) => (
       <TableSearch {...props} placeholder="Search Edge" />
     ),
     onFilter: (value, record) => onNameFilter(value, record.EdgeName || ''),
     sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) =>
       a.EdgeName.localeCompare(b.EdgeName),
-    render: (EdgeName: string) => (
-      <div>
-        <div>{EdgeName}</div>
-      </div>
-    ),
+    render: (EdgeName: string) =>
+      isEdgesLoading ? (
+        <LoadingOutlined />
+      ) : (
+        <div>
+          <div>{EdgeName}</div>
+        </div>
+      ),
   },
   {
     title: 'Created UTC',
     dataIndex: 'CreatedUtc',
     key: 'CreatedUtc',
     width: 200,
-    responsive: ['md'],
     sorter: (a: LabelMetadataForTable, b: LabelMetadataForTable) =>
       new Date(a.CreatedUtc).getTime() - new Date(b.CreatedUtc).getTime(),
     render: (CreatedUtc: string) => <div>{formatDateTime(CreatedUtc)}</div>,
