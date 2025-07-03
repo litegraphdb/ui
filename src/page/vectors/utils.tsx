@@ -39,12 +39,3 @@ export const transformVectorsDataForTable = (
     })) || []
   );
 };
-
-export const getNodeAndEdgeGUIDsByVectorList = (vectorsList: VectorMetadata[]) => {
-  const nodeGUIDs = vectorsList.map((vector) => vector.NodeGUID);
-  const edgeGUIDs = vectorsList.map((vector) => vector.EdgeGUID);
-  return {
-    nodeGUIDs: Array.from(new Set(nodeGUIDs)),
-    edgeGUIDs: Array.from(new Set(edgeGUIDs)),
-  };
-};

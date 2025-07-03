@@ -23,7 +23,8 @@ const UserPage = () => {
   const {
     data,
     refetch: fetchUsersList,
-    isLoading: isUsersLoading,
+    isLoading,
+    isFetching,
     error,
   } = useEnumerateUserQuery(
     {
@@ -34,7 +35,7 @@ const UserPage = () => {
       skip: !selectedTenantRedux,
     }
   );
-  console.log(data, 'chk users data');
+  const isUsersLoading = isLoading || isFetching;
   const usersList = data?.Objects || [];
 
   const handleCreateUser = () => {
@@ -67,7 +68,7 @@ const UserPage = () => {
         </LitegraphButton>
       }
     >
-      {error ? (
+      {error && !isUsersLoading ? (
         <FallBack retry={fetchUsersList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable

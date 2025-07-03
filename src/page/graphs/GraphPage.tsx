@@ -32,7 +32,8 @@ const GraphPage = () => {
   const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
   const {
     data,
-    isLoading: isGraphsLoading,
+    isLoading,
+    isFetching,
     refetch: refetchGraphs,
     error: graphError,
   } = useSearchAndEnumerateGraphQuery({
@@ -42,6 +43,7 @@ const GraphPage = () => {
     IncludeSubordinates: true,
     IncludeData: true,
   });
+  const isGraphsLoading = isLoading || isFetching;
   const graphsList = data?.Objects || [];
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
@@ -129,7 +131,7 @@ const GraphPage = () => {
         </LitegraphButton>
       }
     >
-      {graphError ? (
+      {graphError || isGraphsLoading ? (
         <FallBack retry={refetchGraphs}>
           {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
         </FallBack>

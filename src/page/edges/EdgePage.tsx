@@ -10,14 +10,14 @@ import { EdgeType } from '@/types/types';
 import { tableColumns } from './constant';
 import AddEditEdge from './components/AddEditEdge';
 import DeleteEdge from './components/DeleteEdge';
-import { getNodeGUIDsByEdgeList, transformEdgeDataForTable } from './utils';
+import { transformEdgeDataForTable } from './utils';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import { SearchData } from '@/components/search/type';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import SearchByTLDModal from '@/components/search/SearchModal';
-import { hasScoreOrDistanceInData } from '@/utils/dataUtils';
+import { getNodeAndEdgeGUIDsByEntityList, hasScoreOrDistanceInData } from '@/utils/dataUtils';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import {
@@ -36,7 +36,8 @@ const EdgePage = () => {
   const {
     data: edgesList,
     refetch: fetchEdgesList,
-    isLoading: isEdgesLoading,
+    isLoading,
+    isFetching,
     error: isEdgesError,
   } = useEnumerateAndSearchEdgeQuery(
     {
@@ -51,12 +52,19 @@ const EdgePage = () => {
     },
     { skip: !selectedGraphRedux }
   );
+  const { nodeGUIDs: toGUIDs } = getNodeAndEdgeGUIDsByEntityList(edgesList?.Objects || [], 'To');
+  const { nodeGUIDs: fromGUIDs } = getNodeAndEdgeGUIDsByEntityList(
+    edgesList?.Objects || [],
+    'From'
+  );
+  const nodeGUIDs = [...toGUIDs, ...fromGUIDs];
+  const isEdgesLoading = isLoading || isFetching;
   const { data: nodesList, isLoading: isNodesLoading } = useGetManyNodesQuery(
     {
       graphId: selectedGraphRedux,
-      nodeIds: getNodeGUIDsByEdgeList(edgesList?.Objects || []),
+      nodeIds: nodeGUIDs,
     },
-    { skip: !edgesList?.Objects.length }
+    { skip: !nodeGUIDs.length }
   );
 
   const [selectedEdge, setSelectedEdge] = useState<EdgeType | null | undefined>(null);
@@ -120,8 +128,9 @@ const EdgePage = () => {
         </>
       }
     >
-      {!!isEdgesError && <FallBack retry={fetchEdgesList}>{'Something went wrong.'}</FallBack>}
-      {!isEdgesError && (
+      {!!isEdgesError && !isEdgesLoading ? (
+        <FallBack retry={fetchEdgesList}>{'Something went wrong.'}</FallBack>
+      ) : (
         <>
           <LitegraphFlex
             style={{ marginTop: '-10px' }}

@@ -1,5 +1,6 @@
 import { DOMParser } from '@xmldom/xmldom';
 import type { NodeData, EdgeData } from './types';
+import { Edge, Node } from 'litegraphdb/dist/types/types';
 
 export function parseGexf(gexfContent: string) {
   const parser = new DOMParser();
@@ -74,4 +75,31 @@ export function parseGexf(gexfContent: string) {
   }
 
   return { nodes: parsedNodes, edges: parsedEdges };
+}
+
+export function parseNode(nodes: Node[]): NodeData[] {
+  return nodes.map((node) => ({
+    id: node.GUID,
+    label: node.Name,
+    type: 'server',
+    x: Math.random() * 800,
+    y: Math.random() * 600,
+    vx: 0,
+    vy: 0,
+    isDragging: false,
+  }));
+}
+
+export function parseEdge(edges: Edge[]): EdgeData[] {
+  return edges.map((edge) => ({
+    id: edge.GUID,
+    source: edge.From,
+    target: edge.To,
+    cost: edge.Cost || 0,
+    data: '',
+    sourceX: 0,
+    sourceY: 0,
+    targetX: 0,
+    targetY: 0,
+  }));
 }
