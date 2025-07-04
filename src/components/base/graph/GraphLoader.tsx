@@ -2,10 +2,10 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Graph from 'graphology';
-import { parseGexf } from '@/lib/graph/parser';
 import { useLoadGraph, useRegisterEvents, useSigma } from '@react-sigma/core';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import { calculateTooltipPosition } from '@/utils/appUtils';
+import { EdgeData, NodeData } from '@/lib/graph/types';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -13,6 +13,8 @@ interface GraphLoaderProps {
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
   nodeTooltip: GraphNodeTooltip;
   edgeTooltip: GraphEdgeTooltip;
+  nodes: NodeData[];
+  edges: EdgeData[];
 }
 
 const GraphLoader = ({
@@ -21,9 +23,12 @@ const GraphLoader = ({
   setEdgeTooltip,
   nodeTooltip,
   edgeTooltip,
+  nodes,
+  edges,
 }: GraphLoaderProps) => {
   const loadGraph = useLoadGraph();
   const sigma = useSigma();
+  const graph = new Graph({ multi: true, allowSelfLoops: true });
   const animationFrameRef = useRef<number>();
   const registerEvents = useRegisterEvents();
   const [draggedNode, setDraggedNode] = useState<string | null>(null);
@@ -51,14 +56,13 @@ const GraphLoader = ({
 
   useEffect(() => {
     // Create graph with multi-edge support
-    const graph = new Graph({ multi: true, allowSelfLoops: true });
-    const { nodes, edges } = parseGexf(gexfContent);
+    console.log('nodes', nodes);
 
     // Add nodes with circle shape
     nodes.forEach((node) => {
       graph.addNode(node.id, {
-        x: Math.random() * 100,
-        y: Math.random() * 100,
+        x: node.x,
+        y: node.y,
         size: 15,
         label: node.label,
         color:
@@ -161,7 +165,7 @@ const GraphLoader = ({
       animationFrameRef.current = requestAnimationFrame(applyForces);
     }
 
-    applyForces();
+    // applyForces();
 
     return () => {
       if (animationFrameRef.current) {
@@ -170,7 +174,7 @@ const GraphLoader = ({
       sigma.removeAllListeners();
       graph.clear();
     };
-  }, [gexfContent, loadGraph, sigma]);
+  }, [gexfContent, loadGraph, sigma, nodes?.length, edges?.length]);
 
   useEffect(() => {
     // Register the events
@@ -292,7 +296,7 @@ const GraphLoader = ({
       //   setTooltip({ visible: false, content: '', x: 0, y: 0 });
       // },
     });
-  }, [registerEvents, sigma, draggedNode, draggedEdge, gexfContent]);
+  }, [registerEvents, sigma, draggedNode, draggedEdge, gexfContent, nodes?.length, edges?.length]);
 
   return null;
 };

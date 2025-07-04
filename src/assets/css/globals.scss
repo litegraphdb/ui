@@ -140,7 +140,7 @@
   padding-right: var(--ant-padding-sm);
 }
 .ml-auto {
-  margin-left: auto;
+  margin-left: auto !important;
 }
 
 .pl-xs {
@@ -237,6 +237,9 @@
         right: unset;
       }
     }
+  }
+  .text-white-space-nowrap {
+    white-space: nowrap;
   }
   .ant-table-tbody {
     tr {

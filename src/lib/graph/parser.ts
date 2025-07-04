@@ -77,17 +77,44 @@ export function parseGexf(gexfContent: string) {
   return { nodes: parsedNodes, edges: parsedEdges };
 }
 
-export function parseNode(nodes: Node[]): NodeData[] {
-  return nodes.map((node) => ({
-    id: node.GUID,
-    label: node.Name,
-    type: 'server',
-    x: Math.random() * 800,
-    y: Math.random() * 600,
-    vx: 0,
-    vy: 0,
-    isDragging: false,
-  }));
+export function parseNode(
+  nodes: Node[],
+  totalNodes: number, // pass in your current graph instance
+  nodesPerCircle = 10,
+  radiusStep = 200,
+  centerX = 5000,
+  centerY = 5000
+): NodeData[] {
+  const existingNodeCount = totalNodes;
+
+  return nodes.map((node, i) => {
+    const globalIndex = existingNodeCount + i;
+    const circleIndex = Math.floor(globalIndex / nodesPerCircle);
+
+    // Band radius range
+    const minRadius = circleIndex * radiusStep;
+    const maxRadius = (circleIndex + 1) * radiusStep;
+
+    // Random radius within band
+    const radius = minRadius + Math.random() * (maxRadius - minRadius);
+
+    // Random angle
+    const angle = Math.random() * 2 * Math.PI;
+
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    return {
+      id: node.GUID,
+      label: node.Name,
+      type: 'server',
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      isDragging: false,
+    };
+  });
 }
 
 export function parseEdge(edges: Edge[]): EdgeData[] {
@@ -96,6 +123,7 @@ export function parseEdge(edges: Edge[]): EdgeData[] {
     source: edge.From,
     target: edge.To,
     cost: edge.Cost || 0,
+    label: edge.Name,
     data: '',
     sourceX: 0,
     sourceY: 0,

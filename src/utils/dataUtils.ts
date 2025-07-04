@@ -1,3 +1,5 @@
+import humanize from 'humanize-number';
+
 export function hasScoreOrDistanceInData<T extends Record<string, any>>(data: T[]): boolean {
   return data.some((item) => 'Score' in item || 'Distance' in item);
 }
@@ -14,3 +16,11 @@ export function getNodeAndEdgeGUIDsByEntityList<T>(
     edgeGUIDs: Array.from(new Set(edgeGUIDs?.filter((guid) => guid))),
   };
 }
+
+export const getPercentage = (value: number, total: number) => {
+  return Math.round((value / total) * 100);
+};
+
+export const humanizeNumber = (value: number) => {
+  return humanize(value);
+};
