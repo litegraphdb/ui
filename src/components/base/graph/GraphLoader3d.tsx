@@ -50,23 +50,27 @@ export default function GraphLoader3d({
     });
   }, [nodes, edges]);
 
-  const handleNodeClick = (node: NodeObject<NodeType>) => {
+  const handleNodeClick = (node: NodeObject<NodeType>, event: any) => {
     console.log('Node clicked:', node);
+    console.log('Event:', event);
+    setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
     setTooltip({
       visible: true,
       nodeId: node.id as string,
-      x: node.x as number,
-      y: node.y as number,
+      x: event.clientX as number,
+      y: event.clientY as number,
     });
   };
 
-  const handleLinkClick = (link: LinkObject<NodeData, EdgeData>) => {
+  const handleLinkClick = (link: LinkObject<NodeData, EdgeData>, event: any) => {
     console.log('Edge clicked:', link);
+    console.log('Event:', event);
+    setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
     setEdgeTooltip({
       visible: true,
       edgeId: link.id,
-      x: link.x as number,
-      y: link.y as number,
+      x: event.clientX as number,
+      y: event.clientY as number,
     });
   };
 
@@ -86,8 +90,10 @@ export default function GraphLoader3d({
         }}
         showNavInfo
         linkWidth={1}
-        onNodeClick={(node) => handleNodeClick(node as NodeObject<NodeType>)}
-        onLinkClick={(link) => handleLinkClick(link as LinkObject<NodeData, EdgeData>)}
+        onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
+        onLinkClick={(link, event) =>
+          handleLinkClick(link as LinkObject<NodeData, EdgeData>, event)
+        }
       />
     </div>
   );

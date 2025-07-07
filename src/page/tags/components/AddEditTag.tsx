@@ -10,6 +10,8 @@ import toast from 'react-hot-toast';
 import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/lib/store/slice/slice';
 import { TagMetaData, TagMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
+import NodeSelector from '@/components/node-selector/NodeSelector';
+import EdgeSelector from '@/components/edge-selector/EdgeSelector';
 
 interface AddEditTagProps {
   isAddEditTagVisible: boolean;
@@ -141,14 +143,17 @@ const AddEditTag = ({
         >
           <LitegraphInput placeholder="Enter tag value" />
         </LitegraphFormItem>
+        <NodeSelector name="NodeGUID" label="Node" />
 
-        <LitegraphFormItem label="Node" name="NodeGUID">
+        {/* <LitegraphFormItem label="Node" name="NodeGUID">
           <LitegraphSelect placeholder="Select Node" options={nodeOptions} allowClear />
-        </LitegraphFormItem>
+        </LitegraphFormItem> */}
 
-        <LitegraphFormItem label="Edge" name="EdgeGUID">
+        <EdgeSelector name="EdgeGUID" label="Edge" />
+
+        {/* <LitegraphFormItem label="Edge" name="EdgeGUID">
           <LitegraphSelect placeholder="Select Edge" options={edgeOptions} allowClear />
-        </LitegraphFormItem>
+        </LitegraphFormItem> */}
       </Form>
     </LitegraphModal>
   );

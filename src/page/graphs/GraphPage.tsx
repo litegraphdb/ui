@@ -23,9 +23,7 @@ import { usePagination } from '@/hooks/appHooks';
 import { useDeleteGraphMutation, useSearchAndEnumerateGraphQuery } from '@/lib/store/slice/slice';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
-const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
-  ssr: false,
-});
+import AddEditGraph from './components/AddEditGraph';
 
 const GraphPage = () => {
   const { page, pageSize, skip, handlePageChange } = usePagination();
@@ -41,7 +39,6 @@ const GraphPage = () => {
     MaxResults: pageSize,
     Skip: skip,
     IncludeSubordinates: true,
-    IncludeData: true,
   });
   const isGraphsLoading = isLoading || isFetching;
   const graphsList = data?.Objects || [];

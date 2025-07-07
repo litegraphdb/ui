@@ -12,6 +12,8 @@ import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { JsonEditor } from 'jsoneditor-react';
 import { useCreateVectorMutation, useUpdateVectorMutation } from '@/lib/store/slice/slice';
 import { VectorMetadata, VectorCreateRequest } from 'litegraphdb/dist/types/types';
+import NodeSelector from '@/components/node-selector/NodeSelector';
+import EdgeSelector from '@/components/edge-selector/EdgeSelector';
 
 interface AddEditVectorProps {
   isAddEditVectorVisible: boolean;
@@ -183,12 +185,15 @@ const AddEditVector = ({
             data-testid="graph-data-input"
           />
         </LitegraphFormItem>
-        <LitegraphFormItem label="Node" name="NodeGUID">
+        <NodeSelector name="NodeGUID" label="Node" />
+        {/* <LitegraphFormItem label="Node" name="NodeGUID">
           <LitegraphSelect placeholder="Select Node" options={nodeOptions} allowClear />
-        </LitegraphFormItem>
-        <LitegraphFormItem label="Edge" name="EdgeGUID">
+        </LitegraphFormItem> */}
+        <EdgeSelector name="EdgeGUID" label="Edge" />
+
+        {/* <LitegraphFormItem label="Edge" name="EdgeGUID">
           <LitegraphSelect placeholder="Select Edge" options={edgeOptions} allowClear />
-        </LitegraphFormItem>
+        </LitegraphFormItem> */}
       </Form>
     </LitegraphModal>
   );

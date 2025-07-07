@@ -37,6 +37,7 @@ const VectorPage = () => {
       GraphGUID: selectedGraphRedux,
       MaxResults: pageSize,
       Skip: skip,
+      Ordering: 'CreatedDescending',
     },
     {
       skip: !selectedGraphRedux,

@@ -20,11 +20,7 @@ import SearchByTLDModal from '@/components/search/SearchModal';
 import { getNodeAndEdgeGUIDsByEntityList, hasScoreOrDistanceInData } from '@/utils/dataUtils';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
-import {
-  useEnumerateAndSearchEdgeQuery,
-  useGetAllNodesQuery,
-  useGetManyNodesQuery,
-} from '@/lib/store/slice/slice';
+import { useEnumerateAndSearchEdgeQuery, useGetManyNodesQuery } from '@/lib/store/slice/slice';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 
 const EdgePage = () => {

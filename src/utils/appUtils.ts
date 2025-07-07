@@ -78,3 +78,25 @@ export const calculateTooltipPosition = (
 
   return { x: finalX, y: finalY };
 };
+
+export const getCreateEditViewModelTitle = (
+  suffix: string,
+  isLoading: boolean,
+  isCreate?: boolean,
+  isEdit?: boolean,
+  isView?: boolean
+) => {
+  if (isLoading) {
+    return `Loading ${suffix}...`;
+  }
+  if (isView) {
+    return `View ${suffix}`;
+  }
+  if (isCreate) {
+    return `Create ${suffix}`;
+  }
+  if (isEdit) {
+    return `Edit ${suffix}`;
+  }
+  return `${suffix}`;
+};

@@ -46,7 +46,6 @@ const NodePage = () => {
     },
     { skip: !selectedGraphRedux }
   );
-  console.log('nodesList', nodesList);
   const isNodesLoading = isLoading || isFetching;
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(null);
 

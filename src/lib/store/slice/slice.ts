@@ -26,6 +26,9 @@ import {
   BackupMetaData,
   BackupMetaDataCreateRequest,
   Token,
+  IncludeDataAndSubordinates,
+  NodeEdgeSearchRequest,
+  SearchResult,
 } from 'litegraphdb/dist/types/types';
 import { sdk } from '@/lib/sdk/litegraph.service';
 
@@ -63,9 +66,9 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       providesTags: [SliceTags.GRAPH],
     }),
-    getGraphById: build.query<Graph, string>({
-      query: (graphId: string) => ({
-        callback: () => sdk.Graph.read(graphId),
+    getGraphById: build.query<Graph, { graphId: string; request?: IncludeDataAndSubordinates }>({
+      query: ({ graphId, request }) => ({
+        callback: () => sdk.Graph.read(graphId, request),
       }),
       providesTags: [SliceTags.GRAPH],
     }),
@@ -104,6 +107,11 @@ const graphSlice = enhancedSdk.injectEndpoints({
     //endregion
 
     //region Node
+    searchNodes: build.mutation<SearchResult, NodeEdgeSearchRequest>({
+      query: (request: NodeEdgeSearchRequest) => ({
+        callback: () => sdk.Node.search(request),
+      }),
+    }),
     //enumerate all nodes
     enumerateAndSearchNode: build.query<
       EnumerateResponse<Node>,
@@ -127,9 +135,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       providesTags: [SliceTags.NODE],
     }),
-    getNodeById: build.query<Node, { graphId: string; nodeId: string }>({
-      query: ({ graphId, nodeId }: { graphId: string; nodeId: string }) => ({
-        callback: () => sdk.Node.read(graphId, nodeId),
+    getNodeById: build.query<
+      Node,
+      { graphId: string; nodeId: string; request?: IncludeDataAndSubordinates }
+    >({
+      query: ({ graphId, nodeId, request }) => ({
+        callback: () => sdk.Node.read(graphId, nodeId, request),
       }),
       providesTags: [SliceTags.NODE],
     }),
@@ -157,6 +168,12 @@ const graphSlice = enhancedSdk.injectEndpoints({
     //endregion
 
     //region Edge
+    //search edges
+    searchEdges: build.mutation<SearchResult, NodeEdgeSearchRequest>({
+      query: (request: NodeEdgeSearchRequest) => ({
+        callback: () => sdk.Edge.search(request),
+      }),
+    }),
     //enumerate all edges
     enumerateAndSearchEdge: build.query<
       EnumerateResponse<Edge>,
@@ -183,9 +200,20 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       providesTags: [SliceTags.EDGE],
     }),
-    getEdgeById: build.query<Edge, { graphId: string; edgeId: string }>({
-      query: ({ graphId, edgeId }: { graphId: string; edgeId: string }) => ({
-        callback: () => sdk.Edge.read(graphId, edgeId),
+    getEdgeById: build.query<
+      Edge,
+      { graphId: string; edgeId: string; request?: IncludeDataAndSubordinates }
+    >({
+      query: ({
+        graphId,
+        edgeId,
+        request,
+      }: {
+        graphId: string;
+        edgeId: string;
+        request?: IncludeDataAndSubordinates;
+      }) => ({
+        callback: () => sdk.Edge.read(graphId, edgeId, request),
       }),
       providesTags: [SliceTags.EDGE],
     }),
@@ -605,4 +633,6 @@ export const {
   useGetTokenDetailsMutation,
   useGetManyNodesQuery,
   useGetManyEdgesQuery,
+  useSearchNodesMutation,
+  useSearchEdgesMutation,
 } = graphSlice;
