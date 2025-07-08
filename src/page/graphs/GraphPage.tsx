@@ -23,16 +23,15 @@ import { usePagination } from '@/hooks/appHooks';
 import { useDeleteGraphMutation, useSearchAndEnumerateGraphQuery } from '@/lib/store/slice/slice';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
-const AddEditGraph = dynamic(() => import('./components/AddEditGraph'), {
-  ssr: false,
-});
+import AddEditGraph from './components/AddEditGraph';
 
 const GraphPage = () => {
   const { page, pageSize, skip, handlePageChange } = usePagination();
   const [searchParams, setSearchParams] = useState<EnumerateAndSearchRequest>({});
   const {
     data,
-    isLoading: isGraphsLoading,
+    isLoading,
+    isFetching,
     refetch: refetchGraphs,
     error: graphError,
   } = useSearchAndEnumerateGraphQuery({
@@ -40,8 +39,8 @@ const GraphPage = () => {
     MaxResults: pageSize,
     Skip: skip,
     IncludeSubordinates: true,
-    IncludeData: true,
   });
+  const isGraphsLoading = isLoading || isFetching;
   const graphsList = data?.Objects || [];
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
@@ -129,7 +128,7 @@ const GraphPage = () => {
         </LitegraphButton>
       }
     >
-      {graphError ? (
+      {graphError || isGraphsLoading ? (
         <FallBack retry={refetchGraphs}>
           {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
         </FallBack>

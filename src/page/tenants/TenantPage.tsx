@@ -21,14 +21,15 @@ const TenantPage = () => {
   const {
     data,
     refetch: fetchTenantsList,
-    isLoading: isTenantsLoading,
+    isLoading,
+    isFetching,
     error,
   } = useEnumerateTenantQuery({
     maxKeys: pageSize,
     skip: skip,
   });
   const tenantsList = data?.Objects || [];
-
+  const isTenantsLoading = isLoading || isFetching;
   const handleCreateTenant = () => {
     setSelectedTenant(null);
     setIsAddEditTenantVisible(true);
@@ -59,7 +60,7 @@ const TenantPage = () => {
         </LitegraphButton>
       }
     >
-      {error ? (
+      {error && !isTenantsLoading ? (
         <FallBack retry={fetchTenantsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable

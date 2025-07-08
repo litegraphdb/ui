@@ -31,7 +31,8 @@ const NodePage = () => {
   const {
     data: nodesList,
     refetch: fetchNodesList,
-    isLoading: isNodesLoading,
+    isLoading,
+    isFetching,
     isError: isNodesError,
   } = useEnumerateAndSearchNodeQuery(
     {
@@ -40,12 +41,12 @@ const NodePage = () => {
         ...searchParams,
         Skip: skip,
         MaxResults: pageSize,
-        IncludeData: true,
         IncludeSubordinates: true,
       },
     },
     { skip: !selectedGraphRedux }
   );
+  const isNodesLoading = isLoading || isFetching;
   const [selectedNode, setSelectedNode] = useState<NodeType | null | undefined>(null);
 
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
@@ -110,7 +111,7 @@ const NodePage = () => {
         ) : undefined
       }
     >
-      {isNodesError ? (
+      {isNodesError && !isNodesLoading ? (
         <FallBack retry={fetchNodesList}>{'Something went wrong.'}</FallBack>
       ) : (
         <>

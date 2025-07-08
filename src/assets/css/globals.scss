@@ -2,6 +2,7 @@
 
 :root {
   --color-gray: #757575;
+  --color-primary-light: #ddffd2;
 }
 
 /* Ant Design overrides */
@@ -140,7 +141,7 @@
   padding-right: var(--ant-padding-sm);
 }
 .ml-auto {
-  margin-left: auto;
+  margin-left: auto !important;
 }
 
 .pl-xs {
@@ -189,13 +190,57 @@
 }
 
 .jsoneditor {
-  border-color: var(--ant-color-primary) !important;
+  border-color: var(--ant-color-border) !important;
+  overflow: hidden !important;
+  border-radius: var(--ant-border-radius) !important;
 }
-.jsoneditor-menu {
-  background-color: var(--ant-color-primary) !important;
-  border-color: var(--ant-color-primary) !important;
+.jsoneditor > .jsoneditor-menu {
+  background-color: var(--color-primary-light) !important;
+  border-color: var(--color-primary-light) !important;
+  padding: 20px 10px !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  align-items: center !important;
+  .jsoneditor-compact,
+  .jsoneditor-repair,
+  .jsoneditor-format,
+  .jsoneditor-expand-all,
+  .jsoneditor-collapse-all {
+    cursor: pointer !important;
+    background-image: none;
+    margin: 0 !important;
+    background-color: var(--ant-color-primary);
+    mask-image: url('/assets/align-center.svg');
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    width: 23px;
+    height: 23px;
+    &:hover,
+    &:focus {
+      background-color: var(--ant-color-border) !important;
+    }
+  }
+  .jsoneditor-compact {
+    mask-image: url('/assets/align-left.svg') !important;
+  }
+  .jsoneditor-repair {
+    mask-image: url('/assets/settings.svg') !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+  .jsoneditor-expand-all {
+    mask-image: url('/assets/maximize-2.svg') !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .jsoneditor-collapse-all {
+    mask-image: url('/assets/minimize-2.svg') !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
 }
-
 .ant-btn-default {
   border-width: 1.5px;
 }
@@ -237,6 +282,9 @@
         right: unset;
       }
     }
+  }
+  .text-white-space-nowrap {
+    white-space: nowrap;
   }
   .ant-table-tbody {
     tr {

@@ -9,7 +9,7 @@ import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditVector from './components/AddEditVector';
 import DeleteVector from './components/DeleteVector';
-import { getNodeAndEdgeGUIDsByVectorList, transformVectorsDataForTable } from './utils';
+import { transformVectorsDataForTable } from './utils';
 import { useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
 import {
@@ -19,6 +19,7 @@ import {
 } from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
+import { getNodeAndEdgeGUIDsByEntityList } from '@/utils/dataUtils';
 
 const VectorPage = () => {
   // Redux state for the list of graphs
@@ -28,37 +29,54 @@ const VectorPage = () => {
   const {
     data,
     refetch: fetchVectorsList,
-    isLoading: isVectorsLoading,
+    isLoading,
+    isFetching,
     error: isVectorsError,
   } = useEnumerateAndSearchVectorQuery(
     {
       GraphGUID: selectedGraphRedux,
       MaxResults: pageSize,
       Skip: skip,
+      Ordering: 'CreatedDescending',
     },
     {
       skip: !selectedGraphRedux,
     }
   );
+  const isVectorsLoading = isLoading || isFetching;
   const vectorsList = data?.Objects || [];
-  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByVectorList(vectorsList);
+  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByEntityList(
+    vectorsList,
+    'NodeGUID',
+    'EdgeGUID'
+  );
+
   const {
     data: nodesList,
     isLoading: isNodesLoading,
     refetch: fetchNodesList,
-  } = useGetManyNodesQuery({
-    graphId: selectedGraphRedux,
-    nodeIds: nodeGUIDs,
-  });
+  } = useGetManyNodesQuery(
+    {
+      graphId: selectedGraphRedux,
+      nodeIds: nodeGUIDs,
+    },
+    {
+      skip: !nodeGUIDs.length,
+    }
+  );
   const {
     data: edgesList,
     isLoading: isEdgesLoading,
     refetch: fetchEdgesList,
-  } = useGetManyEdgesQuery({
-    graphId: selectedGraphRedux,
-    edgeIds: edgeGUIDs,
-  });
-  const isNodeAndEdgeLoading = isNodesLoading || isEdgesLoading;
+  } = useGetManyEdgesQuery(
+    {
+      graphId: selectedGraphRedux,
+      edgeIds: edgeGUIDs,
+    },
+    {
+      skip: !edgeGUIDs.length,
+    }
+  );
   const fetchNodesAndEdges = async () => {
     fetchNodesList();
     fetchEdgesList();
@@ -106,11 +124,11 @@ const VectorPage = () => {
         </>
       }
     >
-      {isVectorsError ? (
+      {isVectorsError && !isVectorsLoading ? (
         <FallBack retry={fetchVectorsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable
-          loading={isGraphsLoading || isNodeAndEdgeLoading || isVectorsLoading}
+          loading={isGraphsLoading || isVectorsLoading}
           columns={tableColumns(handleEditVector, handleDelete, isNodesLoading, isEdgesLoading)}
           dataSource={transformedVectorsList}
           rowKey={'GUID'}

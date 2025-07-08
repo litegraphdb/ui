@@ -14,8 +14,15 @@ import TagsInput from '@/components/inputs/tags-input/TagsInput';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
 import { convertTagsToRecord } from '@/components/inputs/tags-input/utils';
 import { convertVectorsToAPIRecord } from '@/components/inputs/vectors-input.tsx/utils';
-import { useCreateGraphMutation, useUpdateGraphMutation } from '@/lib/store/slice/slice';
+import {
+  useCreateGraphMutation,
+  useGetGraphByIdQuery,
+  useUpdateGraphMutation,
+} from '@/lib/store/slice/slice';
 import { GraphCreateRequest } from 'litegraphdb/dist/types/types';
+import { getCreateEditViewModelTitle } from '@/utils/appUtils';
+import PageLoading from '@/components/base/loading/PageLoading';
+import { cloneDeep } from 'lodash';
 
 const initialValues = {
   name: '',
@@ -37,12 +44,26 @@ interface AddEditGraphProps {
 const AddEditGraph = ({
   isAddEditGraphVisible,
   setIsAddEditGraphVisible,
-  graph,
+  graph: graphWithOldData,
   onDone,
 }: AddEditGraphProps) => {
   const [form] = Form.useForm();
+  const data = Form.useWatch('data', form);
+  console.log('data', data);
   const [formValid, setFormValid] = useState(false);
+  const {
+    data: graph,
+    isLoading: isGraphLoading1,
+    isFetching: isGraphFetching,
+  } = useGetGraphByIdQuery(
+    {
+      graphId: graphWithOldData?.GUID || '',
+      request: { includeData: true, includeSubordinates: true },
+    },
+    { skip: !graphWithOldData?.GUID }
+  );
 
+  const isGraphLoading = isGraphLoading1 || isGraphFetching;
   const [createGraph, { isLoading: isCreateLoading }] = useCreateGraphMutation();
   const [updateGraphById, { isLoading: isUpdateLoading }] = useUpdateGraphMutation();
 
@@ -61,9 +82,8 @@ const AddEditGraph = ({
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
-      if (graph) {
+      if (graph && graphWithOldData?.GUID) {
         // Edit Graph
-        console.log('graph', graph);
         const data = {
           ...graph,
           GUID: graph.GUID,
@@ -73,7 +93,6 @@ const AddEditGraph = ({
           Tags: tags,
           Vectors: convertVectorsToAPIRecord(values.vectors),
         };
-        console.log('data', data);
         const res = await updateGraphById(data);
         if (res) {
           toast.success('Update Graph successfully');
@@ -91,7 +110,6 @@ const AddEditGraph = ({
           Tags: tags,
           Vectors: convertVectorsToAPIRecord(values.vectors),
         };
-        console.log('data', data);
         const res = await createGraph(data);
         if (res) {
           toast.success('Add Graph successfully');
@@ -114,11 +132,12 @@ const AddEditGraph = ({
   };
 
   useEffect(() => {
-    if (graph) {
+    if (graph && graphWithOldData?.GUID) {
       // Ensure form values are updated when editing
+      console.log('graph', graph);
       form.setFieldsValue({
         name: graph.Name || '',
-        data: graph.Data || {},
+        data: cloneDeep(graph.Data) || {},
         labels: graph.Labels || [],
         tags: Object.entries(graph.Tags || {}).map(([key, value]) => ({
           key,
@@ -127,7 +146,7 @@ const AddEditGraph = ({
         vectors: graph.Vectors || [],
       });
       setUniqueKey(v4());
-    } else {
+    } else if (!graphWithOldData?.GUID) {
       form.resetFields();
       setUniqueKey(v4());
     }
@@ -137,13 +156,18 @@ const AddEditGraph = ({
       .validateFields({ validateOnly: true })
       .then(() => setFormValid(true))
       .catch(() => setFormValid(false));
-  }, [form, graph]);
+  }, [form, graph, graphWithOldData?.GUID]);
 
   return (
     <LitegraphModal
       maskClosable={false}
-      title={graph ? 'Edit Graph' : 'Create Graph'}
-      okText={graph ? 'Update' : 'Create'}
+      title={getCreateEditViewModelTitle(
+        'Graph',
+        isGraphLoading,
+        !graphWithOldData,
+        !!graphWithOldData
+      )}
+      okText={graphWithOldData?.GUID ? 'Update' : 'Create'}
       open={isAddEditGraphVisible}
       onOk={handleSubmit}
       confirmLoading={isCreateLoading || isUpdateLoading}
@@ -151,39 +175,43 @@ const AddEditGraph = ({
       width={800}
       okButtonProps={{ disabled: !formValid }}
     >
-      <Form
-        initialValues={initialValues}
-        form={form}
-        layout="vertical"
-        labelCol={{ xs: 5, md: 5, lg: 4 }}
-        wrapperCol={{ span: 24 }}
-        onValuesChange={(_, allValues) => setFormValues(allValues)}
-      >
-        {/* Graph Name */}
-        <LitegraphFormItem label="Name" name="name" rules={validationRules.name}>
-          <LitegraphInput placeholder="Enter graph name" data-testid="graph-name-input" />
-        </LitegraphFormItem>
-        <LabelInput name="labels" />
-        <Form.Item label="Tags">
-          <TagsInput name="tags" />
-        </Form.Item>
-        <Form.Item label="Vectors">
-          <VectorsInput name="vectors" />
-        </Form.Item>
-        <LitegraphFormItem label="Data" name="data">
-          <JsonEditor
-            key={uniqueKey}
-            value={form.getFieldValue('data') || {}}
-            onChange={(json: any) => {
-              form.setFieldsValue({ data: json });
-            }}
-            mode="code"
-            enableSort={false}
-            enableTransform={false}
-            data-testid="graph-data-input"
-          />
-        </LitegraphFormItem>
-      </Form>
+      {isGraphLoading ? (
+        <PageLoading />
+      ) : (
+        <Form
+          initialValues={initialValues}
+          form={form}
+          layout="vertical"
+          labelCol={{ xs: 5, md: 5, lg: 4 }}
+          wrapperCol={{ span: 24 }}
+          onValuesChange={(_, allValues) => setFormValues(allValues)}
+        >
+          {/* Graph Name */}
+          <LitegraphFormItem label="Name" name="name" rules={validationRules.name}>
+            <LitegraphInput placeholder="Enter graph name" data-testid="graph-name-input" />
+          </LitegraphFormItem>
+          <LabelInput name="labels" />
+          <Form.Item label="Tags">
+            <TagsInput name="tags" />
+          </Form.Item>
+          <Form.Item label="Vectors">
+            <VectorsInput name="vectors" />
+          </Form.Item>
+          <LitegraphFormItem label="Data" name="data">
+            <JsonEditor
+              key={uniqueKey}
+              value={form.getFieldValue('data') || {}}
+              onChange={(json: any) => {
+                form.setFieldsValue({ data: json });
+              }}
+              mode="code"
+              enableSort={false}
+              enableTransform={false}
+              data-testid="graph-data-input"
+            />
+          </LitegraphFormItem>
+        </Form>
+      )}
     </LitegraphModal>
   );
 };

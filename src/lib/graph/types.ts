@@ -19,6 +19,7 @@ export interface EdgeData {
   sourceY: number;
   targetX: number;
   targetY: number;
+  label?: string;
 }
 
 export type HoveredElement =

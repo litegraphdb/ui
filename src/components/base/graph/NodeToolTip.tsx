@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import styles from './tooltip.module.scss';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 import { useGetGraphGexfContentQuery, useGetNodeByIdQuery } from '@/lib/store/slice/slice';
+import { decodeToJSON } from '@/utils/appUtils';
 
 type NodeTooltipProps = {
   tooltip: GraphNodeTooltip;
@@ -29,8 +30,18 @@ type NodeTooltipProps = {
 };
 const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const { data: node, isLoading, error } = useGetNodeByIdQuery({ graphId, nodeId: tooltip.nodeId });
-  const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
+  const {
+    data: node,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useGetNodeByIdQuery({
+    graphId,
+    nodeId: tooltip.nodeId,
+    request: { includeSubordinates: true },
+  });
+  // const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
 
   // State for AddEditDeleteNode visibility and selected node
   const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
@@ -42,7 +53,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
   const handleNodeUpdate = async () => {
     if (graphId && tooltip.nodeId) {
       //Graph re-renders
-      await fetchGexfByGraphId();
+      // await fetchGexfByGraphId();
 
       // Clear node tooltip
       setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
@@ -51,7 +62,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
 
   // Callback for handling node deletion
   const handleNodeDelete = async () => {
-    await fetchGexfByGraphId();
+    // await fetchGexfByGraphId();
 
     // Clear the tooltip after deletion
     setTooltip(defaultNodeTooltip);
@@ -59,7 +70,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
 
   // Callback for handling edge update
   const handleEdgeUpdate = async () => {
-    await fetchGexfByGraphId();
+    // await fetchGexfByGraphId();
 
     // Clear node tooltip
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
@@ -74,7 +85,6 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
   //   getNode();
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [node, graphId, tooltip]);
-
   return (
     <>
       <LiteGraphSpace
@@ -113,13 +123,13 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
           style={{ width: 300 }}
         >
           {/* If error then fallback displays */}
-          {error ? (
-            <FallBack>
+          {isLoading || isFetching ? (
+            // If not error but API is in loading state then dispalys loader
+            <PageLoading withoutWhiteBG />
+          ) : error ? (
+            <FallBack retry={refetch}>
               {error ? 'Something went wrong.' : "Can't view details at the moment."}
             </FallBack>
-          ) : isLoading ? (
-            // If not error but API is in loading state then dispalys loader
-            <PageLoading />
           ) : (
             // Ready to show data after API is ready
             <LitegraphFlex vertical>
@@ -132,29 +142,33 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
 
                 <LitegraphText>
                   <strong>Labels: </strong>
-                  {`${node?.Labels?.length ? node?.Labels?.join(', ') : 'N/A'}`}
+                  {`${node?.Labels?.length ? node?.Labels?.join(', ') : 'None'}`}
                 </LitegraphText>
 
-                <LitegraphText>
+                {/* <LitegraphText>
                   <strong>Vectors: </strong>
                   {pluralize(node?.Vectors?.length || 0, 'vector')}
-                </LitegraphText>
+                </LitegraphText> */}
 
                 <LitegraphText>
                   <strong>Tags: </strong>
-                  <JsonEditor
-                    key={JSON.stringify(node?.Tags && JSON.parse(JSON.stringify(node.Tags)))}
-                    value={(node?.Tags && JSON.parse(JSON.stringify(node.Tags))) || {}}
-                    mode="view" // Use 'view' mode to make it read-only
-                    mainMenuBar={false} // Hide the menu bar
-                    statusBar={false} // Hide the status bar
-                    navigationBar={false} // Hide the navigation bar
-                    enableSort={false}
-                    enableTransform={false}
-                  />
+                  {Object.keys(node?.Tags || {}).length > 0 ? (
+                    <JsonEditor
+                      key={JSON.stringify(node?.Tags && JSON.parse(JSON.stringify(node.Tags)))}
+                      value={(node?.Tags && JSON.parse(JSON.stringify(node.Tags))) || {}}
+                      mode="view" // Use 'view' mode to make it read-only
+                      mainMenuBar={false} // Hide the menu bar
+                      statusBar={false} // Hide the status bar
+                      navigationBar={false} // Hide the navigation bar
+                      enableSort={false}
+                      enableTransform={false}
+                    />
+                  ) : (
+                    <LitegraphText>None</LitegraphText>
+                  )}
                 </LitegraphText>
 
-                <LitegraphFlex align="center" gap={6}>
+                {/* <LitegraphFlex align="center" gap={6}>
                   <LitegraphText>
                     <strong>Data:</strong>
                   </LitegraphText>
@@ -176,7 +190,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
                   navigationBar={false}
                   enableSort={false}
                   enableTransform={false}
-                />
+                /> */}
               </LitegraphFlex>
               {/* Buttons */}
               <LitegraphFlex className="pt-3" gap={10} justify="space-between">

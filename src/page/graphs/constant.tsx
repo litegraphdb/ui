@@ -77,7 +77,6 @@ export const tableColumns = (
     onFilter: (val, record) => onTagFilter(val, record.Tags),
     responsive: ['sm'],
     render: (tags: any) => {
-      console.log(tags);
       return (
         <div>
           <div>{tags && Object.keys(tags).length > 0 ? JSON.stringify(tags) : NONE}</div>

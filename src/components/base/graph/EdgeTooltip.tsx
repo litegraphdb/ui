@@ -3,7 +3,7 @@ import { GraphEdgeTooltip } from './types';
 import { Dispatch, SetStateAction, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
-import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
+import { CloseCircleFilled, ExpandOutlined, LoadingOutlined } from '@ant-design/icons';
 import FallBack from '@/components/base/fallback/FallBack';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -13,23 +13,22 @@ import AddEditEdge from '@/page/edges/components/AddEditEdge';
 import { EdgeType } from '@/types/types';
 import DeleteEdge from '@/page/edges/components/DeleteEdge';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
-import { getNodeNameByGUID } from '@/page/edges/utils';
-import { NodeType } from '@/types/types';
 import { JsonEditor } from 'jsoneditor-react';
-import { pluralize } from '@/utils/stringUtils';
 import styles from './tooltip.module.scss';
 import classNames from 'classnames';
-import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
-import { useGetEdgeByIdQuery, useGetGraphGexfContentQuery } from '@/lib/store/slice/slice';
+import {
+  useGetEdgeByIdQuery,
+  useGetGraphGexfContentQuery,
+  useGetManyNodesQuery,
+} from '@/lib/store/slice/slice';
 
 type EdgeTooltipProps = {
   tooltip: GraphEdgeTooltip;
   setTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
   graphId: string;
-  nodesList: NodeType[];
 };
 
-const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipProps) => {
+const EdgeToolTip = ({ tooltip, setTooltip, graphId }: EdgeTooltipProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   // State for AddEditDeleteNode visibility and selected node
@@ -37,19 +36,37 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipPro
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
   const [selectedEdge, setSelectedEdge] = useState<EdgeType | null | undefined>(undefined);
 
-  const { data: edge, isLoading, error } = useGetEdgeByIdQuery({ graphId, edgeId: tooltip.edgeId });
-  const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
-
+  const {
+    data: edge,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useGetEdgeByIdQuery({
+    graphId,
+    edgeId: tooltip.edgeId,
+    request: { includeSubordinates: true },
+  });
+  // const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
+  const nodeIds = [edge?.From, edge?.To].filter(Boolean) as string[];
+  const {
+    data: nodesList,
+    isLoading: isNodesLoading,
+    isFetching: isNodesFetching,
+  } = useGetManyNodesQuery({ graphId, nodeIds }, { skip: !nodeIds.length });
+  const isNodesLoadingOrFetching = isNodesLoading || isNodesFetching;
+  const fromNode = nodesList?.find((node) => node.GUID === edge?.From);
+  const toNode = nodesList?.find((node) => node.GUID === edge?.To);
   // Callback for handling edge update
   const handleEdgeUpdate = async () => {
     if (graphId && tooltip.edgeId) {
-      await fetchGexfByGraphId();
+      // await fetchGexfByGraphId();
     }
   };
 
   // Callback for handling edge deletion
   const handleEdgeDelete = async () => {
-    await fetchGexfByGraphId();
+    // await fetchGexfByGraphId();
 
     // Clear the tooltip after deletion
     setTooltip(defaultEdgeTooltip);
@@ -93,13 +110,13 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipPro
           style={{ width: 300 }}
         >
           {/* If error then fallback displays */}
-          {error ? (
-            <FallBack>
+          {isLoading || isFetching ? (
+            // If not error but API is in loading state then dispalys loader
+            <PageLoading withoutWhiteBG />
+          ) : error ? (
+            <FallBack retry={refetch}>
               {error ? 'Something went wrong.' : "Can't view details at the moment."}
             </FallBack>
-          ) : isLoading ? (
-            // If not error but API is in loading state then dispalys loader
-            <PageLoading />
           ) : (
             // Ready to show data after API is ready
             <LitegraphFlex vertical>
@@ -112,12 +129,12 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipPro
 
                 <LitegraphText>
                   <strong>From: </strong>
-                  {edge?.From ? getNodeNameByGUID(edge.From, nodesList) : edge?.From}
+                  {isNodesLoadingOrFetching ? <LoadingOutlined /> : fromNode?.Name}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>To: </strong>
-                  {edge?.To ? getNodeNameByGUID(edge.To, nodesList) : edge?.To}
+                  {isNodesLoadingOrFetching ? <LoadingOutlined /> : toNode?.Name}
                 </LitegraphText>
 
                 <LitegraphText>
@@ -127,28 +144,32 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipPro
 
                 <LitegraphText>
                   <strong>Labels: </strong>
-                  {`${edge?.Labels?.length ? edge?.Labels?.join(', ') : 'N/A'}`}
+                  {`${edge?.Labels?.length ? edge?.Labels?.join(', ') : 'None'}`}
                 </LitegraphText>
 
-                <LitegraphText>
+                {/* <LitegraphText>
                   <strong>Vectors: </strong>
                   {pluralize(edge?.Vectors?.length || 0, 'vector')}
-                </LitegraphText>
+                </LitegraphText> */}
 
                 <LitegraphText>
                   <strong>Tags: </strong>
-                  <JsonEditor
-                    key={JSON.stringify(edge?.Tags && JSON.parse(JSON.stringify(edge.Tags)))}
-                    value={(edge?.Tags && JSON.parse(JSON.stringify(edge.Tags))) || {}}
-                    mode="view" // Use 'view' mode to make it read-only
-                    mainMenuBar={false} // Hide the menu bar
-                    statusBar={false} // Hide the status bar
-                    navigationBar={false} // Hide the navigation bar
-                    enableSort={false}
-                    enableTransform={false}
-                  />
+                  {Object.keys(edge?.Tags || {}).length > 0 ? (
+                    <JsonEditor
+                      key={JSON.stringify(edge?.Tags && JSON.parse(JSON.stringify(edge.Tags)))}
+                      value={(edge?.Tags && JSON.parse(JSON.stringify(edge.Tags))) || {}}
+                      mode="view" // Use 'view' mode to make it read-only
+                      mainMenuBar={false} // Hide the menu bar
+                      statusBar={false} // Hide the status bar
+                      navigationBar={false} // Hide the navigation bar
+                      enableSort={false}
+                      enableTransform={false}
+                    />
+                  ) : (
+                    <LitegraphText>None</LitegraphText>
+                  )}
                 </LitegraphText>
-
+                {/* 
                 <LitegraphFlex align="center" gap={6}>
                   <LitegraphText>
                     <strong>Data:</strong>
@@ -171,7 +192,7 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId, nodesList }: EdgeTooltipPro
                   navigationBar={false} // Hide the navigation bar
                   enableSort={false}
                   enableTransform={false}
-                />
+                /> */}
               </LitegraphFlex>
 
               {/* Buttons */}

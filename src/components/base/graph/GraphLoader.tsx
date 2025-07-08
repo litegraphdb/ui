@@ -2,10 +2,11 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Graph from 'graphology';
-import { parseGexf } from '@/lib/graph/parser';
 import { useLoadGraph, useRegisterEvents, useSigma } from '@react-sigma/core';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import { calculateTooltipPosition } from '@/utils/appUtils';
+import { EdgeData, NodeData } from '@/lib/graph/types';
+import { LightGraphTheme } from '@/theme/theme';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -13,6 +14,8 @@ interface GraphLoaderProps {
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
   nodeTooltip: GraphNodeTooltip;
   edgeTooltip: GraphEdgeTooltip;
+  nodes: NodeData[];
+  edges: EdgeData[];
 }
 
 const GraphLoader = ({
@@ -21,9 +24,12 @@ const GraphLoader = ({
   setEdgeTooltip,
   nodeTooltip,
   edgeTooltip,
+  nodes,
+  edges,
 }: GraphLoaderProps) => {
   const loadGraph = useLoadGraph();
   const sigma = useSigma();
+  const graph = new Graph({ multi: true, allowSelfLoops: true });
   const animationFrameRef = useRef<number>();
   const registerEvents = useRegisterEvents();
   const [draggedNode, setDraggedNode] = useState<string | null>(null);
@@ -51,19 +57,18 @@ const GraphLoader = ({
 
   useEffect(() => {
     // Create graph with multi-edge support
-    const graph = new Graph({ multi: true, allowSelfLoops: true });
-    const { nodes, edges } = parseGexf(gexfContent);
+    console.log('nodes', nodes);
 
     // Add nodes with circle shape
     nodes.forEach((node) => {
       graph.addNode(node.id, {
-        x: Math.random() * 100,
-        y: Math.random() * 100,
+        x: node.x,
+        y: node.y,
         size: 15,
         label: node.label,
         color:
           node.type === 'server'
-            ? '#ec5148'
+            ? LightGraphTheme.primary
             : node.type === 'router'
               ? '#4488cc'
               : node.type === 'client'
@@ -85,7 +90,7 @@ const GraphLoader = ({
         {
           size: 3,
           label: `${edge.id}${edge.cost}`,
-          color: '#999',
+          color: '#aaa',
           type: 'arrow',
         }
         // { generateId: () => edge.id }
@@ -161,7 +166,7 @@ const GraphLoader = ({
       animationFrameRef.current = requestAnimationFrame(applyForces);
     }
 
-    applyForces();
+    // applyForces();
 
     return () => {
       if (animationFrameRef.current) {
@@ -170,7 +175,7 @@ const GraphLoader = ({
       sigma.removeAllListeners();
       graph.clear();
     };
-  }, [gexfContent, loadGraph, sigma]);
+  }, [gexfContent, loadGraph, sigma, nodes?.length, edges?.length]);
 
   useEffect(() => {
     // Register the events
@@ -229,7 +234,7 @@ const GraphLoader = ({
           isDraggingRef.current = false; // Reset for next interaction
           return;
         }
-        const { x, y } = event.event; // Screen coordinates of the pointer event
+        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 }; // Screen coordinates of the pointer event
         const node = event.node; // Node ID
         // const graph = event.event.graph;
         // const nodeAttributes = graph.getNodeAttributes(node); // Fetch node attributes
@@ -257,12 +262,12 @@ const GraphLoader = ({
         sigma.refresh(); // Force re-render
       },
       clickEdge: (event) => {
-        const { x, y } = event.event;
+        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 }; // Screen coordinates of the pointer event
         const edgeId = event.edge;
         // const graph = sigma.getGraph();
         // const edgeAttributes = graph.getEdgeAttributes(edgeId);
 
-        const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y, 200, 180, 180);
+        const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y);
 
         setEdgeTooltip({
           visible: true,
@@ -292,7 +297,7 @@ const GraphLoader = ({
       //   setTooltip({ visible: false, content: '', x: 0, y: 0 });
       // },
     });
-  }, [registerEvents, sigma, draggedNode, draggedEdge, gexfContent]);
+  }, [registerEvents, sigma, draggedNode, draggedEdge, gexfContent, nodes?.length, edges?.length]);
 
   return null;
 };

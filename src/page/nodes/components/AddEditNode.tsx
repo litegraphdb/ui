@@ -6,7 +6,6 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LitegraphInput from '@/components/base/input/Input';
 import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
-import { useAppDispatch } from '@/lib/store/hooks';
 import { validationRules } from './constant';
 import { NodeType } from '@/types/types';
 import toast from 'react-hot-toast';
@@ -20,10 +19,13 @@ import { CopyOutlined } from '@ant-design/icons';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 import {
   useCreateNodeMutation,
-  useGetAllGraphsQuery,
+  useGetGraphByIdQuery,
+  useGetNodeByIdQuery,
   useUpdateNodeMutation,
 } from '@/lib/store/slice/slice';
 import { Node, NodeCreateRequest } from 'litegraphdb/dist/types/types';
+import PageLoading from '@/components/base/loading/PageLoading';
+import { getCreateEditViewModelTitle } from '@/utils/appUtils';
 
 const initialValues = {
   graphName: '',
@@ -47,19 +49,44 @@ interface AddEditNodeProps {
 const AddEditNode = ({
   isAddEditNodeVisible,
   setIsAddEditNodeVisible,
-  node,
+  node: nodeWithOldData,
   selectedGraph,
   onNodeUpdated,
   readonly,
   onClose,
 }: AddEditNodeProps) => {
-  const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
   const [uniqueKey, setUniqueKey] = useState(v4());
 
-  const { data: graphsList } = useGetAllGraphsQuery();
+  const {
+    data: graph,
+    isLoading: isGraphLoading1,
+    isFetching: isGraphFetching,
+  } = useGetGraphByIdQuery(
+    {
+      graphId: selectedGraph,
+    },
+    { skip: !selectedGraph }
+  );
+  const isGraphLoading = isGraphLoading1 || isGraphFetching;
 
+  const {
+    data: node,
+    isLoading: isNodeLoading1,
+    isFetching: isNodeFetching,
+  } = useGetNodeByIdQuery(
+    {
+      graphId: selectedGraph,
+      nodeId: nodeWithOldData?.GUID || '',
+      request: {
+        includeData: true,
+        includeSubordinates: true,
+      },
+    },
+    { skip: !nodeWithOldData?.GUID }
+  );
+  const isNodeLoading = isNodeLoading1 || isNodeFetching;
   const [createNodes, { isLoading: isCreateLoading }] = useCreateNodeMutation();
   const [updateNodeById, { isLoading: isUpdateLoading }] = useUpdateNodeMutation();
 
@@ -81,7 +108,7 @@ const AddEditNode = ({
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
-      if (node) {
+      if (node && nodeWithOldData?.GUID) {
         // Edit Node
         const data: Node = {
           TenantGUID: node.TenantGUID,
@@ -130,7 +157,7 @@ const AddEditNode = ({
   };
 
   useEffect(() => {
-    if (node) {
+    if (node && nodeWithOldData?.GUID) {
       // Reset the form and set values for the new node
       form.resetFields();
       // Ensure form values are updated when editing
@@ -145,13 +172,12 @@ const AddEditNode = ({
         vectors: node.Vectors || [],
       });
       setUniqueKey(v4());
-    } else {
+    } else if (!nodeWithOldData?.GUID) {
       form.resetFields();
       setUniqueKey(v4());
     }
-    const data = graphsList?.find((graph) => graph.GUID === selectedGraph);
-    data?.Name && form.setFieldValue('graphName', data.Name);
-  }, [node?.GUID, selectedGraph, graphsList?.length]);
+    graph?.Name && form.setFieldValue('graphName', graph.Name);
+  }, [node, nodeWithOldData?.GUID, selectedGraph, graph?.Name]);
 
   useEffect(() => {
     // Trigger initial validation
@@ -164,8 +190,14 @@ const AddEditNode = ({
   return (
     <LitegraphModal
       maskClosable={false}
-      title={node ? `${readonly ? 'View' : 'Edit'} Node` : 'Create Node'}
-      okText={node ? 'Update' : 'Create'}
+      title={getCreateEditViewModelTitle(
+        'Node',
+        isGraphLoading || isNodeLoading,
+        !nodeWithOldData,
+        !!nodeWithOldData,
+        Boolean(readonly && !!nodeWithOldData)
+      )}
+      okText={nodeWithOldData?.GUID ? 'Update' : 'Create'}
       open={isAddEditNodeVisible}
       onOk={handleSubmit}
       confirmLoading={isCreateLoading || isUpdateLoading}
@@ -181,75 +213,79 @@ const AddEditNode = ({
         hidden: readonly,
       }}
     >
-      <Form
-        initialValues={initialValues}
-        form={form}
-        layout="vertical"
-        labelCol={{ xs: 5, md: 5, lg: 4 }}
-        wrapperCol={{ span: 24 }}
-        onValuesChange={(_, allValues) => setFormValues(allValues)}
-        requiredMark={!readonly}
-      >
-        <LitegraphFlex gap={readonly ? 10 : 0} vertical={!readonly}>
-          <LitegraphFormItem className="flex-1" label="Graph" name="graphName">
-            <LitegraphInput readOnly variant="borderless" />
-          </LitegraphFormItem>
+      {isGraphLoading || isNodeLoading ? (
+        <PageLoading />
+      ) : (
+        <Form
+          initialValues={initialValues}
+          form={form}
+          layout="vertical"
+          labelCol={{ xs: 5, md: 5, lg: 4 }}
+          wrapperCol={{ span: 24 }}
+          onValuesChange={(_, allValues) => setFormValues(allValues)}
+          requiredMark={!readonly}
+        >
+          <LitegraphFlex gap={readonly ? 10 : 0} vertical={!readonly}>
+            <LitegraphFormItem className="flex-1" label="Graph" name="graphName">
+              <LitegraphInput readOnly variant="borderless" />
+            </LitegraphFormItem>
 
+            <LitegraphFormItem
+              className="flex-1"
+              label="Name"
+              name="name"
+              rules={validationRules.name}
+            >
+              <LitegraphInput
+                placeholder="Enter node name"
+                data-testid="node-name-input"
+                readOnly={readonly}
+                variant={readonly ? 'borderless' : 'outlined'}
+              />
+            </LitegraphFormItem>
+          </LitegraphFlex>
+          <LabelInput name="labels" readonly={readonly} />
+
+          <Form.Item label="Tags">
+            <TagsInput name="tags" readonly={readonly} />
+          </Form.Item>
+          <Form.Item label="Vectors">
+            <VectorsInput name="vectors" readonly={readonly} />
+          </Form.Item>
           <LitegraphFormItem
-            className="flex-1"
-            label="Name"
-            name="name"
-            rules={validationRules.name}
+            name="data"
+            label={
+              <LitegraphFlex align="center" gap={8}>
+                <span>Data</span>
+                {readonly && (
+                  <CopyOutlined
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      const data = form.getFieldValue('data') || {};
+                      copyJsonToClipboard(data, 'Data');
+                    }}
+                  />
+                )}
+              </LitegraphFlex>
+            }
           >
-            <LitegraphInput
-              placeholder="Enter node name"
-              data-testid="node-name-input"
-              readOnly={readonly}
-              variant={readonly ? 'borderless' : 'outlined'}
+            <JsonEditor
+              key={uniqueKey}
+              value={form.getFieldValue('data') || {}}
+              onChange={(json: any) => {
+                form.setFieldsValue({ data: json });
+              }}
+              mode={readonly ? 'view' : 'code'}
+              enableSort={false}
+              enableTransform={false}
+              mainMenuBar={!readonly}
+              statusBar={!readonly}
+              navigationBar={!readonly}
+              data-testid="node-data-input"
             />
           </LitegraphFormItem>
-        </LitegraphFlex>
-        <LabelInput name="labels" readonly={readonly} />
-
-        <Form.Item label="Tags">
-          <TagsInput name="tags" readonly={readonly} />
-        </Form.Item>
-        <Form.Item label="Vectors">
-          <VectorsInput name="vectors" readonly={readonly} />
-        </Form.Item>
-        <LitegraphFormItem
-          name="data"
-          label={
-            <LitegraphFlex align="center" gap={8}>
-              <span>Data</span>
-              {readonly && (
-                <CopyOutlined
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    const data = form.getFieldValue('data') || {};
-                    copyJsonToClipboard(data, 'Data');
-                  }}
-                />
-              )}
-            </LitegraphFlex>
-          }
-        >
-          <JsonEditor
-            key={uniqueKey}
-            value={form.getFieldValue('data') || {}}
-            onChange={(json: any) => {
-              form.setFieldsValue({ data: json });
-            }}
-            mode={readonly ? 'view' : 'code'}
-            enableSort={false}
-            enableTransform={false}
-            mainMenuBar={!readonly}
-            statusBar={!readonly}
-            navigationBar={!readonly}
-            data-testid="node-data-input"
-          />
-        </LitegraphFormItem>
-      </Form>
+        </Form>
+      )}
     </LitegraphModal>
   );
 };

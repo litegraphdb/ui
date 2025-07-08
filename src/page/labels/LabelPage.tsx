@@ -9,7 +9,7 @@ import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditLabel from './components/AddEditLabel';
 import DeleteLabel from './components/DeleteLabel';
-import { getNodeAndEdgeGUIDsByLabelList, transformLabelsDataForTable } from './utils';
+import { transformLabelsDataForTable } from './utils';
 import { useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
 import {
@@ -20,6 +20,7 @@ import {
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { LabelMetadata } from 'litegraphdb/dist/types/types';
+import { getNodeAndEdgeGUIDsByEntityList } from '@/utils/dataUtils';
 
 const LabelPage = () => {
   const selectedGraphRedux = useSelectedGraph();
@@ -28,6 +29,7 @@ const LabelPage = () => {
   const {
     data: labelsList,
     isLoading,
+    isFetching,
     error: isLabelsError,
     refetch: fetchLabelsList,
   } = useEnumerateAndSearchLabelQuery(
@@ -40,24 +42,38 @@ const LabelPage = () => {
       skip: !selectedGraphRedux,
     }
   );
-  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByLabelList(labelsList?.Objects || []);
+  const isLabelsLoading = isLoading || isFetching;
+  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByEntityList(
+    labelsList?.Objects || [],
+    'NodeGUID',
+    'EdgeGUID'
+  );
   const {
     data: nodesList,
     isLoading: isNodesLoading,
     refetch: fetchNodesList,
-  } = useGetManyNodesQuery({
-    graphId: selectedGraphRedux,
-    nodeIds: nodeGUIDs,
-  });
+  } = useGetManyNodesQuery(
+    {
+      graphId: selectedGraphRedux,
+      nodeIds: nodeGUIDs,
+    },
+    {
+      skip: !nodeGUIDs.length,
+    }
+  );
   const {
     data: edgesList,
     isLoading: isEdgesLoading,
     refetch: fetchEdgesList,
-  } = useGetManyEdgesQuery({
-    graphId: selectedGraphRedux,
-    edgeIds: edgeGUIDs,
-  });
-  const isNodeAndEdgeLoading = isNodesLoading || isEdgesLoading;
+  } = useGetManyEdgesQuery(
+    {
+      graphId: selectedGraphRedux,
+      edgeIds: edgeGUIDs,
+    },
+    {
+      skip: !edgeGUIDs.length,
+    }
+  );
   const fetchNodesAndEdges = async () => {
     fetchNodesList();
     fetchEdgesList();
@@ -113,11 +129,11 @@ const LabelPage = () => {
         </>
       }
     >
-      {isLabelsError ? (
+      {isLabelsError && !isLabelsLoading ? (
         <FallBack retry={fetchLabelsAndNodesAndEdges}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable
-          loading={isNodeAndEdgeLoading || isLoading || isGraphsLoading}
+          loading={isLabelsLoading || isGraphsLoading}
           columns={tableColumns(handleEditLabel, handleDelete, isNodesLoading, isEdgesLoading)}
           dataSource={transformedLabelsList}
           rowKey={'GUID'}

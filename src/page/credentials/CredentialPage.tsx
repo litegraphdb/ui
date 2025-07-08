@@ -24,14 +24,15 @@ const CredentialPage = () => {
   const {
     data,
     refetch: fetchCredentialsList,
-    isLoading: isCredentialsLoading,
+    isLoading,
+    isFetching,
     error,
   } = useEnumerateCredentialQuery({
     skip: skip,
     maxKeys: pageSize,
   });
   const credentialsList = data?.Objects || [];
-
+  const isCredentialsLoading = isLoading || isFetching;
   const credentialsListWithUsers = credentialsList.map((credential) => {
     const user = usersList.find((user) => user.GUID === credential.UserGUID);
     return {
@@ -70,7 +71,7 @@ const CredentialPage = () => {
         </LitegraphButton>
       }
     >
-      {error ? (
+      {error && !isCredentialsLoading ? (
         <FallBack retry={fetchCredentialsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable

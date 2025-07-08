@@ -10,7 +10,7 @@ import { tableColumns } from './constant';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import AddEditTag from './components/AddEditTag';
 import DeleteTag from './components/DeleteTag';
-import { getNodeAndEdgeGUIDsByTagList, transformTagsDataForTable } from './utils';
+import { transformTagsDataForTable } from './utils';
 import { useSelectedGraph } from '@/hooks/entityHooks';
 import { useLayoutContext } from '@/components/layout/context';
 import {
@@ -20,6 +20,7 @@ import {
 } from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
+import { getNodeAndEdgeGUIDsByEntityList } from '@/utils/dataUtils';
 
 const TagPage = () => {
   // Redux state for the list of graphs
@@ -29,7 +30,8 @@ const TagPage = () => {
   const {
     data,
     refetch: fetchTagsList,
-    isLoading: isTagsLoading,
+    isLoading,
+    isFetching,
     error: isTagsError,
   } = useEnumerateAndSearchTagQuery(
     {
@@ -41,24 +43,38 @@ const TagPage = () => {
       skip: !selectedGraphRedux,
     }
   );
-  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByTagList(data?.Objects || []);
+  const isTagsLoading = isLoading || isFetching;
+  const { nodeGUIDs, edgeGUIDs } = getNodeAndEdgeGUIDsByEntityList(
+    data?.Objects || [],
+    'NodeGUID',
+    'EdgeGUID'
+  );
   const {
     data: nodesList,
     isLoading: isNodesLoading,
     refetch: fetchNodesList,
-  } = useGetManyNodesQuery({
-    graphId: selectedGraphRedux,
-    nodeIds: nodeGUIDs,
-  });
+  } = useGetManyNodesQuery(
+    {
+      graphId: selectedGraphRedux,
+      nodeIds: nodeGUIDs,
+    },
+    {
+      skip: !nodeGUIDs.length,
+    }
+  );
   const {
     data: edgesList,
     isLoading: isEdgesLoading,
     refetch: fetchEdgesList,
-  } = useGetManyEdgesQuery({
-    graphId: selectedGraphRedux,
-    edgeIds: edgeGUIDs,
-  });
-  const isNodeAndEdgeLoading = isNodesLoading || isEdgesLoading;
+  } = useGetManyEdgesQuery(
+    {
+      graphId: selectedGraphRedux,
+      edgeIds: edgeGUIDs,
+    },
+    {
+      skip: !edgeGUIDs.length,
+    }
+  );
   const fetchNodesAndEdges = async () => {
     fetchNodesList();
     fetchEdgesList();
@@ -103,11 +119,11 @@ const TagPage = () => {
         </>
       }
     >
-      {isTagsError ? (
+      {isTagsError && !isTagsLoading ? (
         <FallBack retry={fetchTagsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable
-          loading={isGraphsLoading || isNodeAndEdgeLoading || isTagsLoading}
+          loading={isGraphsLoading || isTagsLoading}
           columns={tableColumns(handleEditTag, handleDelete, isNodesLoading, isEdgesLoading)}
           dataSource={transformedTagsList}
           rowKey={'GUID'}

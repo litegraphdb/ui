@@ -4,11 +4,11 @@ import { Form } from 'antd';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
-import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
-import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { useCreateLabelMutation, useUpdateLabelMutation } from '@/lib/store/slice/slice';
 import { LabelMetadata, LabelMetadataCreateRequest } from 'litegraphdb/dist/types/types';
+import NodeSelector from '@/components/node-selector/NodeSelector';
+import EdgeSelector from '@/components/edge-selector/EdgeSelector';
 
 interface AddEditLabelProps {
   isAddEditLabelVisible: boolean;
@@ -29,7 +29,6 @@ const AddEditLabel = ({
   const [formValid, setFormValid] = useState(false);
   const [createLabels, { isLoading: isCreateLoading }] = useCreateLabelMutation();
   const [updateLabelById, { isLoading: isUpdateLoading }] = useUpdateLabelMutation();
-  const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -130,13 +129,17 @@ const AddEditLabel = ({
           <LitegraphInput placeholder="Enter label label" />
         </LitegraphFormItem>
 
-        <LitegraphFormItem label="Node" name="NodeGUID">
-          <LitegraphSelect placeholder="Select Node" options={nodeOptions} allowClear />
-        </LitegraphFormItem>
+        <NodeSelector name="NodeGUID" label="Node" />
 
-        <LitegraphFormItem label="Edge" name="EdgeGUID">
+        {/* <LitegraphFormItem label="Node" name="NodeGUID">
+          <LitegraphSelect placeholder="Select Node" options={nodeOptions} allowClear />
+        </LitegraphFormItem> */}
+
+        <EdgeSelector name="EdgeGUID" label="Edge" />
+
+        {/* <LitegraphFormItem label="Edge" name="EdgeGUID">
           <LitegraphSelect placeholder="Select Edge" options={edgeOptions} allowClear />
-        </LitegraphFormItem>
+        </LitegraphFormItem> */}
       </Form>
     </LitegraphModal>
   );

@@ -5,13 +5,13 @@ import { VectorType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
-import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
 import { v4 } from 'uuid';
-import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { JsonEditor } from 'jsoneditor-react';
 import { useCreateVectorMutation, useUpdateVectorMutation } from '@/lib/store/slice/slice';
 import { VectorMetadata, VectorCreateRequest } from 'litegraphdb/dist/types/types';
+import NodeSelector from '@/components/node-selector/NodeSelector';
+import EdgeSelector from '@/components/edge-selector/EdgeSelector';
 
 interface AddEditVectorProps {
   isAddEditVectorVisible: boolean;
@@ -32,7 +32,6 @@ const AddEditVector = ({
   const [formValid, setFormValid] = useState(false);
   const [createVectors, { isLoading: isCreateLoading }] = useCreateVectorMutation();
   const [updateVectorById, { isLoading: isUpdateLoading }] = useUpdateVectorMutation();
-  const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
   const [uniqueKey, setUniqueKey] = useState(v4());
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -183,12 +182,15 @@ const AddEditVector = ({
             data-testid="graph-data-input"
           />
         </LitegraphFormItem>
-        <LitegraphFormItem label="Node" name="NodeGUID">
+        <NodeSelector name="NodeGUID" label="Node" />
+        {/* <LitegraphFormItem label="Node" name="NodeGUID">
           <LitegraphSelect placeholder="Select Node" options={nodeOptions} allowClear />
-        </LitegraphFormItem>
-        <LitegraphFormItem label="Edge" name="EdgeGUID">
+        </LitegraphFormItem> */}
+        <EdgeSelector name="EdgeGUID" label="Edge" />
+
+        {/* <LitegraphFormItem label="Edge" name="EdgeGUID">
           <LitegraphSelect placeholder="Select Edge" options={edgeOptions} allowClear />
-        </LitegraphFormItem>
+        </LitegraphFormItem> */}
       </Form>
     </LitegraphModal>
   );

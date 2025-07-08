@@ -22,10 +22,11 @@ const BackupPage = () => {
     data: backupsList = [],
     refetch: fetchBackupsList,
     isLoading,
+    isFetching,
     error,
   } = useReadAllBackupsQuery();
   const [fetchBackupByFilename, { isLoading: isDownloading }] = useReadBackupMutation();
-
+  const isBackupsLoading = isLoading || isFetching;
   const handleCreateBackup = () => {
     setSelectedBackup(null);
     setIsAddEditBackupVisible(true);
@@ -64,11 +65,11 @@ const BackupPage = () => {
         </LitegraphButton>
       }
     >
-      {error ? (
+      {error && !isBackupsLoading ? (
         <FallBack retry={fetchBackupsList}>Something went wrong.</FallBack>
       ) : (
         <LitegraphTable
-          loading={isLoading || isDownloading}
+          loading={isBackupsLoading || isDownloading}
           columns={tableColumns(handleDeleteBackup, handleDownload, isDownloading)}
           dataSource={backupsList}
           rowKey={'Filename'}

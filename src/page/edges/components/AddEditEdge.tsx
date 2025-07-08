@@ -8,7 +8,6 @@ import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
 import { validationRules } from './constant';
 import { EdgeType } from '@/types/types';
-import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
@@ -20,12 +19,15 @@ import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 import { CopyOutlined } from '@ant-design/icons';
 import {
   useCreateEdgeMutation,
-  useGetAllGraphsQuery,
-  useGetAllNodesQuery,
+  useGetEdgeByIdQuery,
+  useGetGraphByIdQuery,
   useUpdateEdgeMutation,
 } from '@/lib/store/slice/slice';
-import { transformToOptions } from '@/lib/graph/utils';
 import { Edge, EdgeCreateRequest } from 'litegraphdb/dist/types/types';
+import { getCreateEditViewModelTitle } from '@/utils/appUtils';
+import PageLoading from '@/components/base/loading/PageLoading';
+import NodeSelector from '@/components/node-selector/NodeSelector';
+import { useWatch } from 'antd/es/form/Form';
 
 const initialValues = {
   graphName: '',
@@ -51,7 +53,7 @@ interface AddEditEdgeProps {
 const AddEditEdge = ({
   isAddEditEdgeVisible,
   setIsAddEditEdgeVisible,
-  edge,
+  edge: edgeWithOldData,
   selectedGraph,
   onEdgeUpdated,
   fromNodeGUID,
@@ -59,18 +61,28 @@ const AddEditEdge = ({
   readonly,
 }: AddEditEdgeProps) => {
   const [form] = Form.useForm();
+  const formValue = useWatch('from', form);
+  // Get current GUID from form value
+  const currentGUID = formValue;
+
   const [uniqueKey, setUniqueKey] = useState(v4());
   const [formValid, setFormValid] = useState(false);
-  const { data: nodesList, isLoading: isNodesLoading } = useGetAllNodesQuery(
+  const {
+    data: edge,
+    isLoading: isEdgeLoading1,
+    isFetching: isEdgeFetching,
+  } = useGetEdgeByIdQuery(
     {
       graphId: selectedGraph,
+      edgeId: edgeWithOldData?.GUID || '',
+      request: { includeData: true, includeSubordinates: true },
     },
-    { skip: !isAddEditEdgeVisible }
+    { skip: !edgeWithOldData?.GUID || !selectedGraph }
   );
-  const nodeOptions = transformToOptions(nodesList);
+  const isEdgeLoading = isEdgeLoading1 || isEdgeFetching;
   const [createEdges, { isLoading: isCreateLoading }] = useCreateEdgeMutation();
   const [updateEdgeById, { isLoading: isUpdateLoading }] = useUpdateEdgeMutation();
-  const { data: graphsList } = useGetAllGraphsQuery();
+  const { data: graph } = useGetGraphByIdQuery({ graphId: selectedGraph });
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -82,7 +94,7 @@ const AddEditEdge = ({
   }, [formValues, form]);
 
   useEffect(() => {
-    if (edge) {
+    if (edge && edgeWithOldData?.GUID) {
       form.resetFields();
       form.setFieldsValue({
         name: edge.Name,
@@ -98,26 +110,26 @@ const AddEditEdge = ({
         vectors: edge.Vectors,
       });
       setUniqueKey(v4());
-    } else {
+    } else if (!edgeWithOldData?.GUID) {
       form.resetFields();
+      form.setFieldsValue({ from: undefined, to: undefined });
       fromNodeGUID && form.setFieldsValue({ from: fromNodeGUID, data: {} });
       setUniqueKey(v4());
     }
-    const data = graphsList?.find((graph) => graph.GUID === selectedGraph);
-    data && form.setFieldValue('graphName', data.Name);
+    graph && form.setFieldValue('graphName', graph.Name);
 
     // Trigger initial validation
     form
       .validateFields({ validateOnly: true })
       .then(() => setFormValid(true))
       .catch(() => setFormValid(false));
-  }, [edge, selectedGraph, fromNodeGUID, form]);
+  }, [edge, selectedGraph, fromNodeGUID, form, edgeWithOldData?.GUID]);
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
-      if (edge) {
+      if (edge && edgeWithOldData?.GUID) {
         // Edit edge
         const data: Edge = {
           TenantGUID: edge.TenantGUID,
@@ -174,11 +186,17 @@ const AddEditEdge = ({
   return (
     <LitegraphModal
       maskClosable={false}
-      title={edge ? 'Edit Edge' : 'Create Edge'}
-      okText={edge ? 'Update' : 'Create'}
+      title={getCreateEditViewModelTitle(
+        'Edge',
+        isEdgeLoading,
+        !edgeWithOldData,
+        !!edgeWithOldData,
+        Boolean(readonly && !!edgeWithOldData)
+      )}
+      okText={edgeWithOldData?.GUID ? 'Update' : 'Create'}
       open={isAddEditEdgeVisible}
       onOk={handleSubmit}
-      loading={isNodesLoading}
+      loading={isEdgeLoading}
       confirmLoading={isCreateLoading || isUpdateLoading}
       onCancel={() => {
         setIsAddEditEdgeVisible(false);
@@ -187,118 +205,136 @@ const AddEditEdge = ({
       width={800}
       okButtonProps={{ disabled: !formValid }}
     >
-      <Form
-        initialValues={{ ...initialValues, from: edge?.From || fromNodeGUID || '' }}
-        form={form}
-        layout="vertical"
-        wrapperCol={{ span: 24 }}
-        onValuesChange={(_, allValues) => setFormValues(allValues)}
-        requiredMark={!readonly}
-      >
-        <LitegraphFlex vertical={!readonly} gap={readonly ? 10 : 0}>
-          <LitegraphFormItem className="flex-1" label="Graph" name="graphName">
-            <LitegraphInput readOnly variant="borderless" />
-          </LitegraphFormItem>
-          <LitegraphFormItem
-            className="flex-1"
-            label="Name"
-            name="name"
-            rules={validationRules.Name}
-          >
-            <LitegraphInput
-              placeholder="Enter edge name"
-              data-testid="edge-name-input"
-              variant={readonly ? 'borderless' : 'outlined'}
-            />
-          </LitegraphFormItem>
-        </LitegraphFlex>
-        <LitegraphFlex gap={10}>
-          <LitegraphFormItem
-            className="flex-1"
-            label="From Node"
-            name="from"
-            rules={validationRules.From}
-          >
-            <LitegraphSelect
-              readonly={readonly}
-              placeholder="Select from node"
-              options={nodeOptions}
-              loading={isNodesLoading}
-              variant={readonly ? 'borderless' : 'outlined'}
-            />
-          </LitegraphFormItem>
-          <LitegraphFormItem
-            className="flex-1"
-            label="To Node"
-            name="to"
-            rules={validationRules.To}
-          >
-            <LitegraphSelect
-              readonly={readonly}
-              placeholder="Select to node"
-              options={nodeOptions}
-              loading={isNodesLoading}
-              variant={readonly ? 'borderless' : 'outlined'}
-            />
-          </LitegraphFormItem>
-        </LitegraphFlex>
-        <LitegraphFlex gap={10}>
-          <LitegraphFormItem
-            className="flex-1"
-            label="Cost"
-            name="cost"
-            rules={validationRules.Cost}
-          >
-            <LitegraphInput
-              readOnly={readonly}
-              variant={readonly ? 'borderless' : 'outlined'}
-              placeholder="Enter edge cost"
-              type="number"
-              onChange={(e) => {
-                const value = parseFloat(e.target.value);
-                form.setFieldsValue({ cost: isNaN(value) ? 0 : value });
-              }}
-            />
-          </LitegraphFormItem>
-          <LabelInput name="labels" className="flex-1" readonly={readonly} />
-        </LitegraphFlex>
-        <Form.Item label="Tags">
-          <TagsInput name="tags" readonly={readonly} />
-        </Form.Item>
-        <Form.Item label="Vectors">
-          <VectorsInput name="vectors" readonly={readonly} />
-        </Form.Item>
-        <LitegraphFormItem
-          name="data"
-          label={
-            <LitegraphFlex align="center" gap={8}>
-              <span>Data</span>
-              {readonly && (
-                <CopyOutlined
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    const data = form.getFieldValue('data') || {};
-                    copyJsonToClipboard(data, 'Data');
-                  }}
-                />
-              )}
-            </LitegraphFlex>
-          }
+      {isEdgeLoading ? (
+        <PageLoading />
+      ) : (
+        <Form
+          initialValues={{ ...initialValues, from: edge?.From || fromNodeGUID || '' }}
+          form={form}
+          layout="vertical"
+          wrapperCol={{ span: 24 }}
+          onValuesChange={(_, allValues) => setFormValues(allValues)}
+          requiredMark={!readonly}
         >
-          <JsonEditor
-            key={uniqueKey}
-            value={form.getFieldValue('data') || {}}
-            onChange={(json: any) => form.setFieldsValue({ data: json })}
-            mode={readonly ? 'view' : 'code'}
-            enableSort={false}
-            enableTransform={false}
-            mainMenuBar={!readonly} // Hide the menu bar
-            statusBar={!readonly} // Hide the status bar
-            navigationBar={!readonly} // Hide the navigation bar
-            data-testid="edge-data-input"
-          />
-        </LitegraphFormItem>
-      </Form>
+          <LitegraphFlex vertical={!readonly} gap={readonly ? 10 : 0}>
+            <LitegraphFormItem className="flex-1" label="Graph" name="graphName">
+              <LitegraphInput readOnly variant="borderless" />
+            </LitegraphFormItem>
+            <LitegraphFormItem
+              className="flex-1"
+              label="Name"
+              name="name"
+              rules={validationRules.Name}
+            >
+              <LitegraphInput
+                placeholder="Enter edge name"
+                data-testid="edge-name-input"
+                variant={readonly ? 'borderless' : 'outlined'}
+              />
+            </LitegraphFormItem>
+          </LitegraphFlex>
+          <LitegraphFlex gap={10}>
+            <NodeSelector
+              name="from"
+              readonly={readonly}
+              className="flex-1"
+              label="From Node"
+              rules={validationRules.From}
+            />
+            <NodeSelector
+              name="to"
+              readonly={readonly}
+              className="flex-1"
+              label="To Node"
+              rules={validationRules.To}
+            />
+            {/* <LitegraphFormItem
+              className="flex-1"
+              label="From Node"
+              name="from"
+              rules={validationRules.From}
+            >
+              <LitegraphSelect
+                readonly={readonly}
+                placeholder="Select from node"
+                options={nodeOptions}
+                loading={isNodesLoading}
+                variant={readonly ? 'borderless' : 'outlined'}
+              />
+            </LitegraphFormItem> */}
+            {/* <LitegraphFormItem
+              className="flex-1"
+              label="To Node"
+              name="to"
+              rules={validationRules.To}
+            >
+              <LitegraphSelect
+                readonly={readonly}
+                placeholder="Select to node"
+                options={nodeOptions}
+                loading={isNodesLoading}
+                variant={readonly ? 'borderless' : 'outlined'}
+              />
+            </LitegraphFormItem> */}
+          </LitegraphFlex>
+          <LitegraphFlex gap={10}>
+            <LitegraphFormItem
+              className="flex-1"
+              label="Cost"
+              name="cost"
+              rules={validationRules.Cost}
+            >
+              <LitegraphInput
+                readOnly={readonly}
+                variant={readonly ? 'borderless' : 'outlined'}
+                placeholder="Enter edge cost"
+                type="number"
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  form.setFieldsValue({ cost: isNaN(value) ? 0 : value });
+                }}
+              />
+            </LitegraphFormItem>
+            <LabelInput name="labels" className="flex-1" readonly={readonly} />
+          </LitegraphFlex>
+          <Form.Item label="Tags">
+            <TagsInput name="tags" readonly={readonly} />
+          </Form.Item>
+          <Form.Item label="Vectors">
+            <VectorsInput name="vectors" readonly={readonly} />
+          </Form.Item>
+          <LitegraphFormItem
+            name="data"
+            label={
+              <LitegraphFlex align="center" gap={8}>
+                <span>Data</span>
+                {readonly && (
+                  <CopyOutlined
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      const data = form.getFieldValue('data') || {};
+                      copyJsonToClipboard(data, 'Data');
+                    }}
+                  />
+                )}
+              </LitegraphFlex>
+            }
+          >
+            <JsonEditor
+              key={uniqueKey}
+              value={form.getFieldValue('data') || {}}
+              onChange={(json: any) => form.setFieldsValue({ data: json })}
+              mode={readonly ? 'view' : 'code'}
+              enableSort={false}
+              enableTransform={false}
+              mainMenuBar={!readonly} // Hide the menu bar
+              statusBar={!readonly} // Hide the status bar
+              navigationBar={!readonly} // Hide the navigation bar
+              data-testid="edge-data-input"
+            />
+          </LitegraphFormItem>
+        </Form>
+      )}
     </LitegraphModal>
   );
 };

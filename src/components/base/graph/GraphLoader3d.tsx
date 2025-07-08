@@ -1,0 +1,104 @@
+'use client';
+
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { GraphData, LinkObject, NodeObject } from 'react-force-graph-3d';
+import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
+import { NodeType } from '@/types/types';
+import { EdgeData, NodeData } from '@/lib/graph/types';
+import { LightGraphTheme } from '@/theme/theme';
+import { calculateTooltipPosition } from '@/utils/appUtils';
+// Dynamically load to avoid SSR issues with Three.js
+const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
+
+export default function GraphLoader3d({
+  nodes,
+  edges,
+  setTooltip,
+  setEdgeTooltip,
+}: {
+  nodes: NodeData[];
+  edges: EdgeData[];
+  setTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
+  setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
+}) {
+  const [graphData, setGraphData] = useState<GraphData>({
+    nodes: [],
+    links: [],
+  });
+
+  useEffect(() => {
+    // Map your nodes and edges to 3D-force-graph format
+    const mappedNodes = nodes.map((n) => ({
+      id: n.id,
+      name: n.label,
+      type: n.type,
+      x: n.x,
+      y: n.y,
+    }));
+
+    const mappedLinks = edges.map((e) => ({
+      source: e.source,
+      target: e.target,
+      id: e.id,
+      cost: e.cost,
+      name: e.label,
+    }));
+
+    setGraphData({
+      nodes: mappedNodes,
+      links: mappedLinks,
+    });
+  }, [nodes, edges]);
+
+  const handleNodeClick = (node: NodeObject<NodeType>, event: any) => {
+    console.log('Node clicked:', node);
+    console.log('Event:', event);
+    setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
+
+    const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
+    setTooltip({
+      visible: true,
+      nodeId: node.id as string,
+      x: tooltipX,
+      y: tooltipY,
+    });
+  };
+
+  const handleLinkClick = (link: LinkObject<NodeData, EdgeData>, event: any) => {
+    console.log('Edge clicked:', link);
+    console.log('Event:', event);
+    setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+    const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
+    setEdgeTooltip({
+      visible: true,
+      edgeId: link.id,
+      x: tooltipX,
+      y: tooltipY,
+    });
+  };
+
+  return (
+    <div style={{ height: '600px' }}>
+      <ForceGraph3D
+        graphData={graphData}
+        nodeAutoColorBy="type"
+        nodeLabel="name"
+        linkLabel="name"
+        backgroundColor="#fff"
+        nodeColor={(node) => {
+          return LightGraphTheme.primary;
+        }}
+        linkColor={(link) => {
+          return '#000';
+        }}
+        showNavInfo
+        linkWidth={1}
+        onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
+        onLinkClick={(link, event) =>
+          handleLinkClick(link as LinkObject<NodeData, EdgeData>, event)
+        }
+      />
+    </div>
+  );
+}
