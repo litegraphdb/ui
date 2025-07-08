@@ -1,6 +1,5 @@
-FROM node:22-slim
+FROM jchristn/litegraph-ui-base:v1.0.0
 WORKDIR /app
-RUN apt-get update && apt-get install -y iputils-ping traceroute net-tools curl wget dnsutils iproute2 file vim procps xsel && rm -rf /var/lib/apt/lists/*
 COPY src/. .
 RUN npm install
 RUN npm run build
