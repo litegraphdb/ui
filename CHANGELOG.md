@@ -39,3 +39,10 @@ v1.0.0
 - version tag to 1.0.0
 - Read many api is integrated
 - integrated litegraphdb sdk 1.0.8
+
+v1.0.1
+
+- integrated litegraphdb sdk 1.0.9
+- added 3d graph viewer
+- improved graph viewer popups and its position
+- added searchable node and edge selector
