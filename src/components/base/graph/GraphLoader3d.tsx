@@ -7,6 +7,7 @@ import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import { NodeType } from '@/types/types';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 import { LightGraphTheme } from '@/theme/theme';
+import { calculateTooltipPosition } from '@/utils/appUtils';
 // Dynamically load to avoid SSR issues with Three.js
 const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
 
@@ -54,11 +55,13 @@ export default function GraphLoader3d({
     console.log('Node clicked:', node);
     console.log('Event:', event);
     setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
+
+    const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
     setTooltip({
       visible: true,
       nodeId: node.id as string,
-      x: event.clientX as number,
-      y: event.clientY as number,
+      x: tooltipX,
+      y: tooltipY,
     });
   };
 
@@ -66,11 +69,12 @@ export default function GraphLoader3d({
     console.log('Edge clicked:', link);
     console.log('Event:', event);
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+    const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
     setEdgeTooltip({
       visible: true,
       edgeId: link.id,
-      x: event.clientX as number,
-      y: event.clientY as number,
+      x: tooltipX,
+      y: tooltipY,
     });
   };
 

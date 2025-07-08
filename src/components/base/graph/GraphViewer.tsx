@@ -1,5 +1,5 @@
 'use client';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { SigmaContainer } from '@react-sigma/core';
 import GraphLoader from './GraphLoader';
 import { MultiDirectedGraph } from 'graphology';
@@ -59,15 +59,17 @@ const GraphViewer = ({
     refetch,
     nodesFirstResult,
     edgesFirstResult,
-    isError,
     isLoading,
     isNodesLoading,
     isEdgesLoading,
   } = useLazyLoadEdgesAndNodes(selectedGraphRedux);
 
+  useEffect(() => {
+    setShow3d(false);
+  }, [selectedGraphRedux]);
+
   // Callback for handling node update
   const handleNodeUpdate = async () => {};
-  console.log(nodes.length, nodesFirstResult?.TotalRecords);
   return (
     <div className="space-y-2">
       {Boolean(selectedGraphRedux) && (
@@ -98,20 +100,19 @@ const GraphViewer = ({
         style={{ marginTop: '-10px' }}
         className="mb-sm"
       >
-        {isNodesLoading && (
+        {isNodesLoading && nodes.length > 0 ? (
           <ProgressBar
             loaded={nodes.length}
             total={nodesFirstResult?.TotalRecords || 0}
             label="Loading nodes..."
           />
-        )}
-        {isEdgesLoading && (
+        ) : isEdgesLoading && edges.length > 0 ? (
           <ProgressBar
             loaded={edges.length}
             total={edgesFirstResult?.TotalRecords || 0}
             label="Loading edges..."
           />
-        )}
+        ) : null}
         <LitegraphTooltip
           title={
             isNodesLoading || isEdgesLoading
@@ -165,12 +166,12 @@ const GraphViewer = ({
                     nodeReducer: (node, data) => ({
                       ...data,
                       highlighted: data.highlighted,
-                      size: data.highlighted ? 10 : 5,
+                      size: data.highlighted ? 12 : 7,
                       color: data.highlighted ? '#ff9900' : data.color,
                     }),
                     edgeReducer: (edge, data) => ({
                       ...data,
-                      size: data.size * (data.highlighted ? 1 : 0.5),
+                      size: data.size * (data.highlighted ? 1.2 : 0.7),
                       color: data.highlighted ? '#ff9900' : data.color,
                       label: data.highlighted ? data.label : undefined,
                     }),

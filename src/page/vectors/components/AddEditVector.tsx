@@ -5,10 +5,8 @@ import { VectorType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
-import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
 import { v4 } from 'uuid';
-import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { JsonEditor } from 'jsoneditor-react';
 import { useCreateVectorMutation, useUpdateVectorMutation } from '@/lib/store/slice/slice';
 import { VectorMetadata, VectorCreateRequest } from 'litegraphdb/dist/types/types';
@@ -34,7 +32,6 @@ const AddEditVector = ({
   const [formValid, setFormValid] = useState(false);
   const [createVectors, { isLoading: isCreateLoading }] = useCreateVectorMutation();
   const [updateVectorById, { isLoading: isUpdateLoading }] = useUpdateVectorMutation();
-  const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
   const [uniqueKey, setUniqueKey] = useState(v4());
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});

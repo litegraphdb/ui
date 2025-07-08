@@ -44,6 +44,7 @@ const enhancedSdk = sdkSlice.enhanceEndpoints({
     SliceTags.VECTOR,
     SliceTags.CREDENTIAL,
     SliceTags.BACKUP,
+    SliceTags.RESET,
   ],
 });
 
@@ -120,7 +121,7 @@ const graphSlice = enhancedSdk.injectEndpoints({
       query: ({ graphId, request }: { graphId: string; request: EnumerateAndSearchRequest }) => ({
         callback: () => sdk.Node.enumerateAndSearch(graphId, request),
       }),
-      providesTags: [SliceTags.NODE],
+      providesTags: [SliceTags.NODE, SliceTags.RESET],
     }),
     //get all nodes
     getAllNodes: build.query<Node[], { graphId: string }>({
@@ -182,7 +183,7 @@ const graphSlice = enhancedSdk.injectEndpoints({
       query: ({ graphId, request }: { graphId: string; request: EnumerateAndSearchRequest }) => ({
         callback: () => sdk.Edge.enumerateAndSearch(graphId, request),
       }),
-      providesTags: [SliceTags.EDGE],
+      providesTags: [SliceTags.EDGE, SliceTags.RESET],
     }),
     //get all edges
     getAllEdges: build.query<Edge[], { graphId: string }>({

@@ -6,6 +6,7 @@ import { useLoadGraph, useRegisterEvents, useSigma } from '@react-sigma/core';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import { calculateTooltipPosition } from '@/utils/appUtils';
 import { EdgeData, NodeData } from '@/lib/graph/types';
+import { LightGraphTheme } from '@/theme/theme';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -67,7 +68,7 @@ const GraphLoader = ({
         label: node.label,
         color:
           node.type === 'server'
-            ? '#ec5148'
+            ? LightGraphTheme.primary
             : node.type === 'router'
               ? '#4488cc'
               : node.type === 'client'
@@ -89,7 +90,7 @@ const GraphLoader = ({
         {
           size: 3,
           label: `${edge.id}${edge.cost}`,
-          color: '#999',
+          color: '#aaa',
           type: 'arrow',
         }
         // { generateId: () => edge.id }
@@ -233,7 +234,7 @@ const GraphLoader = ({
           isDraggingRef.current = false; // Reset for next interaction
           return;
         }
-        const { x, y } = event.event; // Screen coordinates of the pointer event
+        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 }; // Screen coordinates of the pointer event
         const node = event.node; // Node ID
         // const graph = event.event.graph;
         // const nodeAttributes = graph.getNodeAttributes(node); // Fetch node attributes
@@ -261,12 +262,12 @@ const GraphLoader = ({
         sigma.refresh(); // Force re-render
       },
       clickEdge: (event) => {
-        const { x, y } = event.event;
+        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 }; // Screen coordinates of the pointer event
         const edgeId = event.edge;
         // const graph = sigma.getGraph();
         // const edgeAttributes = graph.getEdgeAttributes(edgeId);
 
-        const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y, 200, 180, 180);
+        const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y);
 
         setEdgeTooltip({
           visible: true,

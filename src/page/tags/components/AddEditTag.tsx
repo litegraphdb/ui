@@ -5,9 +5,7 @@ import { TagType } from '@/types/types';
 import LitegraphModal from '@/components/base/modal/Modal';
 import LitegraphFormItem from '@/components/base/form/FormItem';
 import LitegraphInput from '@/components/base/input/Input';
-import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
-import { useNodeAndEdge } from '@/hooks/entityHooks';
 import { useCreateTagMutation, useUpdateTagMutation } from '@/lib/store/slice/slice';
 import { TagMetaData, TagMetaDataCreateRequest } from 'litegraphdb/dist/types/types';
 import NodeSelector from '@/components/node-selector/NodeSelector';
@@ -32,7 +30,6 @@ const AddEditTag = ({
   const [formValid, setFormValid] = useState(false);
   const [createTag, { isLoading: isCreateLoading }] = useCreateTagMutation();
   const [updateTagById, { isLoading: isUpdateLoading }] = useUpdateTagMutation();
-  const { nodeOptions, edgeOptions } = useNodeAndEdge(selectedGraph);
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});

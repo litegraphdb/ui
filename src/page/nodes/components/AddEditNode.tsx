@@ -19,7 +19,6 @@ import { CopyOutlined } from '@ant-design/icons';
 import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 import {
   useCreateNodeMutation,
-  useGetAllGraphsQuery,
   useGetGraphByIdQuery,
   useGetNodeByIdQuery,
   useUpdateNodeMutation,

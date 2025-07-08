@@ -5,9 +5,15 @@ import LitegraphText from '../typograpghy/Text';
 import LitegraphFlex from '../flex/Flex';
 import PageContainer from '../pageContainer/PageContainer';
 
-const PageLoading = ({ message = 'Loading...' }: { message?: string }) => {
+const PageLoading = ({
+  message = 'Loading...',
+  withoutWhiteBG = false,
+}: {
+  message?: string;
+  withoutWhiteBG?: boolean;
+}) => {
   return (
-    <PageContainer>
+    <PageContainer withoutWhiteBG={withoutWhiteBG}>
       <LitegraphFlex justify="center" align="center" vertical>
         <LitegraphText>{message}</LitegraphText>
         <LoadingOutlined className={styles.pageLoader} />

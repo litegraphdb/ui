@@ -8,7 +8,6 @@ import { JsonEditor } from 'jsoneditor-react';
 import { v4 } from 'uuid';
 import { validationRules } from './constant';
 import { EdgeType } from '@/types/types';
-import LitegraphSelect from '@/components/base/select/Select';
 import toast from 'react-hot-toast';
 import LabelInput from '@/components/inputs/label-input/LabelInput';
 import VectorsInput from '@/components/inputs/vectors-input.tsx/VectorsInput';
@@ -20,12 +19,10 @@ import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
 import { CopyOutlined } from '@ant-design/icons';
 import {
   useCreateEdgeMutation,
-  useGetAllGraphsQuery,
-  useGetAllNodesQuery,
   useGetEdgeByIdQuery,
+  useGetGraphByIdQuery,
   useUpdateEdgeMutation,
 } from '@/lib/store/slice/slice';
-import { transformToOptions } from '@/lib/graph/utils';
 import { Edge, EdgeCreateRequest } from 'litegraphdb/dist/types/types';
 import { getCreateEditViewModelTitle } from '@/utils/appUtils';
 import PageLoading from '@/components/base/loading/PageLoading';
@@ -67,7 +64,6 @@ const AddEditEdge = ({
   const formValue = useWatch('from', form);
   // Get current GUID from form value
   const currentGUID = formValue;
-  console.log('currentGUID AddEditEdge', currentGUID);
 
   const [uniqueKey, setUniqueKey] = useState(v4());
   const [formValid, setFormValid] = useState(false);
@@ -84,16 +80,9 @@ const AddEditEdge = ({
     { skip: !edgeWithOldData?.GUID || !selectedGraph }
   );
   const isEdgeLoading = isEdgeLoading1 || isEdgeFetching;
-  const { data: nodesList, isLoading: isNodesLoading } = useGetAllNodesQuery(
-    {
-      graphId: selectedGraph,
-    },
-    { skip: !isAddEditEdgeVisible }
-  );
-  const nodeOptions = transformToOptions(nodesList);
   const [createEdges, { isLoading: isCreateLoading }] = useCreateEdgeMutation();
   const [updateEdgeById, { isLoading: isUpdateLoading }] = useUpdateEdgeMutation();
-  const { data: graphsList } = useGetAllGraphsQuery();
+  const { data: graph } = useGetGraphByIdQuery({ graphId: selectedGraph });
 
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
@@ -127,8 +116,7 @@ const AddEditEdge = ({
       fromNodeGUID && form.setFieldsValue({ from: fromNodeGUID, data: {} });
       setUniqueKey(v4());
     }
-    const data = graphsList?.find((graph) => graph.GUID === selectedGraph);
-    data && form.setFieldValue('graphName', data.Name);
+    graph && form.setFieldValue('graphName', graph.Name);
 
     // Trigger initial validation
     form
@@ -208,7 +196,7 @@ const AddEditEdge = ({
       okText={edgeWithOldData?.GUID ? 'Update' : 'Create'}
       open={isAddEditEdgeVisible}
       onOk={handleSubmit}
-      loading={isNodesLoading}
+      loading={isEdgeLoading}
       confirmLoading={isCreateLoading || isUpdateLoading}
       onCancel={() => {
         setIsAddEditEdgeVisible(false);

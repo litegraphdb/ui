@@ -52,31 +52,27 @@ export function downloadBase64File(
 export const calculateTooltipPosition = (
   x: number,
   y: number,
-  tooltipHeight: number = 230, // Approximate height of tooltip
-  horizontalOffset: number = 180,
-  verticalOffset: number = 200
+  popupHeight: number = 320,
+  popupWidth: number = 310
 ) => {
-  // Get viewport dimensions
-  const viewportHeight = window.innerHeight;
+  // Get popup dimensions
   const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
 
-  // Calculate initial position
-  let finalX = x + horizontalOffset;
-  let finalY = y + verticalOffset;
+  // Adjust X and Y to prevent overflow
+  let posX = x;
+  let posY = y;
 
-  // Check if tooltip would be clipped at the bottom
-  if (finalY + tooltipHeight > viewportHeight) {
-    // Position tooltip above the cursor instead
-    finalY = y - tooltipHeight - 20; // 10px gap between cursor and tooltip
+  if (x + popupWidth > viewportWidth) {
+    posX = viewportWidth - popupWidth - 10; // 10px margin
   }
 
-  // Check if tooltip would be clipped at the right
-  if (finalX + 300 > viewportWidth) {
-    // Assuming tooltip width is ~300px
-    finalX = x - 300 - 10; // Position tooltip to the left of cursor
+  if (y + popupHeight > viewportHeight) {
+    posY = viewportHeight - popupHeight - 10;
   }
 
-  return { x: finalX, y: finalY };
+  // Return final position
+  return { x: posX, y: posY };
 };
 
 export const getCreateEditViewModelTitle = (
@@ -99,4 +95,15 @@ export const getCreateEditViewModelTitle = (
     return `Edit ${suffix}`;
   }
   return `${suffix}`;
+};
+
+export const decodeToJSON = (jsonString?: string) => {
+  if (!jsonString) return null;
+
+  try {
+    return JSON.parse(jsonString);
+  } catch (error: any) {
+    console.error('Invalid JSON:', error.message);
+    return null;
+  }
 };

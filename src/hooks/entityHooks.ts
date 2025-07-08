@@ -1,6 +1,6 @@
 import { transformToOptions } from '@/lib/graph/utils';
 
-import { useAppSelector } from '@/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import {
   useGetAllNodesQuery,
@@ -12,7 +12,8 @@ import { useEffect, useState } from 'react';
 import { Edge, EnumerateResponse, Node } from 'litegraphdb/dist/types/types';
 import { parseEdge, parseNode } from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
-import { skip } from 'node:test';
+import { SliceTags } from '@/lib/store/slice/types';
+import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
 
 export const useCurrentTenant = () => {
   const tenantFromRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
@@ -73,10 +74,13 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     isLoading,
     isFetching,
     isError: isNodesError,
-  } = useEnumerateAndSearchNodeQuery({
-    graphId,
-    request: { MaxResults: 50, ContinuationToken: continuationToken },
-  });
+  } = useEnumerateAndSearchNodeQuery(
+    {
+      graphId,
+      request: { MaxResults: 50, ContinuationToken: continuationToken },
+    },
+    { skip: !graphId }
+  );
   const isLoadingOrFetching = isLoading || isFetching;
   useEffect(() => {
     setLoading(true);
@@ -103,6 +107,17 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     }
   }, [nodesList]);
 
+  useEffect(() => {
+    setNodes([]);
+    setFirstResult(null);
+    setContinuationToken(undefined);
+    try {
+      fetchNodesList();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [graphId]);
+
   return {
     nodes,
     refetchNodes: fetchNodesList,
@@ -112,7 +127,11 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   };
 };
 
-export const useLazyLoadEdges = (graphId: string, doNotFetchOnRender?: boolean) => {
+export const useLazyLoadEdges = (
+  graphId: string,
+  onDataLoaded?: () => void,
+  doNotFetchOnRender?: boolean
+) => {
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Edge> | null>(null);
   const [edges, setEdges] = useState<EdgeData[]>([]);
@@ -128,7 +147,7 @@ export const useLazyLoadEdges = (graphId: string, doNotFetchOnRender?: boolean) 
       graphId,
       request: { MaxResults: 50, ContinuationToken: continuationToken },
     },
-    { skip: doNotFetchOnRender }
+    { skip: doNotFetchOnRender || !graphId }
   );
   const isEdgesLoadingOrFetching = isEdgesLoading || isEdgesFetching;
   useEffect(() => {
@@ -149,9 +168,21 @@ export const useLazyLoadEdges = (graphId: string, doNotFetchOnRender?: boolean) 
       setContinuationToken(edgesList.ContinuationToken);
     }
     if (edgesList?.RecordsRemaining === 0) {
+      onDataLoaded?.();
       setLoading(false);
     }
   }, [edgesList]);
+
+  useEffect(() => {
+    setEdges([]);
+    setFirstResult(null);
+    setContinuationToken(undefined);
+    try {
+      fetchEdgesList();
+    } catch (error) {
+      console.error(error);
+    }
+  }, [graphId]);
 
   return {
     edges,
@@ -171,14 +202,18 @@ export const useLazyLoadEdgesAndNodes = (graphId: string) => {
     firstResult: nodesFirstResult,
     isNodesError,
   } = useLazyLoadNodes(graphId, () => setDoNotFetchEdgesOnRender(false));
-
+  const dispatch = useAppDispatch();
   const {
     edges,
     isEdgesLoading,
     refetchEdges,
     firstResult: edgesFirstResult,
     isEdgesError,
-  } = useLazyLoadEdges(graphId, doNotFetchEdgesOnRender);
+  } = useLazyLoadEdges(graphId, () => setDoNotFetchEdgesOnRender(true), doNotFetchEdgesOnRender);
+
+  // useEffect(() => {
+  //   dispatch(sdkSlice.util.invalidateTags([SliceTags.RESET] as any));
+  // }, [graphId]);
 
   return {
     nodes,
