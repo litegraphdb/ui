@@ -36,3 +36,8 @@ export type EdgeType = Edge & {
 export type CredentialType = CredentialMetadata & {
   userName?: string;
 };
+
+export enum ThemeEnum {
+  LIGHT = 'light',
+  DARK = 'dark',
+}

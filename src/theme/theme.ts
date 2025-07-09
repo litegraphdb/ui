@@ -75,3 +75,66 @@ export const primaryTheme: ThemeConfig = {
     },
   },
 };
+
+export const darkTheme: ThemeConfig = {
+  cssVar: true,
+  algorithm: theme.darkAlgorithm,
+  token: {
+    colorPrimary: LightGraphTheme.primary,
+    fontFamily: LightGraphTheme.fontFamily,
+    colorBorder: LightGraphTheme.borderGray,
+    colorTextDisabled: LightGraphTheme.textDisabled,
+    colorBgContainerDisabled: LightGraphTheme.colorBgContainerDisabled,
+  },
+  components: {
+    Tabs: {
+      cardBg: '#F2F2F2',
+      titleFontSize: 12,
+    },
+    Typography: {
+      fontWeightStrong: 400,
+    },
+    Layout: {
+      fontFamily: LightGraphTheme.fontFamily,
+    },
+    Menu: {
+      itemSelectedBg: '#fff',
+    },
+    Button: {
+      borderRadius: 4,
+      primaryColor: LightGraphTheme.white,
+      defaultColor: '#333333',
+      colorLink: LightGraphTheme.primary,
+      colorLinkHover: LightGraphTheme.primary,
+    },
+    Table: {
+      headerBg: '#ffffff',
+      padding: 18,
+      borderColor: '#d1d5db',
+    },
+    Collapse: {
+      headerBg: LightGraphTheme.white,
+    },
+    Input: {
+      borderRadiusLG: 3,
+      borderRadius: 3,
+      borderRadiusXS: 3,
+    },
+    Select: {
+      borderRadiusLG: 3,
+      borderRadius: 3,
+      borderRadiusXS: 3,
+      optionSelectedColor: LightGraphTheme.white,
+      optionSelectedBg: LightGraphTheme.primary,
+    },
+    Pagination: {
+      fontFamily: LightGraphTheme.fontFamily,
+    },
+    Form: {
+      labelColor: LightGraphTheme.subHeadingColor,
+      colorBorder: 'none',
+      verticalLabelPadding: 0,
+      itemMarginBottom: 10,
+    },
+  },
+};
