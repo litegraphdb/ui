@@ -24,6 +24,7 @@ import { useDeleteGraphMutation, useSearchAndEnumerateGraphQuery } from '@/lib/s
 import { tablePaginationConfig } from '@/constants/pagination';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 import AddEditGraph from './components/AddEditGraph';
+import AppliedFilter from '@/components/table-filter/AppliedFilter';
 
 const GraphPage = () => {
   const { page, pageSize, skip, handlePageChange } = usePagination();
@@ -141,17 +142,13 @@ const GraphPage = () => {
             align="center"
             className="mb-sm"
           >
-            {Boolean(Object.keys(searchParams).length) && (
-              <LitegraphText>
-                {data?.TotalRecords} graph{`(s)`} found{' '}
-                <LitegraphButton
-                  icon={<CloseOutlined />}
-                  type="link"
-                  onClick={() => setSearchParams({})}
-                >
-                  Clear
-                </LitegraphButton>{' '}
-              </LitegraphText>
+            {!isGraphsLoading && (
+              <AppliedFilter
+                entityName="graph(s)"
+                searchParams={searchParams}
+                totalRecords={data?.TotalRecords || 0}
+                onClear={() => setSearchParams({})}
+              />
             )}
           </LitegraphFlex>
           <LitegraphTable

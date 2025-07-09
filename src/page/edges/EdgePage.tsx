@@ -22,6 +22,7 @@ import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { useEnumerateAndSearchEdgeQuery, useGetManyNodesQuery } from '@/lib/store/slice/slice';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
+import AppliedFilter from '@/components/table-filter/AppliedFilter';
 
 const EdgePage = () => {
   // Redux state for the list of graphs
@@ -135,17 +136,13 @@ const EdgePage = () => {
             align="center"
             className="mb-sm"
           >
-            {Boolean(Object.keys(searchParams).length) && (
-              <LitegraphText>
-                {edgesList?.TotalRecords} edge{`(s)`} found{' '}
-                <LitegraphButton
-                  icon={<CloseOutlined />}
-                  type="link"
-                  onClick={() => setSearchParams({})}
-                >
-                  Clear
-                </LitegraphButton>{' '}
-              </LitegraphText>
+            {!isEdgesLoading && (
+              <AppliedFilter
+                entityName="edge(s)"
+                searchParams={searchParams}
+                totalRecords={edgesList?.TotalRecords || 0}
+                onClear={() => setSearchParams({})}
+              />
             )}
           </LitegraphFlex>
           <LitegraphTable

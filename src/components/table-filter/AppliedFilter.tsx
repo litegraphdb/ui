@@ -6,6 +6,7 @@ import { CloseOutlined } from '@ant-design/icons';
 import LitegraphFlex from '../base/flex/Flex';
 import LitegraphTag from '../base/tag/Tag';
 import LitegraphDivider from '../base/divider/Divider';
+import { humanizeNumber } from '@/utils/dataUtils';
 
 const AppliedFilter = ({
   searchParams,
@@ -18,12 +19,13 @@ const AppliedFilter = ({
   entityName?: string;
   onClear: () => void;
 }) => {
+  console.log(searchParams, 'searchParams');
   return (
     <>
       {Boolean(Object.keys(searchParams).length) && (
-        <LitegraphFlex gap={10} align="center">
+        <LitegraphFlex gap={10} align="center" wrap="wrap">
           <LitegraphText>
-            {totalRecords} {entityName} found
+            {humanizeNumber(totalRecords)} {entityName} found
           </LitegraphText>
           <LitegraphDivider type="vertical" className="ant-divider-vertical" />
           {Boolean(searchParams.Labels?.length) && (
@@ -31,6 +33,26 @@ const AppliedFilter = ({
               <LitegraphText>
                 <strong>Label: </strong>
                 {searchParams.Labels?.map((label) => <LitegraphTag label={label} />)}
+              </LitegraphText>
+              <LitegraphDivider type="vertical" className="ant-divider-vertical" />
+            </>
+          )}
+          {Boolean(Object.keys(searchParams?.Tags || {}).length > 0) && (
+            <>
+              <LitegraphText>
+                <strong>Tag: </strong>
+                {Object.entries(searchParams?.Tags || {}).map(([key, value]) => (
+                  <LitegraphTag label={`${key}: ${value}`} />
+                ))}
+              </LitegraphText>
+              <LitegraphDivider type="vertical" className="ant-divider-vertical" />
+            </>
+          )}
+          {Boolean(Object.keys(searchParams?.Expr || {}).length > 0) && (
+            <>
+              <LitegraphText>
+                <strong>Expr: </strong>
+                <LitegraphTag label={JSON.stringify(searchParams?.Expr)} />
               </LitegraphText>
               <LitegraphDivider type="vertical" className="ant-divider-vertical" />
             </>
