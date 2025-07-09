@@ -392,6 +392,11 @@
     padding-left: 0 !important;
   }
 }
+.ant-modal-header {
+  padding-bottom: var(--ant-padding-sm) !important;
+  margin-bottom: var(--ant-margin) !important;
+  border-bottom: 1px solid var(--ant-color-border) !important;
+}
 
 .ant-divider-vertical {
   border-color: var(--ant-color-border) !important;

@@ -2,10 +2,12 @@ import { theme, ThemeConfig } from 'antd';
 
 export const LightGraphTheme = {
   primary: '#558f42', //95DB7B
+  primaryLight: '#86d96a',
   primaryRed: '#d9383a',
   secondaryBlue: '#b1e5ff',
   secondaryYellow: '#ffe362',
   borderGray: '#C1C1C1',
+  borderGrayDark: '#666666',
   white: '#ffffff',
   fontFamily: '"Inter", "serif"',
   colorBgContainerDisabled: '#E9E9E9',
@@ -80,9 +82,10 @@ export const darkTheme: ThemeConfig = {
   cssVar: true,
   algorithm: theme.darkAlgorithm,
   token: {
-    colorPrimary: LightGraphTheme.primary,
+    colorBgBase: '#222222',
+    colorPrimary: LightGraphTheme.primaryLight,
     fontFamily: LightGraphTheme.fontFamily,
-    colorBorder: LightGraphTheme.borderGray,
+    colorBorder: LightGraphTheme.borderGrayDark,
     colorTextDisabled: LightGraphTheme.textDisabled,
     colorBgContainerDisabled: LightGraphTheme.colorBgContainerDisabled,
   },
@@ -98,19 +101,20 @@ export const darkTheme: ThemeConfig = {
       fontFamily: LightGraphTheme.fontFamily,
     },
     Menu: {
-      itemSelectedBg: '#fff',
+      itemSelectedBg: '#222222',
+      itemSelectedColor: 'var(--ant-color-primary)',
     },
     Button: {
       borderRadius: 4,
       primaryColor: LightGraphTheme.white,
-      defaultColor: '#333333',
-      colorLink: LightGraphTheme.primary,
-      colorLinkHover: LightGraphTheme.primary,
+      defaultColor: 'var(--ant-color-text-base)',
+      colorLink: LightGraphTheme.primaryLight,
+      colorLinkHover: LightGraphTheme.primaryLight,
     },
     Table: {
-      headerBg: '#ffffff',
+      headerBg: 'var(--ant-color-bg-container)',
       padding: 18,
-      borderColor: '#d1d5db',
+      borderColor: 'var(--ant-color-border)',
     },
     Collapse: {
       headerBg: LightGraphTheme.white,
@@ -131,7 +135,7 @@ export const darkTheme: ThemeConfig = {
       fontFamily: LightGraphTheme.fontFamily,
     },
     Form: {
-      labelColor: LightGraphTheme.subHeadingColor,
+      labelColor: 'var(--ant-color-text-base)',
       colorBorder: 'none',
       verticalLabelPadding: 0,
       itemMarginBottom: 10,

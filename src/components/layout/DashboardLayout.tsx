@@ -164,7 +164,7 @@ const DashboardLayout = ({
           <Content
             style={{
               minHeight: 280,
-              background: '#fff',
+              background: 'var(--ant-color-bg-base)',
             }}
           >
             {children}

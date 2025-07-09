@@ -51,7 +51,7 @@
 
 .header {
   border-bottom: 1px solid var(--ant-color-border);
-  background: #fff !important;
+  background: var(--ant-color-bg-base) !important;
   padding: 0 var(--ant-padding) !important;
   height: 65px;
   display: flex;

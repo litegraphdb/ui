@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  DownCircleOutlined,
-  AccountBookOutlined,
-  LogoutOutlined,
-  UserOutlined,
-  MoonOutlined,
-} from '@ant-design/icons';
+import { DownCircleOutlined, LogoutOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons';
 import { RootState } from '@/lib/store/store';
 import { getFirstLetterOfTheWord, getUserName } from '@/utils/stringUtils';
 import { MenuProps, theme } from 'antd';
@@ -41,7 +35,7 @@ const LoggedUserInfo = () => {
     {
       label: 'Change Theme',
       key: 'change-theme',
-      icon: <MoonOutlined />,
+      icon: theme === ThemeEnum.LIGHT ? <MoonOutlined /> : <SunOutlined />,
       onClick: () => {
         setTheme(theme === ThemeEnum.LIGHT ? ThemeEnum.DARK : ThemeEnum.LIGHT);
       },
