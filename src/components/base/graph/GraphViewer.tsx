@@ -100,13 +100,13 @@ const GraphViewer = ({
         style={{ marginTop: '-10px' }}
         className="mb-sm"
       >
-        {isNodesLoading && nodes.length > 0 ? (
+        {isNodesLoading ? (
           <ProgressBar
             loaded={nodes.length}
             total={nodesFirstResult?.TotalRecords || 0}
             label="Loading nodes..."
           />
-        ) : isEdgesLoading && edges.length > 0 ? (
+        ) : isEdgesLoading ? (
           <ProgressBar
             loaded={edges.length}
             total={edgesFirstResult?.TotalRecords || 0}

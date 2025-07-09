@@ -44,7 +44,7 @@ export const mockEdgeData: Edge[] = [
   {
     TenantGUID: '00000000-0000-0000-0000-000000000000',
     GUID: '7b665c02-249a-4029-b782-92526f50d357',
-    GraphGUID: 'd52e9587-f9a8-4348-9cfe-b860ab13ba54',
+    GraphGUID: 'e6d4294e-6f49-4d67-8260-5e44c2b077a6',
     Name: 'new test 23',
     From: '3fc519b1-5f78-4fc7-810b-c18fade549db',
     To: '6fe5823b-31ad-4431-9d3d-53d8b6f1ed4c',

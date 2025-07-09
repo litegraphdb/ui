@@ -52,8 +52,6 @@ export default function GraphLoader3d({
   }, [nodes, edges]);
 
   const handleNodeClick = (node: NodeObject<NodeType>, event: any) => {
-    console.log('Node clicked:', node);
-    console.log('Event:', event);
     setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
 
     const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
@@ -66,8 +64,6 @@ export default function GraphLoader3d({
   };
 
   const handleLinkClick = (link: LinkObject<NodeData, EdgeData>, event: any) => {
-    console.log('Edge clicked:', link);
-    console.log('Event:', event);
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
     const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
     setEdgeTooltip({

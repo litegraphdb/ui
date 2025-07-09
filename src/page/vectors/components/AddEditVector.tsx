@@ -44,7 +44,6 @@ const AddEditVector = ({
 
   useEffect(() => {
     if (vector) {
-      console.log('vector', vector);
       form.setFieldsValue({
         Model: vector.Model,
         Dimensionality: vector.Dimensionality,

@@ -35,7 +35,6 @@ const NodeSelector: React.FC<NodeSelectorProps> = ({
   const formValue = useWatch(name, form);
   // Get current GUID from form value
   const currentGUID = formValue;
-  console.log('currentGUID', currentGUID);
   // Check if node already exists in options
   const nodeExists = !!options.find((opt) => opt.GUID === currentGUID);
 

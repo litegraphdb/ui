@@ -10,7 +10,6 @@ export const initialSearchData = {
 
 export const validateAtLeastOne = (form: FormInstance<SearchData>) => (_: any, value: any) => {
   const { expr, tags, labels, embeddings } = form.getFieldsValue();
-  console.log({ expr, tags, labels, embeddings }, 'chk value');
   if (
     Object.keys(expr || {}).length > 0 ||
     tags?.length > 0 ||

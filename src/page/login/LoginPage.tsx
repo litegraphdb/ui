@@ -45,7 +45,6 @@ const LoginPage = () => {
     })) || [];
 
   const handleNext = async () => {
-    console.log('handleNext');
     try {
       const values = await form.validateFields();
       setFormData((prev) => ({ ...prev, ...values }));

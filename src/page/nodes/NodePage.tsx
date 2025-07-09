@@ -21,6 +21,7 @@ import { useEnumerateAndSearchNodeQuery } from '@/lib/store/slice/slice';
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
+import AppliedFilter from '@/components/table-filter/AppliedFilter';
 
 const NodePage = () => {
   // Redux state for the list of graphs
@@ -122,17 +123,13 @@ const NodePage = () => {
             align="center"
             className="mb-sm"
           >
-            {Boolean(Object.keys(searchParams).length) && (
-              <LitegraphText>
-                {nodesList?.TotalRecords} node{`(s)`} found{' '}
-                <LitegraphButton
-                  icon={<CloseOutlined />}
-                  type="link"
-                  onClick={() => setSearchParams({})}
-                >
-                  Clear
-                </LitegraphButton>{' '}
-              </LitegraphText>
+            {!isNodesLoading && (
+              <AppliedFilter
+                searchParams={searchParams}
+                totalRecords={nodesList?.TotalRecords || 0}
+                entityName="node(s)"
+                onClear={() => setSearchParams({})}
+              />
             )}
           </LitegraphFlex>
           <LitegraphTable

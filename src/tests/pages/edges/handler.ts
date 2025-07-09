@@ -15,4 +15,7 @@ export const handlers = [
   http.get(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/edges`, () => {
     return HttpResponse.json(mockEdgeData);
   }),
+  http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/edges`, () => {
+    return HttpResponse.json(mockEdgeData);
+  }),
 ];

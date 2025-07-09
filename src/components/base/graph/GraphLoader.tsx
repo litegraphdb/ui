@@ -56,9 +56,6 @@ const GraphLoader = ({
   }, [sigma]);
 
   useEffect(() => {
-    // Create graph with multi-edge support
-    console.log('nodes', nodes);
-
     // Add nodes with circle shape
     nodes.forEach((node) => {
       graph.addNode(node.id, {

@@ -36,7 +36,6 @@ const LitegraphTable = (props: TableProps) => {
   const handleResize =
     (index: number) =>
     (e: any, { size }: any) => {
-      console.log(index, size);
       setColumnsState((prev: any) => {
         const nextColumns = [...prev];
         nextColumns[index] = {
