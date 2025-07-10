@@ -46,3 +46,8 @@ v1.0.1
 - added 3d graph viewer
 - improved graph viewer popups and its position
 - added searchable node and edge selector
+
+v1.0.2
+
+- added dark mode
+- minor tweek and asjustments
