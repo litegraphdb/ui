@@ -7,6 +7,8 @@ import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import { calculateTooltipPosition } from '@/utils/appUtils';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 import { LightGraphTheme } from '@/theme/theme';
+import { useAppContext } from '@/hooks/appHooks';
+import { ThemeEnum } from '@/types/types';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -27,6 +29,7 @@ const GraphLoader = ({
   nodes,
   edges,
 }: GraphLoaderProps) => {
+  const { theme } = useAppContext();
   const loadGraph = useLoadGraph();
   const sigma = useSigma();
   const graph = new Graph({ multi: true, allowSelfLoops: true });
@@ -63,14 +66,7 @@ const GraphLoader = ({
         y: node.y,
         size: 15,
         label: node.label,
-        color:
-          node.type === 'server'
-            ? LightGraphTheme.primary
-            : node.type === 'router'
-              ? '#4488cc'
-              : node.type === 'client'
-                ? '#45b7d1'
-                : '#666666',
+        color: theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight,
         type: 'circle',
         vx: 0,
         vy: 0,

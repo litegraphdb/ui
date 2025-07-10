@@ -20,6 +20,10 @@ import LoggedUserInfo from '../logged-in-user/LoggedUserInfo';
 import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
 import { SliceTags } from '@/lib/store/slice/types';
 import { TenantMetaData } from 'litegraphdb/dist/types/types';
+import { useAppContext } from '@/hooks/appHooks';
+import { ThemeEnum } from '@/types/types';
+import LitegraphTooltip from '../base/tooltip/Tooltip';
+import ThemeModeSwitch from '../theme-mode-switch/ThemeModeSwitch';
 
 const { Header, Content } = Layout;
 
@@ -41,7 +45,7 @@ const DashboardLayout = ({
   isAdmin,
 }: LayoutWrapperProps) => {
   const [collapsed, setCollapsed] = useState(false);
-
+  const { theme } = useAppContext();
   const dispatch = useAppDispatch();
   const selectedGraphRedux = useSelectedGraph();
   const selectedTenantRedux = useSelectedTenant();
@@ -145,7 +149,17 @@ const DashboardLayout = ({
               {!useTenantSelector && !useGraphsSelector && <span></span>}
             </LitegraphFlex>
 
-            <div className={styles.userSection}>
+            <LitegraphFlex
+              className={styles.userSection}
+              align="center"
+              gap={isAdmin ? 20 : 8}
+              justify="flex-end"
+            >
+              <LitegraphTooltip
+                title={`Switch to ${theme === ThemeEnum.DARK ? 'Light' : 'Dark'} mode`}
+              >
+                <ThemeModeSwitch />
+              </LitegraphTooltip>
               {!noProfile ? (
                 <LoggedUserInfo />
               ) : (
@@ -159,7 +173,7 @@ const DashboardLayout = ({
                   <span>Logout</span>
                 </div>
               )}
-            </div>
+            </LitegraphFlex>
           </Header>
           <Content
             style={{

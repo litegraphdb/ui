@@ -4,10 +4,11 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { GraphData, LinkObject, NodeObject } from 'react-force-graph-3d';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
-import { NodeType } from '@/types/types';
+import { NodeType, ThemeEnum } from '@/types/types';
 import { EdgeData, NodeData } from '@/lib/graph/types';
-import { LightGraphTheme } from '@/theme/theme';
+import { darkTheme, LightGraphTheme, primaryTheme } from '@/theme/theme';
 import { calculateTooltipPosition } from '@/utils/appUtils';
+import { useAppContext } from '@/hooks/appHooks';
 // Dynamically load to avoid SSR issues with Three.js
 const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
 
@@ -16,12 +17,15 @@ export default function GraphLoader3d({
   edges,
   setTooltip,
   setEdgeTooltip,
+  className,
 }: {
   nodes: NodeData[];
   edges: EdgeData[];
+  className?: string;
   setTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
 }) {
+  const { theme } = useAppContext();
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
     links: [],
@@ -75,18 +79,19 @@ export default function GraphLoader3d({
   };
 
   return (
-    <div style={{ height: '600px' }}>
+    <div className={className} style={{ height: '600px' }}>
       <ForceGraph3D
         graphData={graphData}
         nodeAutoColorBy="type"
         nodeLabel="name"
         linkLabel="name"
-        backgroundColor="#fff"
+        nodeOpacity={1}
+        backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
         nodeColor={(node) => {
-          return LightGraphTheme.primary;
+          return theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight;
         }}
         linkColor={(link) => {
-          return '#000';
+          return theme === ThemeEnum.LIGHT ? '#000' : '#fff';
         }}
         showNavInfo
         linkWidth={1}

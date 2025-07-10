@@ -1,8 +1,8 @@
 import React from 'react';
-import { DownCircleOutlined, LogoutOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons';
+import { DownCircleOutlined, LogoutOutlined } from '@ant-design/icons';
 import { RootState } from '@/lib/store/store';
 import { getFirstLetterOfTheWord, getUserName } from '@/utils/stringUtils';
-import { MenuProps, theme } from 'antd';
+import { MenuProps } from 'antd';
 import styles from './styles.module.scss';
 import { useLogout } from '@/hooks/authHooks';
 import { useAppSelector } from '@/lib/store/hooks';
@@ -10,13 +10,10 @@ import LitegraphDropdown from '@/components/base/dropdown/Dropdown';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphAvatar from '@/components/base/avatar/Avatar';
-import { ThemeEnum } from '@/types/types';
-import { useAppContext } from '@/hooks/appHooks';
 
 const LoggedUserInfo = () => {
   const logOutFromSystem = useLogout();
 
-  const { theme, setTheme } = useAppContext();
   const user = useAppSelector((state: RootState) => state.liteGraph.user);
   const userName = getUserName(user);
 
@@ -31,14 +28,6 @@ const LoggedUserInfo = () => {
       label: 'Logout',
       key: 'logout',
       icon: <LogoutOutlined />,
-    },
-    {
-      label: 'Change Theme',
-      key: 'change-theme',
-      icon: theme === ThemeEnum.LIGHT ? <MoonOutlined /> : <SunOutlined />,
-      onClick: () => {
-        setTheme(theme === ThemeEnum.LIGHT ? ThemeEnum.DARK : ThemeEnum.LIGHT);
-      },
     },
   ];
   return (

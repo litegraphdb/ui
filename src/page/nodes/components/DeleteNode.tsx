@@ -51,6 +51,7 @@ const DeleteNode = ({
           Confirm
         </LitegraphButton>
       }
+      data-testid="delete-node-modal"
     >
       <LitegraphParagraph>{paragraphText}</LitegraphParagraph>
     </LitegraphModal>

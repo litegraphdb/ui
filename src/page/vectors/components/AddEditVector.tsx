@@ -134,6 +134,7 @@ const AddEditVector = ({
       }}
       confirmLoading={isCreateLoading || isUpdateLoading}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-vector-modal"
     >
       <Form
         form={form}

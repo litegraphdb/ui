@@ -5,9 +5,13 @@
   background: transparent;
   :global {
     .ant-card {
-      background-color: rgba(255, 255, 255, 0.8) !important;
-      backdrop-filter: blur(2px) !important;
-      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--ant-color-border) !important;
+      backdrop-filter: blur(5px) !important;
+      background: transparent !important;
+      border-radius: var(--ant-border-radius-lg);
+      z-index: 10;
       .ant-card-body {
         padding-top: 10px;
         padding-bottom: 10px;
@@ -45,6 +49,19 @@
         padding-left: 0;
         padding-right: 0;
       }
+    }
+    .ant-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--ant-color-bg-base) !important;
+      opacity: 0.7 !important;
+      z-index: -1;
     }
   }
 }

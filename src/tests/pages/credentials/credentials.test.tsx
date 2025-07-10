@@ -16,7 +16,6 @@ import AddEditCredential from '@/page/credentials/components/AddEditCredential';
 import DeleteCredential from '@/page/credentials/components/DeleteCredential';
 
 const server = setupServer(...handlers, ...commonHandlers, ...usersHandlers);
-// setTenant(mockTenantGUID);
 
 describe('CredentialsPage', () => {
   beforeAll(() => server.listen());
@@ -76,18 +75,13 @@ describe('CredentialsPage', () => {
     const userSelect = screen.getByTestId('user-select');
 
     await fireEvent.change(nameInput, { target: { value: 'Test Credential' } });
-    // await fireEvent.change(userSelect, { target: { value: mockUserData[0].GUID } });
-    // Open the dropdown
+
     fireEvent.mouseDown(userSelect);
 
     const options = await screen.findAllByText((text: string) =>
       text.includes(mockUserData[0].FirstName)
     );
 
-    // Optional debug to see what's matched
-    // options.forEach((el) => console.log(el.textContent));
-
-    // Try exact match if possible
     const option = options.find(
       (el: HTMLElement) =>
         el.textContent === `${mockUserData[0].FirstName} ${mockUserData[0].LastName}`
@@ -98,8 +92,6 @@ describe('CredentialsPage', () => {
     }
 
     fireEvent.click(option);
-
-    // Submit the form
     const submitButton = screen.getByRole('button', { name: /ok/i });
     await fireEvent.click(submitButton);
   });
@@ -117,31 +109,6 @@ describe('CredentialsPage', () => {
       true
     );
 
-    // // Take initial table snapshot
-    // const initialTable = container.querySelector('.ant-table');
-    // expect(initialTable).toMatchSnapshot('initial table state before update');
-
-    // // Find and click the menu button in the Actions column
-    // const menuButtons = screen.getAllByTestId('credential-action-menu');
-    // await waitFor(() => {
-    //   expect(menuButtons[0]).toBeVisible();
-    // });
-    // await fireEvent.click(menuButtons[0]);
-
-    // // Wait for dropdown menu and click Edit
-    // await waitFor(() => {
-    //   const editOption = screen.getByText('Edit');
-    //   expect(editOption).toBeVisible();
-    //   fireEvent.click(editOption);
-    // });
-
-    // Wait for the update modal to appear and verify it's visible
-    // const updateModal = await screen.findByRole('dialog');
-    // await waitFor(() => {
-    //   expect(updateModal).toBeVisible();
-    // });
-    // expect(updateModal).toMatchSnapshot('update credential modal');
-
     // Find and update the form fields
     const nameInput = screen.getByTestId('name-input');
     const activeInput = screen.getByTestId('active-switch');
@@ -150,9 +117,6 @@ describe('CredentialsPage', () => {
     const updatedName = 'Updated Credential Name';
     await fireEvent.change(nameInput, { target: { value: updatedName } });
     await fireEvent.click(activeInput); // Toggle active status
-
-    // Take snapshot of filled form
-    // expect(updateModal).toMatchSnapshot('update credential form with values');
 
     // Find and click the update button in the modal
     const submitButton = screen.getByRole('button', { name: /ok/i });
@@ -167,17 +131,7 @@ describe('CredentialsPage', () => {
     const initialState = createMockInitialState();
     const { container } = renderWithRedux(<DeleteCredential isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedCredential={mockCredentialData[0]} setSelectedCredential={() => {}} onCredentialDeleted={async () => {}} title="Delete Credential" paragraphText="Are you sure you want to delete this credential?" />, initialState, undefined, true);
 
-    // Take initial table snapshot
-    // const initialTable = container.querySelector('.ant-table');
-    // expect(initialTable).toMatchSnapshot('initial table state before delete');
-
-    // // Find and click the menu button in the Actions column
-    // const menuButtons = screen.getAllByTestId('credential-action-menu');
-    // await waitFor(() => {
-    //   expect(menuButtons[0]).toBeVisible();
-    // });
-    // await fireEvent.click(menuButtons[0]);
-
+    // Wait for modal to appear
     const confirmModal = await screen.findByTestId('delete-credential-modal');
     expect(confirmModal).toBeVisible();
     expect(confirmModal).toMatchSnapshot('delete confirmation modal');

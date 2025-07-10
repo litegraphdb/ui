@@ -172,6 +172,7 @@ const AddEditGraph = ({
       onCancel={() => setIsAddEditGraphVisible(false)}
       width={800}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-graph-modal"
     >
       {isGraphLoading ? (
         <PageLoading />

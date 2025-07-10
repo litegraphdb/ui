@@ -115,6 +115,7 @@ const AddEditLabel = ({
       }}
       confirmLoading={isCreateLoading || isUpdateLoading}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-label-modal"
     >
       <Form
         form={form}

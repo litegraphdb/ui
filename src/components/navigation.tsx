@@ -49,7 +49,7 @@ const Navigation = ({
         ) : (
           <>
             <Image src={'/favicon.png'} alt="Litegraph logo" width={30} height={30} />
-            <LitegraphTitle level={4} className="mt-xs" weight={600}>
+            <LitegraphTitle level={4} className="mt-xs fade-in" weight={600}>
               LiteGraph
             </LitegraphTitle>
           </>

@@ -8,12 +8,10 @@ import {
   useEnumerateAndSearchNodeQuery,
   useEnumerateAndSearchEdgeQuery,
 } from '@/lib/store/slice/slice';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Edge, EnumerateResponse, Node } from 'litegraphdb/dist/types/types';
 import { parseEdge, parseNode } from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
-import { SliceTags } from '@/lib/store/slice/types';
-import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
 
 export const useCurrentTenant = () => {
   const tenantFromRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
@@ -68,6 +66,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Node> | null>(null);
   const [nodes, setNodes] = useState<NodeData[]>([]);
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined);
+  const isFirstRender = useRef(true);
   const {
     data: nodesList,
     refetch: fetchNodesList,
@@ -108,6 +107,11 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   }, [nodesList]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false; // skip the first run
+      return;
+    }
+
     setNodes([]);
     setFirstResult(null);
     setContinuationToken(undefined);

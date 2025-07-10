@@ -119,6 +119,7 @@ const AddEditCredential = ({
       }}
       confirmLoading={isCreateLoading || isUpdateLoading}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-credential-modal"
     >
       <Form
         form={form}
@@ -135,6 +136,7 @@ const AddEditCredential = ({
             options={userOptions}
             loading={isUsersLoading}
             disabled={!!credential}
+            data-testid="user-select"
           />
         </LitegraphFormItem>
 

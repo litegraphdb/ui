@@ -7,7 +7,6 @@ import {
   storeUser,
   storeAdminAccessKey,
 } from '@/lib/store/litegraph/actions';
-import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
 import { TenantMetaData, Token } from 'litegraphdb/dist/types/types';
 
 export const useFetchUserDetails = () => {
@@ -45,7 +44,6 @@ export const useLogout = () => {
 
   const logOutFromSystem = (path?: string) => {
     dispatch(logOut(path));
-    dispatch(sdkSlice.util.resetApiState());
   };
   return logOutFromSystem;
 };

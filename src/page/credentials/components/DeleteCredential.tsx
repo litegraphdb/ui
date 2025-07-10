@@ -54,6 +54,7 @@ const DeleteCredential = ({
       confirmLoading={isLoading}
       okText="Delete"
       okButtonProps={{ danger: true }}
+      data-testid="delete-credential-modal"
     >
       <LitegraphParagraph>{paragraphText}</LitegraphParagraph>
     </LitegraphModal>

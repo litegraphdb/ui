@@ -32,7 +32,7 @@ const AppliedFilter = ({
             <>
               <LitegraphText>
                 <strong>Label: </strong>
-                {searchParams.Labels?.map((label) => <LitegraphTag label={label} />)}
+                {searchParams.Labels?.map((label) => <LitegraphTag label={label} key={label} />)}
               </LitegraphText>
               <LitegraphDivider type="vertical" className="ant-divider-vertical" />
             </>
@@ -42,7 +42,7 @@ const AppliedFilter = ({
               <LitegraphText>
                 <strong>Tag: </strong>
                 {Object.entries(searchParams?.Tags || {}).map(([key, value]) => (
-                  <LitegraphTag label={`${key}: ${value}`} />
+                  <LitegraphTag label={`${key}: ${value}`} key={`${key}-${value}`} />
                 ))}
               </LitegraphText>
               <LitegraphDivider type="vertical" className="ant-divider-vertical" />

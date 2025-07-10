@@ -11,6 +11,7 @@ export const LightGraphTheme = {
   white: '#ffffff',
   fontFamily: '"Inter", "serif"',
   colorBgContainerDisabled: '#E9E9E9',
+  colorBgContainerDisabledDark: '#555555',
   textDisabled: '#bbbbbb',
   subHeadingColor: '#666666',
 };
@@ -87,7 +88,7 @@ export const darkTheme: ThemeConfig = {
     fontFamily: LightGraphTheme.fontFamily,
     colorBorder: LightGraphTheme.borderGrayDark,
     colorTextDisabled: LightGraphTheme.textDisabled,
-    colorBgContainerDisabled: LightGraphTheme.colorBgContainerDisabled,
+    colorBgContainerDisabled: LightGraphTheme.colorBgContainerDisabledDark,
   },
   components: {
     Tabs: {

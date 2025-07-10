@@ -111,6 +111,7 @@ const AddEditUser = ({
       }}
       confirmLoading={isCreateLoading || isUpdateLoading}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-user-modal"
     >
       <Form
         form={form}
@@ -153,7 +154,7 @@ const AddEditUser = ({
         </LitegraphFormItem>
 
         <LitegraphFormItem label="Active" name="Active" valuePropName="checked">
-          <Switch />
+          <Switch data-testid="active-switch" />
         </LitegraphFormItem>
       </Form>
     </LitegraphModal>

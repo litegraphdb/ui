@@ -83,32 +83,6 @@ describe('BackupPage', () => {
     });
   }, 15000);
 
-  // it('should delete a backup and should be removed from the table', async () => {
-  //   const { container } = renderWithRedux(<BackupPage />, mockInitialState, undefined, true);
-
-  //   const initialTable = container.querySelector('.ant-table');
-  //   await waitFor(() => {
-  //     expect(initialTable).toBeVisible();
-  //   });
-
-  //   const menuButtons = screen.getAllByRole('backup-action-menu');
-  //   await waitFor(() => {
-  //     expect(menuButtons[1]).toBeVisible();
-  //   });
-  //   await fireEvent.click(menuButtons[1]);
-
-  //   const deleteButton = screen.getByRole('button', { name: /delete/i });
-  //   await waitFor(() => {
-  //     expect(deleteButton).toBeVisible();
-  //   });
-  //   fireEvent.click(deleteButton);
-
-  //   const finalTable = container.querySelector('.ant-table');
-  //   await waitFor(() => {
-  //     expect(finalTable).toBeVisible();
-  //   });
-  // }, 15000);
-
   it('should delete a backup and should be removed from the table', async () => {
     const initialState = createMockInitialState();
     const { container } = renderWithRedux(<BackupPage />, initialState, undefined, true);
@@ -139,30 +113,7 @@ describe('BackupPage', () => {
     });
     expect(finalTable).toMatchSnapshot('final table state after deletion');
   }, 15000);
-  
 
-  // it('should download a backup', async () => {
-  //   const initialState = createMockInitialState();
-  //   const { container } = renderWithRedux(<BackupPage />, initialState, undefined, true);
-
-  //   const initialTable = container.querySelector('.ant-table');
-  //   await waitFor(() => {
-  //     expect(initialTable).toBeVisible();
-  //   });
-
-  //   const menuButtons = screen.getAllByTestId('backup-action-menu');
-  //   await waitFor(() => {
-  //     expect(menuButtons[0]).toBeVisible();
-  //   });
-  //   await fireEvent.click(menuButtons[0]);
-
-  //   // Take final table snapshot
-  //   const finalTable = container.querySelector('.ant-table');
-  //   await waitFor(() => {
-  //     expect(finalTable).toBeVisible();
-  //   });
-  //   expect(finalTable).toMatchSnapshot('final table state after download');
-  // }, 15000);
 
   it('should download a backup', async () => {
     const initialState = createMockInitialState();
