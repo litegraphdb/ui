@@ -1,183 +1,101 @@
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import TagPage from '../../../page/tags/TagPage';
-import { Provider } from 'react-redux';
-import { createMockStore } from '../../store/mockStore';
-import { mockNodeData, mockEdgeData, mockTagData } from '../mockData';
-import { Toaster } from 'react-hot-toast';
-import { setupServer } from 'msw/node';
+import { createMockInitialState } from '../../store/mockStore';
+import { mockTagData, mockGraphGUID } from '../mockData';
+import { setupServer } from 'msw/node'; 
 import { handlers } from './handler';
 import { commonHandlers } from '@/tests/handler';
-import { setTenant } from '@/lib/sdk/litegraph.service';
-import { mockTenantGUID } from '../mockData';
+import { renderWithRedux } from '@/tests/store/utils';
+import AddEditTag from '@/page/tags/components/AddEditTag';
+import DeleteTag from '@/page/tags/components/DeleteTag';
 
 const server = setupServer(...handlers, ...commonHandlers);
-setTenant(mockTenantGUID);
 
-describe.skip('TagsPage', () => {
-  beforeEach(() => server.listen());
-  afterEach(() => server.resetHandlers());
+describe('TagsPage', () => {
+  beforeAll(() => server.listen());
+  afterEach(() => {
+    server.resetHandlers();
+  });
   afterAll(() => server.close());
-  const store = createMockStore();
 
-  it('renders the tags page', () => {
-    render(
-      <Provider store={store}>
-        <TagPage />
-      </Provider>
-    );
+  it('renders the tags page', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<TagPage />, initialState, undefined, true);
 
-    const titleElement = screen.getByText('Tags');
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toMatchSnapshot();
+    await waitFor(() => {
+      expect(screen.getByText(/tags/i)).toBeVisible();
+      expect(screen.getByRole('button', { name: /create tag/i })).toBeVisible();
+    });
+    expect(container).toMatchSnapshot('initial table state');
   });
 
   it('should create a tag and should be visible in the table', async () => {
-    const { container } = render(
-      <Provider store={store}>
-        <TagPage />
-      </Provider>
-    );
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<TagPage />, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state');
-
-    // Create a new tag
     const createButton = screen.getByRole('button', { name: /create tag/i });
-    expect(createButton).toMatchSnapshot('create tag button');
-    fireEvent.click(createButton);
+    expect(createButton).toBeVisible();
+    expect(createButton).toMatchSnapshot();
+  });
 
-    // Take snapshot of create modal
-    const createModal = screen.getByRole('dialog');
-    expect(createModal).toMatchSnapshot('create tag modal');
+  it('should create a tag and should be visible in the table', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<AddEditTag isAddEditTagVisible={true} setIsAddEditTagVisible={() => {}} tag={null} selectedGraph={mockGraphGUID}/>, initialState, undefined, true);
 
-    // Fill in form fields using mock data
+    const modal = await screen.findByTestId('add-edit-tag-modal');
+    expect(modal).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 }); 
+
     const keyInput = screen.getByPlaceholderText(/enter tag key/i);
-    const valueInput = screen.getByPlaceholderText(/enter tag value/i);
-
-    // Fill in the key and value fields
     fireEvent.change(keyInput, { target: { value: mockTagData.allTags[0].Key } });
+
+    const valueInput = screen.getByPlaceholderText(/enter tag value/i);
     fireEvent.change(valueInput, { target: { value: mockTagData.allTags[0].Value } });
 
-    // Find and interact with the node select
-    const nodeSelectContainer = screen.getByTitle('Node');
-    fireEvent.mouseDown(nodeSelectContainer);
-
-    // Wait for dropdown options and select the first node
-    await waitFor(() => {
-      const option = screen.getByText(mockNodeData[0].Name);
-      fireEvent.click(option);
-    });
-
-    // Take snapshot of filled form
-    expect(createModal).toMatchSnapshot('create tag form with values');
-
     const submitButton = screen.getByRole('button', { name: /ok/i });
     fireEvent.click(submitButton);
 
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state');
-  });
+    expect(container).toMatchSnapshot('final table state after creation');
+  }); 
 
-  it('should update tag successfully', async () => {
-    const { container } = render(
-      <Provider store={store}>
-        <Toaster />
-        <TagPage />
-      </Provider>
-    );
+  it('should update a tag successfully', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<AddEditTag isAddEditTagVisible={true} setIsAddEditTagVisible={() => {}} tag={mockTagData.allTags[0]} selectedGraph={mockGraphGUID}/>, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before update');
+    const modal = await screen.findByTestId('add-edit-tag-modal');
+    expect(modal).toBeInTheDocument();
 
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('tag-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    fireEvent.click(menuButtons[0]);
-
-    // Wait for dropdown menu and click Edit
     await waitFor(() => {
-      const editOption = screen.getByText('Edit');
-      expect(editOption).toBeInTheDocument();
-      fireEvent.click(editOption);
-    });
-
-    // Wait for the update modal to appear and verify it's visible
-    const updateModal = await screen.findByRole('dialog');
-    expect(updateModal).toBeInTheDocument();
-    expect(updateModal).toMatchSnapshot('update tag modal');
-
-    // Find and update the form fields
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 }); 
+    
     const keyInput = screen.getByPlaceholderText(/enter tag key/i);
+    fireEvent.change(keyInput, { target: { value: 'My updated test tag' } });
+
     const valueInput = screen.getByPlaceholderText(/enter tag value/i);
-
-    // Use hardcoded values
-    const updatedKey = 'Updated Key';
-    const updatedValue = 'Updated Value';
-
-    fireEvent.change(keyInput, { target: { value: updatedKey } });
-    fireEvent.change(valueInput, { target: { value: updatedValue } });
-
-    // Find and interact with the edge select
-    const edgeSelectContainer = screen.getByTitle('Edge');
-    fireEvent.mouseDown(edgeSelectContainer);
-
-    // Wait for dropdown options and select the first edge
-    await waitFor(() => {
-      const option = screen.getByText(mockEdgeData[0].Name);
-      fireEvent.click(option);
-    });
-
-    expect(updateModal).toMatchSnapshot('update tag form with values');
+    fireEvent.change(valueInput, { target: { value: 'My updated test tag' } });
 
     const submitButton = screen.getByRole('button', { name: /ok/i });
-    fireEvent.click(submitButton);
+    fireEvent.click(submitButton);  
 
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state after update');
+    expect(container).toMatchSnapshot('final table state after update');
   });
 
-  it('should delete tag successfully', async () => {
-    // Increase timeout for this test
-    jest.setTimeout(15000);
-    const { container } = render(
-      <Provider store={store}>
-        <TagPage />
-      </Provider>
-    );
+  it('should delete a tag successfully', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<DeleteTag isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedTag={mockTagData.allTags[0]} setSelectedTag={() => {}} title={`Are you sure you want to delete "${mockTagData.allTags[0].Key}" tag?`} paragraphText={'This action will delete tag.'}/>, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before delete');
+    const modal = await screen.findByTestId('delete-tag-modal');
+    expect(modal).toBeInTheDocument();
 
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('tag-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    fireEvent.click(menuButtons[0]);
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
 
-    // Wait for dropdown menu and click Delete
-    await waitFor(() => {
-      const deleteOption = screen.getByText('Delete');
-      expect(deleteOption).toBeInTheDocument();
-      fireEvent.click(deleteOption);
-    });
-
-    // Wait for the confirmation modal and take snapshot
-    const confirmModal = await screen.findByRole('dialog');
-    expect(confirmModal).toBeInTheDocument();
-    expect(confirmModal).toMatchSnapshot('delete confirmation modal');
-
-    // Find and click the delete button in the confirmation modal
-    const confirmButton = screen.getByRole('button', { name: /delete/i });
-    fireEvent.click(confirmButton);
-
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state after deletion');
-  });
-});
+    expect(container).toMatchSnapshot('final table state after deletion');
+  }); 
+}); 

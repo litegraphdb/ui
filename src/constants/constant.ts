@@ -4,6 +4,7 @@ export const localStorageKeys = {
   adminAccessKey: 'adminAccessKey',
   user: 'user',
   serverUrl: 'serverUrl',
+  theme: 'theme',
 };
 
 export const dynamicSlugs = {
@@ -26,4 +27,4 @@ export const paths = {
   backups: `/admin/dashboard/backups`,
 };
 
-export const keepUnusedDataFor = 300; //5mins
+export const keepUnusedDataFor = 900; //15mins

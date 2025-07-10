@@ -16,11 +16,27 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-jest.useFakeTimers();
-// Set a fixed date for consistent snapshots
-jest.setSystemTime(new Date('2023-01-01T12:00:00Z'));
-// ... your test code
-jest.useRealTimers(); // Restore real timers after the test
+// Patch unsupported selector behavior in Ant Design
+Object.defineProperty(window, 'getComputedStyle', {
+  value: () => ({
+    getPropertyValue: () => '',
+  }),
+});
+
+// jest.useFakeTimers();
+// // Set a fixed date for consistent snapshots
+// jest.setSystemTime(new Date('2023-01-01T12:00:00Z'));
+// // ... your test code
+// jest.useRealTimers(); // Restore real timers after the test
+
+beforeAll(() => {
+  jest.useFakeTimers('modern');
+  jest.setSystemTime(new Date('2023-01-01T12:00:00Z'));
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
 
 // jest.mock('litegraphdb', () => {
 //   return {
@@ -234,6 +250,14 @@ jest.useRealTimers(); // Restore real timers after the test
 //     </div>
 //   )),
 // }));
+// Mock rc-util scrollbar size logic
+jest.mock('rc-util/lib/getScrollBarSize', () => ({
+  __esModule: true,
+  getTargetScrollBarSize: () => ({
+    width: 0,
+    height: 0,
+  }),
+}));
 
 // eslint-disable-next-line react/display-name
 jest.mock('@/components/base/select/Select', () => (props) => {
@@ -243,7 +267,7 @@ jest.mock('@/components/base/select/Select', () => (props) => {
       value={props.value}
       onChange={(e) => props.onChange(e.target.value)}
     >
-      {props.options.map((option) => (
+      {props?.options?.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>

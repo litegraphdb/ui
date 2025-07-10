@@ -39,7 +39,10 @@ export const initializeAuthFromLocalStorage = () => {
   return null;
 };
 
-const AuthLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
+const AuthLayout = ({
+  children,
+  className,
+}: Readonly<{ children: React.ReactNode; className?: string }>) => {
   const [isReady, setIsReady] = useState(false);
   const dispatch = useAppDispatch();
   const localStorageAuth = initializeAuthFromLocalStorage();
@@ -64,7 +67,11 @@ const AuthLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   if (!isReady) {
     return <PageLoading />;
   }
-  return <>{children}</>;
+  return (
+    <div id="root-div" className={className}>
+      {children}
+    </div>
+  );
 };
 
 export default AuthLayout;

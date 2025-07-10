@@ -51,6 +51,7 @@ const DeleteTag = ({
       confirmLoading={isLoading}
       okText="Delete"
       okButtonProps={{ danger: true }}
+      data-testid="delete-tag-modal"
     >
       <LitegraphParagraph>{paragraphText}</LitegraphParagraph>
     </LitegraphModal>

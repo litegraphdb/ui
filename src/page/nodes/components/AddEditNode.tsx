@@ -212,6 +212,7 @@ const AddEditNode = ({
         'data-testid': 'add-node-submit-button',
         hidden: readonly,
       }}
+      data-testid="add-edit-node-modal"
     >
       {isGraphLoading || isNodeLoading ? (
         <PageLoading />

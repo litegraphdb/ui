@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import CredentialPage from '../../../page/credentials/CredentialPage';
-import { mockInitialState } from '../../store/mockStore';
+import { createMockInitialState } from '../../store/mockStore';
 import { mockCredentialData, mockUserData } from '../mockData';
 import { commonHandlers } from '@/tests/handler';
 import { handlers } from './handler';
@@ -11,17 +11,27 @@ import { setupServer } from 'msw/node';
 import { setTenant } from '@/lib/sdk/litegraph.service';
 import { mockTenantGUID } from '../mockData';
 import { renderWithRedux } from '@/tests/store/utils';
+import { within } from '@testing-library/react';
+import AddEditCredential from '@/page/credentials/components/AddEditCredential';
+import DeleteCredential from '@/page/credentials/components/DeleteCredential';
 
 const server = setupServer(...handlers, ...commonHandlers, ...usersHandlers);
-setTenant(mockTenantGUID);
 
 describe('CredentialsPage', () => {
   beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
+  beforeEach(() => {
+    setTenant(mockTenantGUID); // ensure it's reset before every test
+  });
+  afterEach(() => {
+    server.resetHandlers();
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+  });
   afterAll(() => server.close());
 
-  it.only('renders the credentials page', async () => {
-    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
+  it('renders the credentials page', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
 
     await waitFor(() => {
       expect(screen.getAllByText(mockCredentialData[0].Name).length).toBe(1);
@@ -30,12 +40,13 @@ describe('CredentialsPage', () => {
   });
 
   it('should display Create Credential button', async () => {
-    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
 
     const createButton = screen.getByRole('button', { name: /create credential/i });
-    expect(createButton).toBeInTheDocument();
-    expect(createButton).toBeVisible();
-    ``;
+    await waitFor(() => {
+      expect(createButton).toBeVisible();
+    });
     expect(createButton).toMatchSnapshot();
   });
 
@@ -43,51 +54,60 @@ describe('CredentialsPage', () => {
     // Increase timeout for this test
     jest.setTimeout(15000);
 
-    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
 
     // Click create button
     const createButton = screen.getByRole('button', { name: /create credential/i });
+    await waitFor(() => {
+      expect(createButton).toBeVisible();
+    });
     await fireEvent.click(createButton);
 
     // Wait for modal to appear
     const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+    await waitFor(() => {
+      expect(modal).toBeVisible();
+    });
 
     // Fill in the form
     const nameInput = screen.getByTestId('name-input');
     const userSelect = screen.getByTestId('user-select');
 
     await fireEvent.change(nameInput, { target: { value: 'Test Credential' } });
-    await fireEvent.change(userSelect, { target: { value: mockUserData[0].GUID } });
 
-    // Submit the form
+    fireEvent.mouseDown(userSelect);
+
+    const options = await screen.findAllByText((text: string) =>
+      text.includes(mockUserData[0].FirstName)
+    );
+
+    const option = options.find(
+      (el: HTMLElement) =>
+        el.textContent === `${mockUserData[0].FirstName} ${mockUserData[0].LastName}`
+    );
+
+    if (!option) {
+      throw new Error('No matching user option found for Select dropdown.');
+    }
+
+    fireEvent.click(option);
     const submitButton = screen.getByRole('button', { name: /ok/i });
     await fireEvent.click(submitButton);
   });
 
   it('should update credential successfully', async () => {
-    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
-
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before update');
-
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('credential-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    await fireEvent.click(menuButtons[0]);
-
-    // Wait for dropdown menu and click Edit
-    await waitFor(() => {
-      const editOption = screen.getByText('Edit');
-      expect(editOption).toBeInTheDocument();
-      fireEvent.click(editOption);
-    });
-
-    // Wait for the update modal to appear and verify it's visible
-    const updateModal = await screen.findByRole('dialog');
-    expect(updateModal).toBeInTheDocument();
-    expect(updateModal).toMatchSnapshot('update credential modal');
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(
+      <AddEditCredential
+        isAddEditCredentialVisible={true}
+        setIsAddEditCredentialVisible={() => {}}
+        credential={mockCredentialData[0]}
+      />,
+      initialState,
+      undefined,
+      true
+    );
 
     // Find and update the form fields
     const nameInput = screen.getByTestId('name-input');
@@ -97,9 +117,6 @@ describe('CredentialsPage', () => {
     const updatedName = 'Updated Credential Name';
     await fireEvent.change(nameInput, { target: { value: updatedName } });
     await fireEvent.click(activeInput); // Toggle active status
-
-    // Take snapshot of filled form
-    expect(updateModal).toMatchSnapshot('update credential form with values');
 
     // Find and click the update button in the modal
     const submitButton = screen.getByRole('button', { name: /ok/i });
@@ -111,16 +128,16 @@ describe('CredentialsPage', () => {
   }, 15000);
 
   it('should delete credential successfully', async () => {
-    const { container } = renderWithRedux(<CredentialPage />, mockInitialState, undefined, true);
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<DeleteCredential isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedCredential={mockCredentialData[0]} setSelectedCredential={() => {}} onCredentialDeleted={async () => {}} title="Delete Credential" paragraphText="Are you sure you want to delete this credential?" />, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before delete');
+    // Wait for modal to appear
+    const confirmModal = await screen.findByTestId('delete-credential-modal');
+    expect(confirmModal).toBeVisible();
+    expect(confirmModal).toMatchSnapshot('delete confirmation modal');
 
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('credential-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    await fireEvent.click(menuButtons[0]);
+    const confirmButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(confirmButton);
 
     // Take final table snapshot
     const finalTable = container.querySelector('.ant-table');

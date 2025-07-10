@@ -44,7 +44,6 @@ const AddEditVector = ({
 
   useEffect(() => {
     if (vector) {
-      console.log('vector', vector);
       form.setFieldsValue({
         Model: vector.Model,
         Dimensionality: vector.Dimensionality,
@@ -135,6 +134,7 @@ const AddEditVector = ({
       }}
       confirmLoading={isCreateLoading || isUpdateLoading}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-vector-modal"
     >
       <Form
         form={form}

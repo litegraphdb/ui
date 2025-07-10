@@ -10,10 +10,20 @@ import {
 
 export const handlers = [
   //update user
-  http.post(`${mockEndpoint}v2.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/labels`, () => {
+  http.post(`${mockEndpoint}v2.0/tenants/${mockTenantGUID}/labels`, () => {
     return HttpResponse.json(getMockEnumerateQueryData(mockLabelData));
   }),
-  http.get(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/labels`, () => {
+  http.get(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/labels`, () => {
     return HttpResponse.json(mockNodeData);
   }),
+  http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/labels`, () => {
+    return HttpResponse.json(mockLabelData);
+  }),
+  http.delete(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/labels/${mockLabelData[0].GUID}`, () => {
+    return HttpResponse.json(mockLabelData);
+  }),
+  http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/labels/${mockLabelData[0].GUID}`, () => {
+    return HttpResponse.json(mockLabelData[0]);
+  }),
+
 ];

@@ -204,6 +204,7 @@ const AddEditEdge = ({
       }}
       width={800}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-edge-modal"
     >
       {isEdgeLoading ? (
         <PageLoading />

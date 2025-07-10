@@ -1,13 +1,7 @@
 'use client';
 import { Inter } from 'next/font/google';
 import '@/assets/css/globals.scss';
-import StoreProvider from '@/lib/store/StoreProvider';
-import { Toaster } from 'react-hot-toast';
-import { ConfigProvider } from 'antd';
-import { primaryTheme } from '@/theme/theme';
-import AuthLayout from '@/components/layout/AuthLayout';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { StyleProvider } from '@ant-design/cssinjs';
+import AppProviders from '@/hoc/AppProviders';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,16 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <StoreProvider>
-          <StyleProvider hashPriority="high">
-            <AntdRegistry>
-              <ConfigProvider theme={primaryTheme}>
-                <AuthLayout>{children}</AuthLayout>
-                <Toaster />
-              </ConfigProvider>
-            </AntdRegistry>
-          </StyleProvider>
-        </StoreProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

@@ -49,7 +49,6 @@ const AddEditGraph = ({
 }: AddEditGraphProps) => {
   const [form] = Form.useForm();
   const data = Form.useWatch('data', form);
-  console.log('data', data);
   const [formValid, setFormValid] = useState(false);
   const {
     data: graph,
@@ -134,7 +133,6 @@ const AddEditGraph = ({
   useEffect(() => {
     if (graph && graphWithOldData?.GUID) {
       // Ensure form values are updated when editing
-      console.log('graph', graph);
       form.setFieldsValue({
         name: graph.Name || '',
         data: cloneDeep(graph.Data) || {},
@@ -174,6 +172,7 @@ const AddEditGraph = ({
       onCancel={() => setIsAddEditGraphVisible(false)}
       width={800}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-graph-modal"
     >
       {isGraphLoading ? (
         <PageLoading />

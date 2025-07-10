@@ -119,6 +119,7 @@ const AddEditTag = ({
       }}
       confirmLoading={isCreateLoading || isUpdateLoading}
       okButtonProps={{ disabled: !formValid }}
+      data-testid="add-edit-tag-modal"
     >
       <Form
         form={form}

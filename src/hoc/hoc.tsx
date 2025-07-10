@@ -43,9 +43,8 @@ export const withAuth = (WrappedComponent: React.ElementType) => {
       }
       //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
     return hasValidAuth === null ? (
-      <PageLoading />
+      <PageLoading className="h-100vh" />
     ) : hasValidAuth ? (
       <WrappedComponent {...props} />
     ) : (
@@ -85,7 +84,7 @@ export const withAdminAuth = (WrappedComponent: React.ElementType) => {
     }, []);
 
     return hasValidAuth === null ? (
-      <PageLoading />
+      <PageLoading className="h-100vh" />
     ) : hasValidAuth ? (
       <WrappedComponent {...props} />
     ) : (

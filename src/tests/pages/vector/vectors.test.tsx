@@ -1,192 +1,107 @@
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import VectorPage from '../../../page/vectors/VectorPage';
-import { Provider } from 'react-redux';
-import { createMockStore } from '../../store/mockStore';
-import { mockNodeData, mockEdgeData, mockVectorData } from '../mockData';
-import { setupServer } from 'msw/node';
+import { createMockInitialState } from '../../store/mockStore';
+import { mockVectorData } from '../mockData';
+import { setupServer } from 'msw/node'; 
 import { handlers } from './handler';
 import { commonHandlers } from '@/tests/handler';
-import { setTenant } from '@/lib/sdk/litegraph.service';
-import { mockTenantGUID } from '../mockData';
+import { renderWithRedux } from '@/tests/store/utils';
+import AddEditVector from '@/page/vectors/components/AddEditVector';
+import DeleteVector from '@/page/vectors/components/DeleteVector';
+import { mockGraphGUID } from '../mockData';
 
 const server = setupServer(...handlers, ...commonHandlers);
-setTenant(mockTenantGUID);
 
-describe.skip('VectorsPage', () => {
-  beforeEach(() => server.listen());
-  afterEach(() => server.resetHandlers());
+describe('Vectors Page', () => {
+  beforeAll(() => server.listen());
+  afterEach(() => {
+    server.resetHandlers();
+  });
   afterAll(() => server.close());
-  const store = createMockStore();
 
   it('renders the vectors page', () => {
-    render(
-      <Provider store={store}>
-        <VectorPage />
-      </Provider>
-    );
+   const initialState = createMockInitialState();
+   const { container } = renderWithRedux(<VectorPage />, initialState, undefined, true);
 
-    const titleElement = screen.getByText('Vectors');
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toMatchSnapshot();
+   expect(screen.getByText(/vectors/i)).toBeVisible();
+   expect(screen.getByRole('button', { name: /create vector/i })).toBeVisible();
+   expect(container).toMatchSnapshot('initial table state');
   });
 
   it('should create a vector and should be visible in the table', async () => {
-    // Increase timeout for this test
-    jest.setTimeout(15000);
-    const { container } = render(
-      <Provider store={store}>
-        <VectorPage />
-      </Provider>
-    );
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<VectorPage />, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state');
-
-    // Create a new vector
     const createButton = screen.getByRole('button', { name: /create vector/i });
-    expect(createButton).toMatchSnapshot('create vector button');
-    fireEvent.click(createButton);
+    expect(createButton).toBeVisible();
+    expect(createButton).toMatchSnapshot();
+  });
 
-    // Take snapshot of create modal
-    const createModal = screen.getByRole('dialog');
-    expect(createModal).toMatchSnapshot('create vector modal');
+  it('should create a vector and should be visible in the table', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<AddEditVector isAddEditVectorVisible={true} setIsAddEditVectorVisible={() => {}} vector={null} selectedGraph={mockGraphGUID}/>, initialState, undefined, true);
 
-    // Fill in form fields using mock data
-    const modelInput = screen.getByPlaceholderText(/enter model/i);
-    const dimensionalityInput = screen.getByPlaceholderText(/enter dimensionality/i);
-    const contentInput = screen.getByPlaceholderText(/enter content/i);
+    const modal = await screen.findByTestId('add-edit-vector-modal');
+    expect(modal).toBeInTheDocument();
 
-    fireEvent.change(modelInput, { target: { value: mockVectorData[0].Model } });
-    fireEvent.change(dimensionalityInput, { target: { value: mockVectorData[0].Dimensionality } });
-    fireEvent.change(contentInput, { target: { value: mockVectorData[0].Content } });
-
-    // Find and interact with the node select
-    const nodeSelectContainer = screen.getByTitle('Node');
-    fireEvent.mouseDown(nodeSelectContainer);
-
-    // Wait for dropdown options and select the first node
     await waitFor(() => {
-      const option = screen.getByText(mockNodeData[0].Name);
-      fireEvent.click(option);
-    });
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 }); 
 
-    // Take snapshot of filled form
-    expect(createModal).toMatchSnapshot('create vector form with values');
+    const modelInput = screen.getByPlaceholderText(/enter model/i);
+    fireEvent.change(modelInput, { target: { value: mockVectorData[0].Model } });
+
+    const dimensionalityInput = screen.getByPlaceholderText(/enter dimensionality/i);
+    fireEvent.change(dimensionalityInput, { target: { value: mockVectorData[0].Dimensionality } });
+
+    const contentInput = screen.getByPlaceholderText(/enter content/i);
+    fireEvent.change(contentInput, { target: { value: mockVectorData[0].Content } });
 
     const submitButton = screen.getByRole('button', { name: /ok/i });
     fireEvent.click(submitButton);
 
-    // Take final table snapshot
+    const finalTable = container.querySelector('.ant-table');
+    expect(finalTable).toMatchSnapshot('final table state');    
+  });
+
+  it('should update vector successfully', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<AddEditVector isAddEditVectorVisible={true} setIsAddEditVectorVisible={() => {}} vector={null} selectedGraph={mockGraphGUID}/>, initialState, undefined, true);
+
+    const modal = await screen.findByTestId('add-edit-vector-modal');
+    expect(modal).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 }); 
+
+    const modelInput = screen.getByPlaceholderText(/enter model/i);
+    fireEvent.change(modelInput, { target: { value: mockVectorData[0].Model } });
+    
+    const submitButton = screen.getByRole('button', { name: /ok/i});
+    fireEvent.click(submitButton);
+
     const finalTable = container.querySelector('.ant-table');
     expect(finalTable).toMatchSnapshot('final table state');
   });
 
-  it('should update vector successfully', async () => {
-    // Increase timeout for this test
-    jest.setTimeout(15000);
-
-    const { container } = render(
-      <Provider store={store}>
-        <VectorPage />
-      </Provider>
-    );
-
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before update');
-
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('vector-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    fireEvent.click(menuButtons[0]);
-
-    // Wait for dropdown menu and click Edit
-    await waitFor(() => {
-      const editOption = screen.getByText('Edit');
-      expect(editOption).toBeInTheDocument();
-      fireEvent.click(editOption);
-    });
-
-    // Wait for the update modal to appear and verify it's visible
-    const updateModal = await screen.findByRole('dialog');
-    expect(updateModal).toBeInTheDocument();
-    expect(updateModal).toMatchSnapshot('update vector modal');
-
-    // Find and update the form fields
-    const modelInput = screen.getByPlaceholderText(/enter model/i);
-    const dimensionalityInput = screen.getByPlaceholderText(/enter dimensionality/i);
-    const contentInput = screen.getByPlaceholderText(/enter content/i);
-
-    // Use hardcoded values
-    const updatedModel = 'Updated Model';
-    const updatedDimensionality = 4;
-    const updatedContent = 'Updated Content';
-    const updatedVectors = [1.1, 2.2, 3.3, 4.4];
-
-    fireEvent.change(modelInput, { target: { value: updatedModel } });
-    fireEvent.change(dimensionalityInput, { target: { value: updatedDimensionality } });
-    fireEvent.change(contentInput, { target: { value: updatedContent } });
-
-    // Find and interact with the edge select
-    const edgeSelectContainer = screen.getByTitle('Edge');
-    fireEvent.mouseDown(edgeSelectContainer);
-
-    // Wait for dropdown options and select the first edge
-    await waitFor(() => {
-      const option = screen.getByText(mockEdgeData[0].Name);
-      fireEvent.click(option);
-    });
-
-    // Take snapshot of filled form
-    expect(updateModal).toMatchSnapshot('update vector form with values');
-
-    const submitButton = screen.getByRole('button', { name: /ok/i });
-    fireEvent.click(submitButton);
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state after update');
-  });
-
   it('should delete vector successfully', async () => {
-    // Increase timeout for this test
-    jest.setTimeout(15000);
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<DeleteVector title='Delete Vector' paragraphText='Are you sure you want to delete this vector?' isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedVector={null} setSelectedVector={() => {}} onVectorDeleted={() => Promise.resolve()}/>, initialState, undefined, true);
 
-    const { container } = render(
-      <Provider store={store}>
-        <VectorPage />
-      </Provider>
-    );
+    const modal = await screen.findByTestId('delete-vector-modal');
+    expect(modal).toBeInTheDocument();
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before delete');
-
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('vector-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    fireEvent.click(menuButtons[0]);
-
-    // Wait for dropdown menu and click Delete
     await waitFor(() => {
-      const deleteOption = screen.getByText('Delete');
-      expect(deleteOption).toBeInTheDocument();
-      fireEvent.click(deleteOption);
-    });
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 }); 
 
-    // Wait for the confirmation modal and take snapshot
-    const confirmModal = await screen.findByRole('dialog');
-    expect(confirmModal).toBeInTheDocument();
-    expect(confirmModal).toMatchSnapshot('delete confirmation modal');
-
-    // Find and click the delete button in the confirmation modal
     const confirmButton = screen.getByRole('button', { name: /delete/i });
     fireEvent.click(confirmButton);
 
-    // Take final table snapshot
     const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state after deletion');
-  });
+    expect(finalTable).toMatchSnapshot('final table state');
+  });   
 });

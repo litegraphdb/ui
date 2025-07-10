@@ -1,5 +1,6 @@
 import { tablePaginationConfig } from '@/constants/pagination';
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
+import { ThemeEnum } from '@/types/types';
 
 export const usePagination = () => {
   const [page, setPage] = useState(1);
@@ -13,4 +14,13 @@ export const usePagination = () => {
   };
 
   return { page, pageSize, skip, handlePageChange };
+};
+
+export const AppContext = createContext({
+  theme: ThemeEnum.LIGHT,
+  setTheme: (theme: ThemeEnum) => {},
+});
+
+export const useAppContext = () => {
+  return useContext(AppContext);
 };

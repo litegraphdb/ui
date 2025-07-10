@@ -1,8 +1,5 @@
 .loginBox {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
+  margin: 0 auto;
   margin-top: 50px;
   width: 400px;
   form {
@@ -15,19 +12,11 @@
   align-items: center;
 }
 
+.loginDescription {
+  color: var(--ant-color-text-secondary) !important;
+}
 .loginContainer {
   padding: var(--ant-margin);
-}
-
-.loginButton,
-.backButton {
-  width: 100%;
-}
-.loginButtonContainer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 24px;
-  gap: 10px;
 }
 
 .stepIndicator {
@@ -43,11 +32,12 @@
   margin-top: 24px;
 }
 
-.adminLoginPage {
+.userLoginPage {
   height: 100vh;
-  border: 1px solid var(--ant-border-color);
+  background-color: var(--ant-color-bg-base) !important;
 }
 
-.adminLoginPageHeader {
+.userLoginPageHeader {
   border-bottom: 1px solid var(--ant-color-border);
+  background-color: var(--ant-color-bg-base);
 }

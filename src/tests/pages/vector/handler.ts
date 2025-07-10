@@ -16,4 +16,14 @@ export const handlers = [
   http.get(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/vectors`, () => {
     return HttpResponse.json(mockVectorData);
   }),
+
+  http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/vectors/${mockVectorData[0].GUID}`, () => {
+    return HttpResponse.json(mockVectorData);
+  }),
+  http.delete(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/vectors/${mockVectorData[0].GUID}`, () => {
+    return HttpResponse.json(mockVectorData);
+  }),
+  http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/vectors`, () => {
+    return HttpResponse.json(mockVectorData);
+  }),
 ];

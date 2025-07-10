@@ -14,19 +14,11 @@ import AddEditNode from '@/page/nodes/components/AddEditNode';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
 import FallBack, { FallBackEnums } from '../fallback/FallBack';
 import styles from './graph.module.scss';
-import {
-  useEnumerateAndSearchNodeQuery,
-  useGetGraphGexfContentQuery,
-} from '@/lib/store/slice/slice';
-import { parseEdge, parseGexf, parseNode } from '@/lib/graph/parser';
-import { EdgeData } from '@/lib/graph/types';
-import { useLazyLoadEdges, useLazyLoadEdgesAndNodes, useLazyLoadNodes } from '@/hooks/entityHooks';
+import { useLazyLoadEdgesAndNodes } from '@/hooks/entityHooks';
 import GraphLoader3d from './GraphLoader3d';
 import LitegraphFlex from '../flex/Flex';
-import LitegraphButton from '../button/Button';
-import { Progress, Switch } from 'antd';
+import { Switch } from 'antd';
 import LitegraphFormItem from '../form/FormItem';
-import { getPercentage, humanizeNumber } from '@/utils/dataUtils';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
 
@@ -57,6 +49,7 @@ const GraphViewer = ({
     nodes,
     edges,
     refetch,
+    isError,
     nodesFirstResult,
     edgesFirstResult,
     isLoading,
@@ -100,13 +93,13 @@ const GraphViewer = ({
         style={{ marginTop: '-10px' }}
         className="mb-sm"
       >
-        {isNodesLoading && nodes.length > 0 ? (
+        {isNodesLoading ? (
           <ProgressBar
             loaded={nodes.length}
             total={nodesFirstResult?.TotalRecords || 0}
             label="Loading nodes..."
           />
-        ) : isEdgesLoading && edges.length > 0 ? (
+        ) : isEdgesLoading ? (
           <ProgressBar
             loaded={edges.length}
             total={edgesFirstResult?.TotalRecords || 0}
@@ -116,15 +109,19 @@ const GraphViewer = ({
         <LitegraphTooltip
           title={
             isNodesLoading || isEdgesLoading
-              ? 'Please wait for the graph to load before enabling 3D view'
+              ? 'Please wait for the graph to load before enabling 3D view.'
               : ''
           }
         >
-          <LitegraphFormItem className="mb-0 ml-auto" label={'Explore in 3D'}>
+          <LitegraphFormItem className="mb-0 ml-auto" label={'3D'}>
             <Switch
               disabled={isNodesLoading || isEdgesLoading}
               checked={show3d}
-              onChange={(checked) => setShow3d(checked)}
+              onChange={(checked) => {
+                setShow3d(checked);
+                setNodeTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+                setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
+              }}
               size="small"
             />
           </LitegraphFormItem>
@@ -132,7 +129,11 @@ const GraphViewer = ({
       </LitegraphFlex>
       <div className={styles.graphContainer}>
         <>
-          {isLoading && nodes.length === 0 ? (
+          {isError ? (
+            <FallBack className="mt-lg" type={FallBackEnums.ERROR} retry={refetch}>
+              Error loading graph
+            </FallBack>
+          ) : isLoading && nodes.length === 0 ? (
             <PageLoading />
           ) : !nodes.length && !isLoading ? (
             <FallBack className="mt-lg" type={FallBackEnums.WARNING}>
@@ -140,55 +141,54 @@ const GraphViewer = ({
             </FallBack>
           ) : (
             <>
-              {show3d ? (
-                <GraphLoader3d
+              <GraphLoader3d
+                className={!show3d ? 'd-none' : ''}
+                nodes={nodes}
+                edges={edges}
+                setTooltip={setNodeTooltip}
+                setEdgeTooltip={setEdgeTooltip}
+              />
+              <SigmaContainer
+                className={show3d ? 'd-none' : ''}
+                key={selectedGraphRedux} // Force re-render when the context changes
+                style={{ height: '100%' }}
+                settings={{
+                  enableEdgeHoverEvents: true, // Explicitly enable edge hover events
+                  enableEdgeClickEvents: true, // Enable click events for edges
+                  defaultNodeColor: '#999',
+                  defaultEdgeColor: '#999',
+                  labelSize: 14,
+                  labelWeight: 'bold',
+                  renderEdgeLabels: true,
+                  renderLabels: false,
+                  edgeLabelSize: 12,
+                  minCameraRatio: 0.1,
+                  maxCameraRatio: 10,
+                  nodeReducer: (node, data) => ({
+                    ...data,
+                    highlighted: data.highlighted,
+                    size: data.highlighted ? 12 : 7,
+                    color: data.highlighted ? '#ff9900' : data.color,
+                  }),
+                  edgeReducer: (edge, data) => ({
+                    ...data,
+                    size: data.size * (data.highlighted ? 1.2 : 0.7),
+                    color: data.highlighted ? '#ff9900' : data.color,
+                    label: data.highlighted ? data.label : undefined,
+                  }),
+                }}
+                graph={MultiDirectedGraph}
+              >
+                <GraphLoader
                   nodes={nodes}
                   edges={edges}
+                  gexfContent={''}
                   setTooltip={setNodeTooltip}
                   setEdgeTooltip={setEdgeTooltip}
+                  nodeTooltip={nodeTooltip}
+                  edgeTooltip={edgeTooltip}
                 />
-              ) : (
-                <SigmaContainer
-                  key={selectedGraphRedux} // Force re-render when the context changes
-                  style={{ height: '100%' }}
-                  settings={{
-                    enableEdgeHoverEvents: true, // Explicitly enable edge hover events
-                    enableEdgeClickEvents: true, // Enable click events for edges
-                    defaultNodeColor: '#999',
-                    defaultEdgeColor: '#999',
-                    labelSize: 14,
-                    labelWeight: 'bold',
-                    renderEdgeLabels: true,
-                    renderLabels: false,
-                    edgeLabelSize: 12,
-                    minCameraRatio: 0.1,
-                    maxCameraRatio: 10,
-                    nodeReducer: (node, data) => ({
-                      ...data,
-                      highlighted: data.highlighted,
-                      size: data.highlighted ? 12 : 7,
-                      color: data.highlighted ? '#ff9900' : data.color,
-                    }),
-                    edgeReducer: (edge, data) => ({
-                      ...data,
-                      size: data.size * (data.highlighted ? 1.2 : 0.7),
-                      color: data.highlighted ? '#ff9900' : data.color,
-                      label: data.highlighted ? data.label : undefined,
-                    }),
-                  }}
-                  graph={MultiDirectedGraph}
-                >
-                  <GraphLoader
-                    nodes={nodes}
-                    edges={edges}
-                    gexfContent={''}
-                    setTooltip={setNodeTooltip}
-                    setEdgeTooltip={setEdgeTooltip}
-                    nodeTooltip={nodeTooltip}
-                    edgeTooltip={edgeTooltip}
-                  />
-                </SigmaContainer>
-              )}
+              </SigmaContainer>
             </>
           )}
           {nodeTooltip.visible && (

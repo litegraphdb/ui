@@ -51,6 +51,7 @@ const DeleteVector = ({
       confirmLoading={isLoading}
       okText="Delete"
       okButtonProps={{ danger: true }}
+      data-testid="delete-vector-modal"
     >
       <LitegraphParagraph>{paragraphText}</LitegraphParagraph>
     </LitegraphModal>

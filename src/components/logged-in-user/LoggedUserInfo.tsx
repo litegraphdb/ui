@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  DownCircleOutlined,
-  AccountBookOutlined,
-  LogoutOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { DownCircleOutlined, LogoutOutlined } from '@ant-design/icons';
 import { RootState } from '@/lib/store/store';
 import { getFirstLetterOfTheWord, getUserName } from '@/utils/stringUtils';
 import { MenuProps } from 'antd';
@@ -15,14 +10,6 @@ import LitegraphDropdown from '@/components/base/dropdown/Dropdown';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import LitegraphText from '@/components/base/typograpghy/Text';
 import LitegraphAvatar from '@/components/base/avatar/Avatar';
-
-const items: MenuProps['items'] = [
-  {
-    label: 'Logout',
-    key: 'logout',
-    icon: <LogoutOutlined />,
-  },
-];
 
 const LoggedUserInfo = () => {
   const logOutFromSystem = useLogout();
@@ -36,6 +23,13 @@ const LoggedUserInfo = () => {
     }
   };
 
+  const items: MenuProps['items'] = [
+    {
+      label: 'Logout',
+      key: 'logout',
+      icon: <LogoutOutlined />,
+    },
+  ];
   return (
     <LitegraphDropdown menu={{ items, onClick }} trigger={['click']}>
       <LitegraphFlex className={styles.container} gap={10} align="center">

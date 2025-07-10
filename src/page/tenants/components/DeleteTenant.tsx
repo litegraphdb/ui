@@ -53,6 +53,7 @@ const DeleteTenant = ({
       confirmLoading={isLoading}
       okText="Delete"
       okButtonProps={{ danger: true }}
+      data-testid="delete-tenant-modal"
     >
       <LitegraphParagraph>{paragraphText}</LitegraphParagraph>
     </LitegraphModal>

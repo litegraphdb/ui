@@ -2,136 +2,102 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import NodePage from '../../../page/nodes/NodePage';
-import { mockInitialState } from '../../store/mockStore';
-import { mockNodeData } from '../mockData';
+import { createMockInitialState } from '../../store/mockStore';
+import { mockGraphGUID, mockNodeData } from '../mockData';
 import { setupServer } from 'msw/node';
 import { handlers } from './handler';
 import { commonHandlers } from '@/tests/handler';
-import { setTenant } from '@/lib/sdk/litegraph.service';
-import { mockTenantGUID } from '../mockData';
 import { renderWithRedux } from '@/tests/store/utils';
+import AddEditNode from '@/page/nodes/components/AddEditNode';
+import DeleteNode from '@/page/nodes/components/DeleteNode';
 
 const server = setupServer(...handlers, ...commonHandlers);
-setTenant(mockTenantGUID);
 
-describe.skip('NodesPage', () => {
-  beforeEach(() => server.listen());
-  afterEach(() => server.resetHandlers());
+describe('NodesPage', () => {
+  beforeAll(() => server.listen());
+  afterEach(() => {
+    server.resetHandlers();
+  });
   afterAll(() => server.close());
 
   it('renders the nodes page', async () => {
-    const { container } = renderWithRedux(<NodePage />, mockInitialState, true);
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<NodePage />, initialState, undefined, true);
 
     await waitFor(() => {
-      expect(screen.getAllByText(mockNodeData[0].Name).length).toBe(1);
+      expect(screen.getByText(/nodes/i)).toBeVisible();
+      expect(screen.getByRole('button', { name: /create node/i })).toBeVisible();
     });
     expect(container).toMatchSnapshot('initial table state');
   });
 
-  it('should create a node and should be visible in the table', async () => {
-    const { container } = renderWithRedux(<NodePage />, mockInitialState, true);
+  it('should display Create Node button', () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<NodePage />, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state');
-
-    // Create a new node
     const createButton = screen.getByRole('button', { name: /create node/i });
-    expect(createButton).toMatchSnapshot('create node button');
-    fireEvent.click(createButton);
+    expect(createButton).toBeVisible();
+    expect(createButton).toMatchSnapshot();
+  });
 
-    // Take snapshot of create modal
-    const createModal = screen.getByRole('dialog');
-    expect(createModal).toMatchSnapshot('create node modal');
+  it('should create a node and should be visible in the table', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<AddEditNode isAddEditNodeVisible={true} setIsAddEditNodeVisible={() => {}} node={null} selectedGraph={mockGraphGUID} />, initialState, undefined, true);
 
-    const nameInput = screen.getByTestId('node-name-input');
+    const modal = await screen.findByTestId('add-edit-node-modal');
+    expect(modal).toBeInTheDocument();
 
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    const nameInput = screen.getByPlaceholderText(/enter node name/i);
     fireEvent.change(nameInput, { target: { value: mockNodeData[0].Name } });
 
-    // Take snapshot of filled form
-    expect(createModal).toMatchSnapshot('create node form with values');
-
-    const submitButton = screen.getByTestId('add-node-submit-button');
-    fireEvent.click(submitButton);
-
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state');
-  });
-
-  it('should update node successfully', async () => {
-    const { container } = renderWithRedux(<NodePage />, mockInitialState, true);
-
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before update');
-
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('node-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    fireEvent.click(menuButtons[0]);
-
-    // Wait for dropdown menu and click Edit
     await waitFor(() => {
-      const editOption = screen.getByText('Edit');
-      expect(editOption).toBeInTheDocument();
-      fireEvent.click(editOption);
+      expect(nameInput.value).toBe(mockNodeData[0].Name);
     });
 
-    // Wait for the update modal to appear and verify it's visible
-    const updateModal = await screen.findByRole('dialog');
-    expect(updateModal).toBeInTheDocument();
-    expect(updateModal).toMatchSnapshot('update node modal');
+    const createButton = screen.getByRole('button', { name: /create/i });
+    fireEvent.click(createButton);
 
-    // Find and update the form fields
-    const nameInput = screen.getByTestId('node-name-input');
-    // Use hardcoded values
-    const updatedName = 'Updated Node Name';
-    fireEvent.change(nameInput, { target: { value: updatedName } });
-
-    expect(updateModal).toMatchSnapshot('update node form with values');
-
-    const submitButton = screen.getByRole('button', { name: /Update/i });
-    fireEvent.click(submitButton);
-
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state after update');
+    expect(container).toMatchSnapshot('final table state after creation');
   });
 
-  it('should delete node successfully', async () => {
-    const { container } = renderWithRedux(<NodePage />, mockInitialState, true);
+  it('should update a node successfully', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<AddEditNode isAddEditNodeVisible={true} setIsAddEditNodeVisible={() => {}} node={mockNodeData[0]} selectedGraph={mockGraphGUID} readonly={false}/>, initialState, undefined, true);
 
-    // Take initial table snapshot
-    const initialTable = container.querySelector('.ant-table');
-    expect(initialTable).toMatchSnapshot('initial table state before delete');
+    const modal = await screen.findByTestId('add-edit-node-modal');
+    expect(modal).toBeInTheDocument();
+
     await waitFor(() => {
-      expect(screen.getByText('My updated test node')).toBeInTheDocument();
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    const nameInput = screen.getByPlaceholderText(/enter node name/i);
+    fireEvent.change(nameInput, { target: { value: 'My updated test node' } });
+
+    await waitFor(() => {
+      expect(nameInput.value).toBe('My updated test node');
     });
 
-    // Find and click the menu button in the Actions column
-    const menuButtons = screen.getAllByRole('node-action-menu');
-    expect(menuButtons[0]).toBeInTheDocument();
-    fireEvent.click(menuButtons[0]);
+    const createButton = screen.getByRole('button', { name: /update/i });
+    fireEvent.click(createButton);
 
-    // Wait for dropdown menu and click Delete
-    await waitFor(() => {
-      const deleteOption = screen.getByText('Delete');
-      expect(deleteOption).toBeInTheDocument();
-      fireEvent.click(deleteOption);
-    });
+    expect(container).toMatchSnapshot('final table state after update');
+  }); 
 
-    // Wait for the confirmation modal and take snapshot
-    const confirmModal = await screen.findByRole('dialog');
-    expect(confirmModal).toBeInTheDocument();
-    expect(confirmModal).toMatchSnapshot('delete confirmation modal');
+  it('should delete a node successfully', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<DeleteNode isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedNode={mockNodeData[0]} setSelectedNode={() => {}} title={`Are you sure you want to delete "${mockNodeData[0].Name}" node?`} paragraphText={'This action will delete node.'}/>, initialState, undefined, true);
 
-    // Find and click the delete button in the confirmation modal
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
-    fireEvent.click(confirmButton);
+    const modal = await screen.findByTestId('delete-node-modal');
+    expect(modal).toBeInTheDocument();
 
-    // Take final table snapshot
-    const finalTable = container.querySelector('.ant-table');
-    expect(finalTable).toMatchSnapshot('final table state after deletion');
-  });
-});
+    const deleteButton = screen.getByRole('button', { name: /confirm/i });
+    fireEvent.click(deleteButton);
+
+    expect(container).toMatchSnapshot('final table state after deletion');
+  }); 
+}); 

@@ -9,7 +9,8 @@ export function onTagFilter(val: any, record: { [key: string]: any }) {
 }
 
 export function onLabelFilter(val: any, record: string[]) {
-  return record.some((label: string) => label.toLowerCase().includes(val as string));
+  console.log(val, record);
+  return record.some((label: string) => label.toLowerCase().includes(val?.toLowerCase() as string));
 }
 
 export function onGUIDFilter(val: any, record: string) {

@@ -4,20 +4,16 @@ import { Form, Input, InputRef } from 'antd';
 import styles from './login.module.scss';
 import LitegraphInput from '@/components/base/input/Input';
 import LitegraphSelect from '@/components/base/select/Select';
-import LitegraphTitle from '@/components/base/typograpghy/Title';
-import LitegraphParagraph from '@/components/base/typograpghy/Paragraph';
 import LitegraphButton from '@/components/base/button/Button';
 import { LightGraphTheme } from '@/theme/theme';
-import LitegraphText from '@/components/base/typograpghy/Text';
-import Link from 'next/link';
 import { setEndpoint, useValidateConnectivity } from '@/lib/sdk/litegraph.service';
 import { TenantMetaData } from 'litegraphdb/dist/types/types';
 import toast from 'react-hot-toast';
 import { useCredentialsToLogin } from '@/hooks/authHooks';
-import { localStorageKeys, paths } from '@/constants/constant';
+import { localStorageKeys } from '@/constants/constant';
 import LitegraphFlex from '@/components/base/flex/Flex';
-import classNames from 'classnames';
 import { useGenerateTokenMutation, useGetTenantsForEmailMutation } from '@/lib/store/slice/slice';
+import LoginLayout from '@/components/layout/LoginLayout';
 interface LoginFormData {
   url: string;
   email: string;
@@ -45,7 +41,6 @@ const LoginPage = () => {
     })) || [];
 
   const handleNext = async () => {
-    console.log('handleNext');
     try {
       const values = await form.validateFields();
       setFormData((prev) => ({ ...prev, ...values }));
@@ -222,26 +217,8 @@ const LoginPage = () => {
   }, [emailInputRef.current]);
 
   return (
-    <div className={styles.userLoginPage}>
-      <LitegraphFlex
-        className={classNames(styles.userLoginPageHeader, 'mb pb pt pr pl')}
-        align="center"
-        justify="space-between"
-      >
-        <img src="/favicon.png" alt="Litegraph Logo" height={40} />
-        <Link href={paths.adminLogin}>
-          <LitegraphText color={LightGraphTheme.primary}>Login as Administrator</LitegraphText>
-        </Link>
-      </LitegraphFlex>
-      <div className={styles.loginTitle}>
-        <LitegraphTitle fontSize={22} weight={600}>
-          Login
-        </LitegraphTitle>
-        <LitegraphParagraph color={LightGraphTheme.subHeadingColor}>
-          Please enter your email and password to login
-        </LitegraphParagraph>
-      </div>
-      <div className={styles.loginBox}>
+    <LoginLayout>
+      <LitegraphFlex vertical gap={20}>
         <Form form={form} layout="vertical" initialValues={formData}>
           {renderStep()}
 
@@ -266,19 +243,19 @@ const LoginPage = () => {
             </LitegraphButton>
           </div>
         </Form>
-      </div>
-      <div className={styles.stepIndicatorContainer}>
-        {[0, 1, 2, 3].map((step) => (
-          <div
-            key={step}
-            className={styles.stepIndicator}
-            style={{
-              backgroundColor: currentStep === step ? LightGraphTheme.primary : '#d9d9d9',
-            }}
-          />
-        ))}
-      </div>
-    </div>
+        <div className={styles.stepIndicatorContainer}>
+          {[0, 1, 2, 3].map((step) => (
+            <div
+              key={step}
+              className={styles.stepIndicator}
+              style={{
+                backgroundColor: currentStep === step ? LightGraphTheme.primary : '#d9d9d9',
+              }}
+            />
+          ))}
+        </div>
+      </LitegraphFlex>
+    </LoginLayout>
   );
 };
 

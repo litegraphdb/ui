@@ -53,6 +53,7 @@ const DeleteLabel = ({
       confirmLoading={isLoading}
       okText="Delete"
       okButtonProps={{ danger: true }}
+      data-testid="delete-label-modal"
     >
       <LitegraphParagraph>{paragraphText}</LitegraphParagraph>
     </LitegraphModal>
