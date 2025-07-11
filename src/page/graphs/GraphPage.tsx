@@ -34,7 +34,7 @@ const GraphPage = () => {
     isLoading,
     isFetching,
     refetch: refetchGraphs,
-    error: graphError,
+    isError: graphError,
   } = useSearchAndEnumerateGraphQuery({
     ...searchParams,
     MaxResults: pageSize,
@@ -109,6 +109,12 @@ const GraphPage = () => {
     [graphDataSource]
   );
 
+  if (graphError) {
+    <FallBack retry={refetchGraphs}>
+      {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
+    </FallBack>;
+  }
+
   return (
     <PageContainer
       id="graphs"
@@ -129,43 +135,37 @@ const GraphPage = () => {
         </LitegraphButton>
       }
     >
-      {graphError || isGraphsLoading ? (
-        <FallBack retry={refetchGraphs}>
-          {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
-        </FallBack>
-      ) : (
-        <>
-          <LitegraphFlex
-            style={{ marginTop: '-10px' }}
-            gap={20}
-            justify="space-between"
-            align="center"
-            className="mb-sm"
-          >
-            {!isGraphsLoading && (
-              <AppliedFilter
-                entityName="graph(s)"
-                searchParams={searchParams}
-                totalRecords={data?.TotalRecords || 0}
-                onClear={() => setSearchParams({})}
-              />
-            )}
-          </LitegraphFlex>
-          <LitegraphTable
-            columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
-            dataSource={graphDataSource}
-            loading={isGraphsLoading || isFetchGexfByGraphIdLoading}
-            rowKey={'GUID'}
-            pagination={{
-              ...tablePaginationConfig,
-              total: data?.TotalRecords,
-              pageSize: pageSize,
-              current: page,
-              onChange: handlePageChange,
-            }}
-          />
-        </>
-      )}
+      <>
+        <LitegraphFlex
+          style={{ marginTop: '-10px' }}
+          gap={20}
+          justify="space-between"
+          align="center"
+          className="mb-sm"
+        >
+          {!isGraphsLoading && (
+            <AppliedFilter
+              entityName="graph(s)"
+              searchParams={searchParams}
+              totalRecords={data?.TotalRecords || 0}
+              onClear={() => setSearchParams({})}
+            />
+          )}
+        </LitegraphFlex>
+        <LitegraphTable
+          columns={tableColumns(handleEdit, handleDelete, handleExportGexf, hasScoreOrDistance)}
+          dataSource={graphDataSource}
+          loading={isGraphsLoading || isFetchGexfByGraphIdLoading}
+          rowKey={'GUID'}
+          pagination={{
+            ...tablePaginationConfig,
+            total: data?.TotalRecords,
+            pageSize: pageSize,
+            current: page,
+            onChange: handlePageChange,
+          }}
+        />
+      </>
 
       <AddEditGraph
         isAddEditGraphVisible={isAddEditGraphVisible}

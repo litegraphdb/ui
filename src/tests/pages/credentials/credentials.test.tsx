@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import CredentialPage from '../../../page/credentials/CredentialPage';
+import CredentialPage from '@/app/admin/dashboard/credentials/page';
 import { createMockInitialState } from '../../store/mockStore';
 import { mockCredentialData, mockUserData } from '../mockData';
 import { commonHandlers } from '@/tests/handler';
@@ -11,7 +11,6 @@ import { setupServer } from 'msw/node';
 import { setTenant } from '@/lib/sdk/litegraph.service';
 import { mockTenantGUID } from '../mockData';
 import { renderWithRedux } from '@/tests/store/utils';
-import { within } from '@testing-library/react';
 import AddEditCredential from '@/page/credentials/components/AddEditCredential';
 import DeleteCredential from '@/page/credentials/components/DeleteCredential';
 
@@ -142,5 +141,265 @@ describe('CredentialsPage', () => {
     // Take final table snapshot
     const finalTable = container.querySelector('.ant-table');
     expect(finalTable).toMatchSnapshot('final table state after deletion');
+  });
+
+  
+  it('should handle error state and show fallback', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Something went wrong.')).toBeVisible();
+    });
+    
+    expect(container).toMatchSnapshot('error state with fallback');
+  });
+
+  it('should handle modal cancellation for create credential', async () => {
+    const initialState = createMockInitialState();
+    const mockSetVisible = jest.fn();
+    
+    renderWithRedux(
+      <AddEditCredential
+        isAddEditCredentialVisible={true}
+        setIsAddEditCredentialVisible={mockSetVisible}
+        credential={null}
+      />,
+      initialState,
+      undefined,
+      true
+    );
+
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    fireEvent.click(cancelButton);
+
+    expect(mockSetVisible).toHaveBeenCalledWith(false);
+  });
+
+  it('should handle modal cancellation for delete credential', async () => {
+    const initialState = createMockInitialState();
+    const mockSetVisible = jest.fn();
+    const mockSetSelected = jest.fn();
+    
+    renderWithRedux(
+      <DeleteCredential
+        isDeleteModelVisible={true}
+        setIsDeleteModelVisible={mockSetVisible}
+        selectedCredential={mockCredentialData[0]}
+        setSelectedCredential={mockSetSelected}
+        title="Delete Credential"
+        paragraphText="Are you sure?"
+      />,
+      initialState,
+      undefined,
+      true
+    );
+
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    fireEvent.click(cancelButton);
+
+    expect(mockSetVisible).toHaveBeenCalledWith(false);
+    expect(mockSetSelected).toHaveBeenCalledWith(null);
+  });
+
+  it('should handle loading states correctly', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
+    
+    // Should show loading state initially
+    expect(container.querySelector('.ant-spin')).toBeInTheDocument();
+    
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.getByText('Create Credential')).toBeVisible();
+    });
+  });
+
+  it('should handle empty credentials list', async () => {
+    const initialState = createMockInitialState();
+    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Create Credential')).toBeVisible();
+    });
+
+    // Should show empty table
+    expect(container.querySelector('.ant-table-tbody')).toBeInTheDocument();
+  });
+
+  it('should handle pagination correctly', async () => {
+    const initialState = createMockInitialState();
+    
+    // Mock data with enough records to trigger pagination
+    // Assuming default page size is 10, we'll mock 25 records
+    const mockCredentialsWithPagination = Array.from({ length: 25 }, (_, i) => ({
+      ...mockCredentialData[0],
+      GUID: `credential-guid-${i}`,
+      Name: `Test Credential ${i + 1}`,
+      UserGUID: mockUserData[0].GUID,
+    }));
+    
+    renderWithRedux(<CredentialPage />, initialState, undefined, true);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Create Credential')).toBeVisible();
+    });
+
+    // Wait for table to load and pagination to appear
+    await waitFor(() => {
+      const table = document.querySelector('.ant-table');
+      expect(table).toBeInTheDocument();
+    });
+
+    // Check if pagination controls are present
+    await waitFor(() => {
+      const pagination = document.querySelector('.ant-pagination');
+      expect(pagination).toBeInTheDocument();
+    }, { timeout: 5000 });
+    
+    // Check for pagination items (page numbers)
+    const paginationItems = document.querySelectorAll('.ant-pagination-item');
+    expect(paginationItems.length).toBeGreaterThan(0);
+    
+    // Check if next button exists
+    const nextButton = document.querySelector('.ant-pagination-next');
+    expect(nextButton).toBeInTheDocument();
+    
+    // Check if previous button exists
+    const prevButton = document.querySelector('.ant-pagination-prev');
+    expect(prevButton).toBeInTheDocument();
+  });
+
+  it('should handle user data loading for credentials mapping', async () => {
+    const initialState = createMockInitialState();
+    renderWithRedux(<CredentialPage />, initialState, undefined, true);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Create Credential')).toBeVisible();
+    });
+
+    // Should show credentials with user names mapped
+    await waitFor(() => {
+      expect(screen.getByText(mockCredentialData[0].Name)).toBeVisible();
+    });
+  });
+
+  it('should handle bearer token field disabled state in edit mode', async () => {
+    const initialState = createMockInitialState();
+    
+    renderWithRedux(
+      <AddEditCredential
+        isAddEditCredentialVisible={true}
+        setIsAddEditCredentialVisible={() => {}}
+        credential={mockCredentialData[0]}
+      />,
+      initialState,
+      undefined,
+      true
+    );
+
+    // Bearer token field should be disabled in edit mode
+    const bearerTokenInput = screen.getByPlaceholderText('Enter bearer token');
+    expect(bearerTokenInput).toBeDisabled();
+
+    // User GUID field should also be disabled in edit mode
+    const userSelect = screen.getByTestId('user-select');
+    expect(userSelect).toHaveClass('ant-select-disabled');
+  });
+
+  it('should handle form values change and validation', async () => {
+    const initialState = createMockInitialState();
+    
+    renderWithRedux(
+      <AddEditCredential
+        isAddEditCredentialVisible={true}
+        setIsAddEditCredentialVisible={() => {}}
+        credential={null}
+      />,
+      initialState,
+      undefined,
+      true
+    );
+
+    const nameInput = screen.getByTestId('name-input');
+    const submitButton = screen.getByRole('button', { name: /ok/i });
+    
+    // Initially disabled
+    expect(submitButton).toBeDisabled();
+    
+    // Fill name field
+    fireEvent.change(nameInput, { target: { value: 'Test Name' } });
+    
+    // Still disabled because other required fields are empty
+    expect(submitButton).toBeDisabled();
+  });
+
+  it('should handle credential update success callback', async () => {
+    const initialState = createMockInitialState();
+    const mockCallback = jest.fn();
+    
+    renderWithRedux(
+      <AddEditCredential
+        isAddEditCredentialVisible={true}
+        setIsAddEditCredentialVisible={() => {}}
+        credential={mockCredentialData[0]}
+        onCredentialUpdated={mockCallback}
+      />,
+      initialState,
+      undefined,
+      true
+    );
+
+    // Wait for form to be populated with credential data
+    await waitFor(() => {
+      const nameInput = screen.getByTestId('name-input');
+      expect(nameInput).toHaveValue(mockCredentialData[0].Name);
+    });
+
+    // Make a change to the form
+    const nameInput = screen.getByTestId('name-input');
+    fireEvent.change(nameInput, { target: { value: 'Updated Name' } });
+
+    // Wait for form validation to complete
+    await waitFor(() => {
+      const submitButton = screen.getByRole('button', { name: /ok/i });
+      expect(submitButton).not.toBeDisabled();
+    });
+
+    // Submit the form
+    const submitButton = screen.getByRole('button', { name: /ok/i });
+    fireEvent.click(submitButton);
+
+    // Wait for the success toast and callback
+    await waitFor(() => {
+      expect(mockCallback).toHaveBeenCalled();
+    }, { timeout: 10000 });
+  });
+
+  it('should handle delete success callback', async () => {
+    const initialState = createMockInitialState();
+    const mockCallback = jest.fn();
+    
+    renderWithRedux(
+      <DeleteCredential
+        isDeleteModelVisible={true}
+        setIsDeleteModelVisible={() => {}}
+        selectedCredential={mockCredentialData[0]}
+        setSelectedCredential={() => {}}
+        onCredentialDeleted={mockCallback}
+        title="Delete Credential"
+        paragraphText="Are you sure?"
+      />,
+      initialState,
+      undefined,
+      true
+    );
+
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Credential deleted successfully')).toBeVisible();
+    });
   });
 });

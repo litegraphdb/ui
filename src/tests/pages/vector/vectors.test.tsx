@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import VectorPage from '../../../page/vectors/VectorPage';
+import VectorPage from '@/app/dashboard/[tenantId]/vectors/page';
 import { createMockInitialState } from '../../store/mockStore';
 import { mockVectorData } from '../mockData';
 import { setupServer } from 'msw/node'; 

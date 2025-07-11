@@ -141,13 +141,14 @@ const GraphViewer = ({
             </FallBack>
           ) : (
             <>
-              <GraphLoader3d
-                className={!show3d ? 'd-none' : ''}
-                nodes={nodes}
-                edges={edges}
-                setTooltip={setNodeTooltip}
-                setEdgeTooltip={setEdgeTooltip}
-              />
+              {show3d && (
+                <GraphLoader3d
+                  nodes={nodes}
+                  edges={edges}
+                  setTooltip={setNodeTooltip}
+                  setEdgeTooltip={setEdgeTooltip}
+                />
+              )}
               <SigmaContainer
                 className={show3d ? 'd-none' : ''}
                 key={selectedGraphRedux} // Force re-render when the context changes

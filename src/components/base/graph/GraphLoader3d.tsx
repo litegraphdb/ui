@@ -79,27 +79,23 @@ export default function GraphLoader3d({
   };
 
   return (
-    <div className={className} style={{ height: '600px' }}>
-      <ForceGraph3D
-        graphData={graphData}
-        nodeAutoColorBy="type"
-        nodeLabel="name"
-        linkLabel="name"
-        nodeOpacity={1}
-        backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
-        nodeColor={(node) => {
-          return theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight;
-        }}
-        linkColor={(link) => {
-          return theme === ThemeEnum.LIGHT ? '#000' : '#fff';
-        }}
-        showNavInfo
-        linkWidth={1}
-        onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
-        onLinkClick={(link, event) =>
-          handleLinkClick(link as LinkObject<NodeData, EdgeData>, event)
-        }
-      />
-    </div>
+    <ForceGraph3D
+      graphData={graphData}
+      nodeAutoColorBy="type"
+      nodeLabel="name"
+      linkLabel="name"
+      nodeOpacity={1}
+      backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
+      nodeColor={(node) => {
+        return theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight;
+      }}
+      linkColor={(link) => {
+        return theme === ThemeEnum.LIGHT ? '#000' : '#fff';
+      }}
+      showNavInfo
+      linkWidth={1}
+      onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
+      onLinkClick={(link, event) => handleLinkClick(link as LinkObject<NodeData, EdgeData>, event)}
+    />
   );
 }
