@@ -92,6 +92,7 @@ export default function GraphLoader3d({
       linkColor={(link) => {
         return theme === ThemeEnum.LIGHT ? '#000' : '#fff';
       }}
+      enableNodeDrag
       showNavInfo
       linkWidth={1}
       onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
