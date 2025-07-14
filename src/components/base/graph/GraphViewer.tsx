@@ -1,5 +1,5 @@
 'use client';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { SigmaContainer } from '@react-sigma/core';
 import GraphLoader from './GraphLoader';
 import { MultiDirectedGraph } from 'graphology';
@@ -42,9 +42,16 @@ const GraphViewer = ({
   setIsAddEditEdgeVisible: Dispatch<SetStateAction<boolean>>;
 }) => {
   // Redux state for the list of graphs
+  const [containerDivHeightAndWidth, setContainerDivHeightAndWidth] = useState<{
+    height?: number;
+    width?: number;
+  }>({
+    height: undefined,
+    width: undefined,
+  });
   const [show3d, setShow3d] = useState(false);
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
-
+  const ref = useRef<HTMLDivElement>(null);
   const {
     nodes,
     edges,
@@ -63,6 +70,24 @@ const GraphViewer = ({
 
   // Callback for handling node update
   const handleNodeUpdate = async () => {};
+
+  useEffect(() => {
+    const handleResize = () => {
+      setContainerDivHeightAndWidth({
+        height: ref.current?.clientHeight,
+        width: ref.current?.clientWidth,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <div className="space-y-2">
       {Boolean(selectedGraphRedux) && (
@@ -127,7 +152,7 @@ const GraphViewer = ({
           </LitegraphFormItem>
         </LitegraphTooltip>
       </LitegraphFlex>
-      <div className={styles.graphContainer}>
+      <div className={styles.graphContainer} ref={ref}>
         <>
           {isError ? (
             <FallBack className="mt-lg" type={FallBackEnums.ERROR} retry={refetch}>
@@ -147,6 +172,8 @@ const GraphViewer = ({
                   edges={edges}
                   setTooltip={setNodeTooltip}
                   setEdgeTooltip={setEdgeTooltip}
+                  ref={ref}
+                  containerDivHeightAndWidth={containerDivHeightAndWidth}
                 />
               )}
               <SigmaContainer

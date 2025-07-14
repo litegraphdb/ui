@@ -18,12 +18,16 @@ export default function GraphLoader3d({
   setTooltip,
   setEdgeTooltip,
   className,
+  ref,
+  containerDivHeightAndWidth,
 }: {
   nodes: NodeData[];
   edges: EdgeData[];
   className?: string;
   setTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
+  ref: React.RefObject<HTMLDivElement | null>;
+  containerDivHeightAndWidth: { height?: number; width?: number };
 }) {
   const { theme } = useAppContext();
   const [graphData, setGraphData] = useState<GraphData>({
@@ -77,9 +81,11 @@ export default function GraphLoader3d({
       y: tooltipY,
     });
   };
-
+  console.log(containerDivHeightAndWidth);
   return (
     <ForceGraph3D
+      height={containerDivHeightAndWidth.height}
+      width={containerDivHeightAndWidth.width}
       graphData={graphData}
       nodeAutoColorBy="type"
       nodeLabel="name"
