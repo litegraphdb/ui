@@ -17,7 +17,7 @@ const PageLoading = ({
   return (
     <PageContainer withoutWhiteBG={withoutWhiteBG} className={className}>
       <LitegraphFlex justify="center" align="center" vertical>
-        <LitegraphText>{message}</LitegraphText>
+        <LitegraphText data-testid="loading-message">{message}</LitegraphText>
         <LoadingOutlined className={styles.pageLoader} />
       </LitegraphFlex>
     </PageContainer>

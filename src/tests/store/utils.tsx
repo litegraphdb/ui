@@ -34,7 +34,6 @@
 //   return render(<Provider store={reduxStore}>{ui}</Provider>);
 // };
 
-
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { adminDashboardRoutes, tenantDashboardRoutes } from '@/constants/sidebar';
 import resettableRootReducer from '@/lib/store/rootReducer';

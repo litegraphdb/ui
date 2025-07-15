@@ -343,3 +343,15 @@ export function getMockEnumerateQueryData<T>(data: T[]): EnumerateResponse<T> {
     Objects: data,
   } as EnumerateResponse<T>;
 }
+
+// mockData.ts
+
+export const mockToken = {
+  AccessToken: 'mocked-access-token',
+  ExpiresIn: 3600,
+  RefreshToken: 'mocked-refresh-token',
+  TokenType: 'Bearer',
+  GUID: 'mock-token-guid',
+  CreatedAt: new Date().toISOString(),
+};
+

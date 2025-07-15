@@ -66,6 +66,7 @@ const HomePage = () => {
         ) : undefined
       }
     >
+      <div data-testid="graph-viewer">
       <GraphViewer
         isAddEditNodeVisible={isAddEditNodeVisible}
         setIsAddEditNodeVisible={setIsAddEditNodeVisible}
@@ -76,6 +77,7 @@ const HomePage = () => {
         isAddEditEdgeVisible={isAddEditEdgeVisible}
         setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
       />
+      </div>
     </PageContainer>
   );
 };

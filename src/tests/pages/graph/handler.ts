@@ -1,22 +1,3 @@
-// import { mockEndpoint } from '@/tests/config';
-// import { http, HttpResponse } from 'msw';
-// import { getMockEnumerateQueryData, mockGraphData, mockTenantGUID } from '../mockData';
-
-// export const handlers = [
-//   http.post(`${mockEndpoint}v2.0/tenants/${mockTenantGUID}/graphs`, () => {
-//     return HttpResponse.json(getMockEnumerateQueryData(mockGraphData));
-//   }),
-//   http.get(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs`, () => {
-//     return HttpResponse.json(mockGraphData);
-//   }),
-//   http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs`, () => {
-//     return HttpResponse.json(mockGraphData[0]);
-//   }),
-//   http.delete(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs`, () => {
-//     return HttpResponse.json(mockGraphData[0]);
-//   }),
-// ];
-
 import { mockEndpoint } from '@/tests/config';
 import { http, HttpResponse } from 'msw';
 import { mockTenantGUID, mockGraphData } from '../mockData';
