@@ -32,6 +32,7 @@ export function parseGexf(gexfContent: string) {
       type,
       x: Math.random() * 800,
       y: Math.random() * 600,
+      z: 0,
       vx: 0,
       vy: 0,
       isDragging: false,
@@ -77,32 +78,136 @@ export function parseGexf(gexfContent: string) {
   return { nodes: parsedNodes, edges: parsedEdges };
 }
 
+// Function to build the adjacency list based on dependencies
+export const buildAdjacencyList = (nodes: Node[], dependencies: { from: string; to: string }[]) => {
+  const adjList: Record<string, string[]> = {};
+
+  // Initialize adjacency list with empty arrays for each node
+  nodes.forEach((node) => {
+    adjList[node.GUID] = [];
+  });
+
+  // Add dependencies to the adjacency list
+  dependencies.forEach((dependency) => {
+    adjList[dependency.from].push(dependency.to);
+  });
+
+  return adjList;
+};
+
+// Topological Sort using Kahn's Algorithm
+export const topologicalSortKahn = (adjList: Record<string, string[]>): string[] => {
+  const inDegree: Record<string, number> = {}; // In-degree for each node
+  const queue: string[] = []; // Queue for nodes with in-degree 0
+  const topologicalOrder: string[] = [];
+
+  // Initialize in-degree of all nodes to 0
+  Object.keys(adjList).forEach((node) => {
+    inDegree[node] = 0; // Initially, no incoming edges
+  });
+
+  // Calculate the in-degree for each node based on adjList
+  Object.keys(adjList).forEach((node) => {
+    adjList[node].forEach((neighbor) => {
+      inDegree[neighbor]++;
+    });
+  });
+
+  // Add nodes with in-degree 0 to the queue
+  Object.keys(inDegree).forEach((node) => {
+    if (inDegree[node] === 0) {
+      queue.push(node);
+    }
+  });
+
+  // Process nodes in the queue
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    topologicalOrder.push(node);
+
+    adjList[node].forEach((neighbor) => {
+      inDegree[neighbor]--;
+      if (inDegree[neighbor] === 0) {
+        queue.push(neighbor);
+      }
+    });
+  }
+
+  // Check if there was a cycle (not all nodes were processed)
+  if (topologicalOrder.length !== Object.keys(adjList).length) {
+    throw new Error('The graph has a cycle and cannot be topologically sorted');
+  }
+
+  return topologicalOrder;
+};
+
+// Parse nodes and assign positions based on topological sort and calculated depths
 export function parseNode(
   nodes: Node[],
-  totalNodes: number, // pass in your current graph instance
-  nodesPerCircle = 10,
-  radiusStep = 200,
-  centerX = 5000,
-  centerY = 5000
+  totalNodes: number, // current graph instance
+  adjList: Record<string, string[]>, // adjacency list (node dependencies)
+  topologicalOrder: string[], // topological sort order of node GUIDs
+  centerX = 5000, // Center X position (where the topological order starts)
+  centerY = 5000, // Base Y position (used for vertical stacking)
+  centerZ = 5000, // Base Z position (used for depth stacking)
+  horizontalSpacing = 1000, // Spacing between nodes in the x-direction
+  verticalSpacing = 10000, // Base spacing between layers in the y-direction
+  depthSpacing = 1000 // Spacing between layers in the z-direction
 ): NodeData[] {
   const existingNodeCount = totalNodes;
 
+  // Create a map of node GUID to its index in the topological order
+  const nodeIndexMap = topologicalOrder.reduce(
+    (acc, nodeId, index) => {
+      acc[nodeId] = index;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  // 1. Initialize depth for each node and calculate the depths
+  const nodeDepthMap: Record<string, number> = {};
+  const visited = new Set<string>(); // To prevent cycles
+
+  // Function to calculate the depth of each node (how far from the root)
+  function calculateDepth(node: string): number {
+    if (visited.has(node)) return nodeDepthMap[node]; // Return pre-calculated depth
+
+    visited.add(node);
+
+    let maxDepth = 0;
+    adjList[node]?.forEach((dependency) => {
+      maxDepth = Math.max(maxDepth, calculateDepth(dependency));
+    });
+
+    // The depth of this node is 1 more than its deepest dependency
+    nodeDepthMap[node] = maxDepth + 1;
+    return nodeDepthMap[node];
+  }
+
+  // Calculate depths for all nodes
+  topologicalOrder.forEach((node) => {
+    if (!nodeDepthMap[node]) {
+      calculateDepth(node);
+    }
+  });
+
+  // 2. Assign x, y, z positions based on topological order and calculated depths
   return nodes.map((node, i) => {
     const globalIndex = existingNodeCount + i;
-    const circleIndex = Math.floor(globalIndex / nodesPerCircle);
 
-    // Band radius range
-    const minRadius = circleIndex * radiusStep;
-    const maxRadius = (circleIndex + 1) * radiusStep;
+    // Get the topological position of the node in the sorted list
+    const sortedIndex = nodeIndexMap[node.GUID] ?? i; // Fallback to 'i' if the node is not in the topological order
 
-    // Random radius within band
-    const radius = minRadius + Math.random() * (maxRadius - minRadius);
+    // Position nodes along the x-axis based on the sorted order
+    const x = centerX + sortedIndex * horizontalSpacing;
 
-    // Random angle
-    const angle = Math.random() * 2 * Math.PI;
+    // Calculate y-position using node depth and vertical spacing
+    const depth = nodeDepthMap[node.GUID] ?? 0; // Depth of the current node
+    const y = centerY + depth * verticalSpacing;
 
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
+    // Calculate z-position based on depth and a new spacing
+    const z = centerZ + depth * depthSpacing;
 
     return {
       id: node.GUID,
@@ -110,6 +215,7 @@ export function parseNode(
       type: 'server',
       x,
       y,
+      z, // Add the z-axis position for 3D visualization
       vx: 0,
       vy: 0,
       isDragging: false,

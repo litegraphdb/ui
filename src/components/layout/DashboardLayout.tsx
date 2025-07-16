@@ -103,6 +103,7 @@ const DashboardLayout = ({
           menuItems={menuItems}
           setCollapsed={setCollapsed}
           isAdmin={isAdmin}
+          data-testid="navigation"
         />
         <Layout>
           <Header className={styles.header}>
@@ -142,6 +143,7 @@ const DashboardLayout = ({
                       onChange={handleTenantSelect}
                       style={{ width: 200 }}
                       disabled={!useTenantSelector}
+                      data-testid="tenant-select"
                     />
                   )}
                 </LitegraphFlex>
@@ -154,6 +156,7 @@ const DashboardLayout = ({
               align="center"
               gap={isAdmin ? 20 : 8}
               justify="flex-end"
+              data-testid="user-section"
             >
               <LitegraphTooltip
                 title={`Switch to ${theme === ThemeEnum.DARK ? 'Light' : 'Dark'} mode`}
@@ -168,7 +171,7 @@ const DashboardLayout = ({
                   onClick={() => logOutFromSystem()}
                   role="button"
                   tabIndex={0}
-                >
+                > 
                   <LogoutOutlined className={styles.logoutIcon} />
                   <span>Logout</span>
                 </div>
@@ -180,6 +183,7 @@ const DashboardLayout = ({
               minHeight: 280,
               background: 'var(--ant-color-bg-base)',
             }}
+            data-testid="layout-children" 
           >
             {children}
           </Content>

@@ -43,6 +43,7 @@ export default function GraphLoader3d({
       type: n.type,
       x: n.x,
       y: n.y,
+      z: n.z,
     }));
 
     const mappedLinks = edges.map((e) => ({
