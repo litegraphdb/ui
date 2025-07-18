@@ -151,6 +151,7 @@ const LoginPage = () => {
                 placeholder="https://your-litegraph-server.com"
                 size="large"
                 disabled={isValidatingConnectivity}
+                data-testid="litegraph-input"
               />
             </Form.Item>
           </>

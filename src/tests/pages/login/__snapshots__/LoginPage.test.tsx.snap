@@ -4,6 +4,7 @@ exports[`LoginPage should display server URL input field 1`] = `
 <input
   aria-required="true"
   class="ant-input ant-input-lg css-dev-only-do-not-override-98ntnt ant-input-outlined"
+  data-testid="litegraph-input"
   id="url"
   placeholder="https://your-litegraph-server.com"
   type="text"
@@ -182,6 +183,7 @@ exports[`LoginPage should render the LoginPage: initial login step 1`] = `
                     <input
                       aria-required="true"
                       class="ant-input ant-input-lg css-dev-only-do-not-override-98ntnt ant-input-outlined"
+                      data-testid="litegraph-input"
                       id="url"
                       placeholder="https://your-litegraph-server.com"
                       type="text"

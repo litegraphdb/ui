@@ -96,11 +96,13 @@ export const buildAdjacencyList = (nodes: Node[], dependencies: { from: string; 
 };
 
 // Topological Sort using Kahn's Algorithm
-export const topologicalSortKahn = (adjList: Record<string, string[]>): string[] => {
+export const topologicalSortKahn = (
+  adjList: Record<string, string[]>
+): { id: string; x: number; y: number; z: number }[] => {
   const inDegree: Record<string, number> = {}; // In-degree for each node
-  const queue: string[] = []; // Queue for nodes with in-degree 0
-  const topologicalOrder: string[] = [];
-
+  const queue: { id: string; x: number; y: number; z: number }[] = []; // Queue for nodes with in-degree 0
+  const topologicalOrder: { id: string; x: number; y: number; z: number }[] = [];
+  const level = 0;
   // Initialize in-degree of all nodes to 0
   Object.keys(adjList).forEach((node) => {
     inDegree[node] = 0; // Initially, no incoming edges
@@ -116,21 +118,30 @@ export const topologicalSortKahn = (adjList: Record<string, string[]>): string[]
   // Add nodes with in-degree 0 to the queue
   Object.keys(inDegree).forEach((node) => {
     if (inDegree[node] === 0) {
-      queue.push(node);
+      queue.push({ id: node, x: 0, y: 0, z: 0 });
     }
   });
 
   // Process nodes in the queue
-  while (queue.length > 0) {
-    const node = queue.shift()!;
+  // console.log(queue, 'chk queue');
+  // console.log({ ...inDegree }, 'chk inDegree');
+  function processNode(node: { id: string; x: number; y: number; z: number }) {
+    // console.log(node, 'chk node to process');
     topologicalOrder.push(node);
 
-    adjList[node].forEach((neighbor) => {
+    adjList[node.id].forEach((neighbor) => {
       inDegree[neighbor]--;
       if (inDegree[neighbor] === 0) {
-        queue.push(neighbor);
+        queue.push({ id: neighbor, x: 0, y: node.y + 1, z: 0 });
       }
     });
+    if (queue.length > 0) {
+      processNode(queue.shift()!);
+    }
+  }
+  const node = queue.shift();
+  if (node) {
+    processNode(node);
   }
 
   // Check if there was a cycle (not all nodes were processed)
@@ -146,12 +157,13 @@ export function parseNode(
   nodes: Node[],
   totalNodes: number, // current graph instance
   adjList: Record<string, string[]>, // adjacency list (node dependencies)
-  topologicalOrder: string[], // topological sort order of node GUIDs
+  topologicalOrder: { id: string; x: number; y: number; z: number }[], // topological sort order of node GUIDs
+  showGraphHorizontal = false,
   centerX = 5000, // Center X position (where the topological order starts)
   centerY = 5000, // Base Y position (used for vertical stacking)
   centerZ = 5000, // Base Z position (used for depth stacking)
-  horizontalSpacing = 1000, // Spacing between nodes in the x-direction
-  verticalSpacing = 10000, // Base spacing between layers in the y-direction
+  horizontalSpacing = 25000, // Spacing between nodes in the x-direction
+  verticalSpacing = 100000, // Base spacing between layers in the y-direction
   depthSpacing = 1000 // Spacing between layers in the z-direction
 ): NodeData[] {
   const existingNodeCount = totalNodes;
@@ -159,7 +171,7 @@ export function parseNode(
   // Create a map of node GUID to its index in the topological order
   const nodeIndexMap = topologicalOrder.reduce(
     (acc, nodeId, index) => {
-      acc[nodeId] = index;
+      acc[nodeId.id] = index;
       return acc;
     },
     {} as Record<string, number>
@@ -187,15 +199,13 @@ export function parseNode(
 
   // Calculate depths for all nodes
   topologicalOrder.forEach((node) => {
-    if (!nodeDepthMap[node]) {
-      calculateDepth(node);
+    if (!nodeDepthMap[node.id]) {
+      calculateDepth(node.id);
     }
   });
 
   // 2. Assign x, y, z positions based on topological order and calculated depths
   return nodes.map((node, i) => {
-    const globalIndex = existingNodeCount + i;
-
     // Get the topological position of the node in the sorted list
     const sortedIndex = nodeIndexMap[node.GUID] ?? i; // Fallback to 'i' if the node is not in the topological order
 
@@ -213,8 +223,8 @@ export function parseNode(
       id: node.GUID,
       label: node.Name,
       type: 'server',
-      x,
-      y,
+      x: showGraphHorizontal ? y : x,
+      y: showGraphHorizontal ? x : y,
       z, // Add the z-axis position for 3D visualization
       vx: 0,
       vy: 0,
@@ -236,4 +246,157 @@ export function parseEdge(edges: Edge[]): EdgeData[] {
     targetX: 0,
     targetY: 0,
   }));
+}
+type NodeMember = {
+  id: string;
+  x: number;
+  y: number;
+  siblings: NodeMember[];
+};
+// Topological Sort using Kahn's Algorithm with positions (x, y, z)
+export const topologicalSortKahn2 = (
+  adjList: Record<string, string[]>
+): { id: string; x: number; y: number; z: number }[] => {
+  const inDegree: Record<string, number> = {}; // In-degree for each node
+  const queue: { id: string; x: number; y: number; z: number }[] = []; // Queue for nodes with in-degree 0
+  const topologicalOrder: { id: string; x: number; y: number; z: number }[] = [];
+  const level = 0;
+
+  // Initialize in-degree of all nodes to 0
+  Object.keys(adjList).forEach((node) => {
+    inDegree[node] = 0; // Initially, no incoming edges
+  });
+
+  // Calculate the in-degree for each node based on adjList
+  Object.keys(adjList).forEach((node) => {
+    adjList[node].forEach((neighbor) => {
+      inDegree[neighbor]++;
+    });
+  });
+
+  // Add nodes with in-degree 0 to the queue
+  Object.keys(inDegree).forEach((node) => {
+    if (inDegree[node] === 0) {
+      queue.push({ id: node, x: 0, y: 0, z: 0 });
+    }
+  });
+
+  // Process nodes in the queue recursively
+  function processNode(node: { id: string; x: number; y: number; z: number }) {
+    topologicalOrder.push(node);
+
+    adjList[node.id].forEach((neighbor) => {
+      inDegree[neighbor]--;
+      if (inDegree[neighbor] === 0) {
+        queue.push({ id: neighbor, x: 0, y: node.y + 1, z: 0 });
+      }
+    });
+
+    if (queue.length > 0) {
+      processNode(queue.shift()!);
+    }
+  }
+
+  const node = queue.shift();
+  if (node) {
+    processNode(node);
+  }
+
+  // Check if there was a cycle (not all nodes were processed)
+  if (topologicalOrder.length !== Object.keys(adjList).length) {
+    throw new Error('The graph has a cycle and cannot be topologically sorted');
+  }
+
+  return topologicalOrder;
+};
+
+// Build adjacency list from nodes and edges
+function buildAdjacencyList2(nodes: Node[], edges: Edge[]) {
+  const adjList: { [key: string]: string[] } = {};
+
+  // Initialize adjacency list with empty arrays for each node
+  nodes.forEach((node) => {
+    adjList[node.GUID] = [];
+  });
+
+  // Add edges to the adjacency list
+  edges.forEach((edge) => {
+    adjList[edge.From].push(edge.To);
+  });
+
+  return adjList;
+}
+
+// Perform DFS to assign positions (x, y) to each node
+function dfs(
+  tree: { [key: string]: string[] },
+  startNodeId: string,
+  positions: any = {},
+  visited = new Set(),
+  x = 0,
+  y = 0,
+  levelIndex: Record<number, number> = {} // Track number of nodes at each level
+) {
+  visited.add(startNodeId);
+
+  // Set the position for this node
+  positions[startNodeId] = { x, y };
+
+  // Go through each child node and adjust the x and y based on the depth (y) and sibling index (x)
+  tree[startNodeId]?.forEach((childId) => {
+    if (!visited.has(childId)) {
+      // For each child node, adjust x and y based on sibling index
+      const siblingIndex = levelIndex[y] || 0; // How many siblings at this level
+      positions[childId] = { x: siblingIndex * 1000, y: y + 1 }; // Adjust x with spacing for siblings
+      levelIndex[y] = siblingIndex + 1; // Increment the sibling index for the level
+
+      // Recursively call DFS for the child node
+      dfs(
+        tree,
+        childId,
+        positions,
+        visited,
+        positions[childId].x,
+        positions[childId].y,
+        levelIndex
+      );
+    }
+  });
+
+  return positions;
+}
+
+// Main function to render the tree (nodes and edges)
+export function renderTree(nodes: Node[], edges: Edge[]) {
+  // Step 1: Build adjacency list
+  const adjList = buildAdjacencyList2(nodes, edges);
+
+  // Step 2: Perform DFS to assign positions (x, y) to each node
+  const topOrder = topologicalSortKahn2(adjList);
+
+  const visited = new Set();
+  const positions: { [key: string]: { x: number; y: number } } = {};
+  const levelIndex: Record<number, number> = {}; // To track x position for siblings
+
+  // Perform DFS starting from the root node (start with topological order)
+  dfs(adjList, topOrder[0]?.id, positions, visited, 0, 0, levelIndex);
+
+  // Step 3: Return nodes with positions (x, y)
+  const nodeData: NodeData[] = nodes.map((node) => {
+    const position = positions[node.GUID];
+    return {
+      id: node.GUID,
+      label: node.Name,
+      type: 'server',
+      x: position?.x || 0,
+      y: position?.y || 0,
+      z: 0, // You can adjust z if needed
+      vx: 0,
+      vy: 0,
+      isDragging: false,
+    };
+  });
+
+  const edgeData: EdgeData[] = parseEdge(edges); // Parse the edge data as well
+  return { nodes: nodeData, edges: edgeData };
 }

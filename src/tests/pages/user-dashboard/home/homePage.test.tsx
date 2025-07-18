@@ -9,6 +9,7 @@ import { getServer } from '@/tests/server';
 import { mockTenantData } from '../../mockData';
 import PageLoading from '@/components/base/loading/PageLoading';
 import FallBack from '@/components/base/fallback/FallBack';
+import GraphViewer from '@/components/base/graph/GraphViewer';
 
 const server = getServer([...commonHandlers, ...graphHandlers]);
 setTenant(mockTenantData[0].GUID);

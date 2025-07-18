@@ -10,7 +10,13 @@ import {
 } from '@/lib/store/slice/slice';
 import { useEffect, useRef, useState } from 'react';
 import { Edge, EnumerateResponse, Node } from 'litegraphdb/dist/types/types';
-import { buildAdjacencyList, topologicalSortKahn, parseEdge, parseNode } from '@/lib/graph/parser';
+import {
+  buildAdjacencyList,
+  topologicalSortKahn,
+  parseEdge,
+  parseNode,
+  renderTree,
+} from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 
 export const useCurrentTenant = () => {
@@ -134,7 +140,7 @@ export const useLazyLoadEdges = (
 ) => {
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Edge> | null>(null);
-  const [edges, setEdges] = useState<EdgeData[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined);
   const {
     data: edgesList,
@@ -153,10 +159,7 @@ export const useLazyLoadEdges = (
   useEffect(() => {
     setLoading(true);
     if (edgesList?.Objects?.length) {
-      const uniqueEdges = parseEdge(edgesList.Objects).filter(
-        (edge) => !edges.some((e) => e.id === edge.id)
-      );
-      const updatedEdges = [...edges, ...uniqueEdges];
+      const updatedEdges = [...edges, ...edgesList.Objects];
       setEdges(updatedEdges);
     } else {
       setLoading(false);
@@ -193,8 +196,9 @@ export const useLazyLoadEdges = (
   };
 };
 
-export const useLazyLoadEdgesAndNodes = (graphId: string) => {
+export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: boolean) => {
   const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
+  const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
   const {
     nodes,
@@ -213,21 +217,36 @@ export const useLazyLoadEdgesAndNodes = (graphId: string) => {
   } = useLazyLoadEdges(graphId, () => setDoNotFetchEdgesOnRender(true), doNotFetchEdgesOnRender);
 
   useEffect(() => {
-    const adjList = buildAdjacencyList(
-      nodes,
-      edges.map((edge) => ({ from: edge.source, to: edge.target }))
-    );
-    console.log(adjList);
-    const topologicalOrder = topologicalSortKahn(adjList);
-    console.log(topologicalOrder);
-    const uniqueNodes = parseNode(nodes, nodes.length, adjList, topologicalOrder);
-    console.log(uniqueNodes);
-    setNodesForGraph(uniqueNodes);
-  }, [nodes, edges]);
+    // const adjList = buildAdjacencyList(
+    //   nodes,
+    //   edges.map((edge) => ({ from: edge.From, to: edge.To }))
+    // );
+    // console.log(adjList);
+    // const topologicalOrder = topologicalSortKahn(adjList);
+    // console.log(topologicalOrder);
+    // const uniqueNodes = parseNode(
+    //   nodes,
+    //   nodes.length,
+    //   adjList,
+    //   topologicalOrder,
+    //   showGraphHorizontal
+    // );
+    // setNodesForGraph(uniqueNodes);
+    // setEdgesForGraph(parseEdge(edges));
+    const graph = renderTree(nodes, edges);
+    console.log(graph, 'chk graph');
+    if (edges.length && nodes.length) {
+      setNodesForGraph(graph.nodes);
+      setEdgesForGraph(graph.edges);
+    } else {
+      setNodesForGraph([]);
+      setEdgesForGraph([]);
+    }
+  }, [nodes, edges, showGraphHorizontal]);
 
   return {
     nodes: nodesForGraph,
-    edges,
+    edges: edgesForGraph,
     isNodesLoading,
     isEdgesLoading,
     isLoading: isNodesLoading || isEdgesLoading,

@@ -91,7 +91,7 @@ export default function GraphLoader3d({
       nodeAutoColorBy="type"
       nodeLabel="name"
       linkLabel="name"
-      nodeOpacity={1}
+      nodeOpacity={0.8}
       backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
       nodeColor={(node) => {
         return theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight;

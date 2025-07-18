@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Graph from 'graphology';
 import { useLoadGraph, useRegisterEvents, useSigma } from '@react-sigma/core';
-import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
+import { GraphEdgeTooltip, GraphNodeTooltip } from '../types';
 import { calculateTooltipPosition } from '@/utils/appUtils';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 import { LightGraphTheme } from '@/theme/theme';
@@ -91,75 +91,6 @@ const GraphLoader = ({
     });
 
     loadGraph(graph);
-
-    // Custom force-directed layout
-    function applyForces() {
-      const k = 0.01; // Spring constant
-      const repulsion = 1000;
-      const centerForce = 0.01;
-
-      graph.forEachNode((nodeId) => {
-        let fx = 0,
-          fy = 0;
-        const node = graph.getNodeAttributes(nodeId);
-
-        if (node.isDragging) {
-          return;
-        }
-
-        // Center force
-        fx += (500 - node.x) * centerForce;
-        fy += (300 - node.y) * centerForce;
-
-        // Node repulsion
-        graph.forEachNode((otherId) => {
-          if (nodeId === otherId) return;
-
-          const other = graph.getNodeAttributes(otherId);
-          const dx = node.x - other.x;
-          const dy = node.y - other.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          const force = repulsion / (dist * dist);
-
-          fx += (dx / dist) * force;
-          fy += (dy / dist) * force;
-        });
-
-        // Edge attraction
-        graph.forEachEdge(nodeId, (edgeId, attrs, source, target) => {
-          const other = graph.getNodeAttributes(source === nodeId ? target : source);
-          const dx = other.x - node.x;
-          const dy = other.y - node.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          fx += dx * k;
-          fy += dy * k;
-        });
-
-        // Update velocities and positions
-        node.vx = (node.vx + fx) * 0.9;
-        node.vy = (node.vy + fy) * 0.9;
-
-        node.x += node.vx;
-        node.y += node.vy;
-
-        // Keep nodes within bounds
-        node.x = Math.max(0, Math.min(1000, node.x));
-        node.y = Math.max(0, Math.min(600, node.y));
-
-        graph.updateNodeAttributes(nodeId, (n) => ({
-          ...n,
-          x: node.x,
-          y: node.y,
-          vx: node.vx,
-          vy: node.vy,
-        }));
-      });
-
-      animationFrameRef.current = requestAnimationFrame(applyForces);
-    }
-
-    // applyForces();
 
     return () => {
       if (animationFrameRef.current) {

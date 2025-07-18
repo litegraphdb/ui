@@ -19,4 +19,8 @@ export const handlers = [
   http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/users`, () => {
     return HttpResponse.json(mockUserData[0]);
   }),
+  // Create user endpoint
+  http.post(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/users`, () => {
+    return HttpResponse.json(mockUserData[0]);
+  }),
 ];
