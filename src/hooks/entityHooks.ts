@@ -217,31 +217,26 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
   } = useLazyLoadEdges(graphId, () => setDoNotFetchEdgesOnRender(true), doNotFetchEdgesOnRender);
 
   useEffect(() => {
-    // const adjList = buildAdjacencyList(
-    //   nodes,
-    //   edges.map((edge) => ({ from: edge.From, to: edge.To }))
-    // );
-    // console.log(adjList);
-    // const topologicalOrder = topologicalSortKahn(adjList);
-    // console.log(topologicalOrder);
-    // const uniqueNodes = parseNode(
-    //   nodes,
-    //   nodes.length,
-    //   adjList,
-    //   topologicalOrder,
-    //   showGraphHorizontal
-    // );
-    // setNodesForGraph(uniqueNodes);
-    // setEdgesForGraph(parseEdge(edges));
-    const graph = renderTree(nodes, edges);
-    console.log(graph, 'chk graph');
-    if (edges.length && nodes.length) {
-      setNodesForGraph(graph.nodes);
-      setEdgesForGraph(graph.edges);
-    } else {
-      setNodesForGraph([]);
-      setEdgesForGraph([]);
-    }
+    const adjList = buildAdjacencyList(
+      nodes,
+      edges.map((edge) => ({ from: edge.From, to: edge.To }))
+    );
+    console.log(adjList);
+    const topologicalOrder = topologicalSortKahn(adjList);
+    console.log(topologicalOrder);
+    const uniqueNodes = parseNode(
+      nodes,
+      nodes.length,
+      adjList,
+      topologicalOrder,
+      showGraphHorizontal
+    );
+    setNodesForGraph(uniqueNodes);
+    setEdgesForGraph(parseEdge(edges));
+    // const graph = renderTree(nodes, edges, showGraphHorizontal);
+    // console.log(graph.nodes, 'chk graph');
+    // setNodesForGraph(graph.nodes);
+    // setEdgesForGraph(graph.edges);
   }, [nodes, edges, showGraphHorizontal]);
 
   return {

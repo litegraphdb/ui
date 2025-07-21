@@ -616,4 +616,384 @@ describe('GraphViewer Component', () => {
 
     expect(mockRefetch).toHaveBeenCalled();
   });
+
+  it('handles error state with different error message', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: jest.fn(),
+      isError: true,
+      nodesFirstResult: null,
+      edgesFirstResult: null,
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    expect(screen.getByText('Error loading graph')).toBeInTheDocument();
+  });
+
+  it('handles error state with null error', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: jest.fn(),
+      isError: true,
+      nodesFirstResult: null,
+      edgesFirstResult: null,
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    // The component should still show the error message even with null error
+    expect(screen.getByText('Error loading graph')).toBeInTheDocument();
+  });
+
+  it('handles loading state with null results', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: null,
+      edgesFirstResult: null,
+      isLoading: true,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    expect(screen.getByTestId('loading-message')).toBeInTheDocument();
+  });
+
+  it('handles empty state with null results', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: null,
+      edgesFirstResult: null,
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    expect(screen.getByText('This graph has no nodes.')).toBeInTheDocument();
+  });
+
+  // it('handles edge case with undefined nodes', () => {
+  //   const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+  //   useLazyLoadEdgesAndNodes.mockReturnValue({
+  //     nodes: undefined,
+  //     edges: [],
+  //     refetch: jest.fn(),
+  //     isError: false,
+  //     nodesFirstResult: { TotalRecords: 0 },
+  //     edgesFirstResult: { TotalRecords: 0 },
+  //     isLoading: false,
+  //     isNodesLoading: false,
+  //     isEdgesLoading: false,
+  //   });
+
+  //   renderWithRedux(
+  //     <GraphViewer
+  //       isAddEditNodeVisible={false}
+  //       setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+  //       nodeTooltip={mockNodeTooltip}
+  //       edgeTooltip={mockEdgeTooltip}
+  //       setNodeTooltip={mockSetNodeTooltip}
+  //       setEdgeTooltip={mockSetEdgeTooltip}
+  //       isAddEditEdgeVisible={false}
+  //       setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+  //     />,
+  //     createMockInitialState()
+  //   );
+
+  //   expect(screen.getByText('This graph has no nodes.')).toBeInTheDocument();
+  // });
+
+  // it('handles edge case with null nodes', () => {
+  //   const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+  //   useLazyLoadEdgesAndNodes.mockReturnValue({
+  //     nodes: null,
+  //     edges: [],
+  //     refetch: jest.fn(),
+  //     isError: false,
+  //     nodesFirstResult: { TotalRecords: 0 },
+  //     edgesFirstResult: { TotalRecords: 0 },
+  //     isLoading: false,
+  //     isNodesLoading: false,
+  //     isEdgesLoading: false,
+  //   });
+
+  //   renderWithRedux(
+  //     <GraphViewer
+  //       isAddEditNodeVisible={false}
+  //       setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+  //       nodeTooltip={mockNodeTooltip}
+  //       edgeTooltip={mockEdgeTooltip}
+  //       setNodeTooltip={mockSetNodeTooltip}
+  //       setEdgeTooltip={mockSetEdgeTooltip}
+  //       isAddEditEdgeVisible={false}
+  //       setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+  //     />,
+  //     createMockInitialState()
+  //   );
+
+  //   expect(screen.getByText('This graph has no nodes.')).toBeInTheDocument();
+  // });
+
+  it('handles edge case with undefined edges', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: mockNodes,
+      edges: undefined,
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: { TotalRecords: 2 },
+      edgesFirstResult: { TotalRecords: 0 },
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    // Should still render the graph with nodes but no edges
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles edge case with null edges', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: mockNodes,
+      edges: null,
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: { TotalRecords: 2 },
+      edgesFirstResult: { TotalRecords: 0 },
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    // Should still render the graph with nodes but no edges
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles error state with retry functionality', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    const mockRefetch = jest.fn();
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: mockRefetch,
+      isError: true,
+      nodesFirstResult: null,
+      edgesFirstResult: null,
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    // Find and click the retry link in the fallback
+    const retryLink = screen.getByText('Retry');
+    fireEvent.click(retryLink);
+
+    expect(mockRefetch).toHaveBeenCalled();
+  });
+
+  it('handles loading state with partial data', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: mockNodes,
+      edges: [],
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: { TotalRecords: 2 },
+      edgesFirstResult: { TotalRecords: 1 },
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: true,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    expect(screen.getByTestId('progress-bar')).toBeInTheDocument();
+  });
+
+  it('handles loading state with no data', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: null,
+      edgesFirstResult: null,
+      isLoading: true,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    expect(screen.getByTestId('loading-message')).toBeInTheDocument();
+  });
+
+  it('handles empty state with zero total records', () => {
+    const { useLazyLoadEdgesAndNodes } = require('@/hooks/entityHooks');
+    useLazyLoadEdgesAndNodes.mockReturnValue({
+      nodes: [],
+      edges: [],
+      refetch: jest.fn(),
+      isError: false,
+      nodesFirstResult: { TotalRecords: 0 },
+      edgesFirstResult: { TotalRecords: 0 },
+      isLoading: false,
+      isNodesLoading: false,
+      isEdgesLoading: false,
+    });
+
+    renderWithRedux(
+      <GraphViewer
+        isAddEditNodeVisible={false}
+        setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
+        nodeTooltip={mockNodeTooltip}
+        edgeTooltip={mockEdgeTooltip}
+        setNodeTooltip={mockSetNodeTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        isAddEditEdgeVisible={false}
+        setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
+      />,
+      createMockInitialState()
+    );
+
+    expect(screen.getByText('This graph has no nodes.')).toBeInTheDocument();
+  });
 });

@@ -260,7 +260,6 @@ export const topologicalSortKahn2 = (
   const inDegree: Record<string, number> = {}; // In-degree for each node
   const queue: { id: string; x: number; y: number; z: number }[] = []; // Queue for nodes with in-degree 0
   const topologicalOrder: { id: string; x: number; y: number; z: number }[] = [];
-  const level = 0;
 
   // Initialize in-degree of all nodes to 0
   Object.keys(adjList).forEach((node) => {
@@ -288,7 +287,7 @@ export const topologicalSortKahn2 = (
     adjList[node.id].forEach((neighbor) => {
       inDegree[neighbor]--;
       if (inDegree[neighbor] === 0) {
-        queue.push({ id: neighbor, x: 0, y: node.y + 1, z: 0 });
+        queue.push({ id: neighbor, x: node.x + 1, y: node.y + 1, z: 0 });
       }
     });
 
@@ -327,7 +326,6 @@ function buildAdjacencyList2(nodes: Node[], edges: Edge[]) {
   return adjList;
 }
 
-// Perform DFS to assign positions (x, y) to each node
 function dfs(
   tree: { [key: string]: string[] },
   startNodeId: string,
@@ -335,20 +333,21 @@ function dfs(
   visited = new Set(),
   x = 0,
   y = 0,
-  levelIndex: Record<number, number> = {} // Track number of nodes at each level
+  parentPosition: Record<string, { x: number; y: number }> = {} // Track number of nodes at each level
 ) {
   visited.add(startNodeId);
 
   // Set the position for this node
   positions[startNodeId] = { x, y };
-
+  parentPosition[startNodeId] = { x: x, y: y };
   // Go through each child node and adjust the x and y based on the depth (y) and sibling index (x)
-  tree[startNodeId]?.forEach((childId) => {
+  tree[startNodeId]?.forEach((childId, index) => {
     if (!visited.has(childId)) {
-      // For each child node, adjust x and y based on sibling index
-      const siblingIndex = levelIndex[y] || 0; // How many siblings at this level
-      positions[childId] = { x: siblingIndex * 1000, y: y + 1 }; // Adjust x with spacing for siblings
-      levelIndex[y] = siblingIndex + 1; // Increment the sibling index for the level
+      const pPos = parentPosition[startNodeId] || { x: 0, y: 0 }; // How many siblings at this level
+      const startX =
+        pPos.x -
+        (tree[startNodeId].length - index) * Math.max(500 - Math.abs(pPos.y / 1000) * 100, 100);
+      positions[childId] = { x: startX + index * 1000, y: pPos.y - 1000 }; // Adjust x with spacing for siblings
 
       // Recursively call DFS for the child node
       dfs(
@@ -358,7 +357,7 @@ function dfs(
         visited,
         positions[childId].x,
         positions[childId].y,
-        levelIndex
+        parentPosition
       );
     }
   });
@@ -367,29 +366,30 @@ function dfs(
 }
 
 // Main function to render the tree (nodes and edges)
-export function renderTree(nodes: Node[], edges: Edge[]) {
+export function renderTree(nodes: Node[], edges: Edge[], showGraphHorizontal: boolean) {
   // Step 1: Build adjacency list
   const adjList = buildAdjacencyList2(nodes, edges);
 
   // Step 2: Perform DFS to assign positions (x, y) to each node
-  const topOrder = topologicalSortKahn2(adjList);
+  const topOrder = topologicalSortKahn(adjList);
 
   const visited = new Set();
   const positions: { [key: string]: { x: number; y: number } } = {};
-  const levelIndex: Record<number, number> = {}; // To track x position for siblings
+  const parentPosition: Record<string, { x: number; y: number }> = {}; // To track x position for siblings
 
   // Perform DFS starting from the root node (start with topological order)
-  dfs(adjList, topOrder[0]?.id, positions, visited, 0, 0, levelIndex);
+  dfs(adjList, topOrder[0]?.id, positions, visited, 0, 0, parentPosition);
 
   // Step 3: Return nodes with positions (x, y)
   const nodeData: NodeData[] = nodes.map((node) => {
     const position = positions[node.GUID];
+    console.log(position, `chk position ${node.Name}`);
     return {
       id: node.GUID,
       label: node.Name,
       type: 'server',
-      x: position?.x || 0,
-      y: position?.y || 0,
+      x: showGraphHorizontal ? position?.y || 0 : position?.x || 0,
+      y: showGraphHorizontal ? position?.x || 0 : position?.y || 0,
       z: 0, // You can adjust z if needed
       vx: 0,
       vy: 0,

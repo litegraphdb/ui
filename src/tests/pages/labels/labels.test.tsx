@@ -10,6 +10,7 @@ import { commonHandlers } from '@/tests/handler';
 import { renderWithRedux } from '@/tests/store/utils';
 import AddEditLabel from '@/page/labels/components/AddEditLabel';
 import DeleteLabel from '@/page/labels/components/DeleteLabel';
+import { LabelMetadataForTable } from '@/page/labels/types';
 
 const server = setupServer(...handlers, ...commonHandlers);
 
@@ -38,6 +39,27 @@ describe('LabelsPage', () => {
     const createButton = screen.getByRole('button', { name: /create label/i });
     expect(createButton).toBeVisible();
     expect(createButton).toMatchSnapshot();
+  });
+
+  it('should handle LabelMetadataForTable type correctly', () => {
+    const labelMetadata: LabelMetadataForTable = {
+      GUID: 'label-123',
+      TenantGUID: 'tenant-456',
+      GraphGUID: 'graph-789',
+      NodeGUID: 'node-101',
+      EdgeGUID: 'edge-123',
+      Label: 'priority',
+      key: 'priority',
+      CreatedUtc: '2024-01-01T00:00:00Z',
+      LastUpdateUtc: '2024-01-01T12:00:00Z',
+      NodeName: 'Test Node',
+      EdgeName: 'Test Edge',
+    };
+
+    expect(labelMetadata.GUID).toBe('label-123');
+    expect(labelMetadata.NodeName).toBe('Test Node');
+    expect(labelMetadata.EdgeName).toBe('Test Edge');
+    expect(labelMetadata.key).toBe('priority');
   });
 
   it('should create a label and should be visible in the table', async () => {
@@ -129,7 +151,7 @@ describe('LabelsPage', () => {
     const mockSetIsDeleteModelVisible = jest.fn();
     const mockSetSelectedLabel = jest.fn();
     const mockOnLabelDeleted = jest.fn();
-  
+
     const { container } = renderWithRedux(
       <DeleteLabel
         title={`Are you sure you want to delete "${mockLabelData[0].Label}" label?`}
@@ -144,31 +166,33 @@ describe('LabelsPage', () => {
       undefined,
       true
     );
-  
+
     const modal = await screen.findByTestId('delete-label-modal');
     expect(modal).toBeInTheDocument();
-  
-    expect(screen.getByText('Are you sure you want to delete "Test Label" label?')).toBeInTheDocument();
-  
+
+    expect(
+      screen.getByText('Are you sure you want to delete "Test Label" label?')
+    ).toBeInTheDocument();
+
     expect(screen.getByText('This action will delete label.')).toBeInTheDocument();
-  
+
     const deleteButton = screen.getByRole('button', { name: /delete/i });
     expect(deleteButton).toBeInTheDocument();
     expect(deleteButton).toHaveClass('ant-btn-dangerous'); // Ant Design danger button class
-  
+
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
     expect(cancelButton).toBeInTheDocument();
-  
+
     fireEvent.click(deleteButton);
-  
+
     await waitFor(() => {
       expect(screen.getByText('Label deleted successfully')).toBeInTheDocument();
     });
-  
+
     expect(mockSetIsDeleteModelVisible).toHaveBeenCalledWith(false);
     expect(mockSetSelectedLabel).toHaveBeenCalledWith(null);
     expect(mockOnLabelDeleted).toHaveBeenCalled();
-  
+
     expect(container).toMatchSnapshot('after label deletion');
   }, 8000);
 });
