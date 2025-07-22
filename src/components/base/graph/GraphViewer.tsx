@@ -1,8 +1,6 @@
 'use client';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { SigmaContainer } from '@react-sigma/core';
-import GraphLoader from './GraphLoader';
-import { MultiDirectedGraph } from 'graphology';
+import Graph2DViewer from './graph-2d/Graph2DViewer';
 import '@react-sigma/core/lib/react-sigma.min.css';
 import { useAppSelector } from '@/lib/store/hooks';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
@@ -21,6 +19,7 @@ import { Switch } from 'antd';
 import LitegraphFormItem from '../form/FormItem';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
+import ErrorBoundary from '@/hoc/ErrorBoundary';
 
 const GraphViewer = ({
   isAddEditNodeVisible,
@@ -50,6 +49,7 @@ const GraphViewer = ({
     width: undefined,
   });
   const [show3d, setShow3d] = useState(false);
+  const [showGraphHorizontal, setShowGraphHorizontal] = useState(false);
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const ref = useRef<HTMLDivElement>(null);
   const {
@@ -62,7 +62,7 @@ const GraphViewer = ({
     isLoading,
     isNodesLoading,
     isEdgesLoading,
-  } = useLazyLoadEdgesAndNodes(selectedGraphRedux);
+  } = useLazyLoadEdgesAndNodes(selectedGraphRedux, showGraphHorizontal);
 
   useEffect(() => {
     setShow3d(false);
@@ -130,7 +130,15 @@ const GraphViewer = ({
             total={edgesFirstResult?.TotalRecords || 0}
             label="Loading edges..."
           />
-        ) : null}
+        ) : (
+          <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
+            <Switch
+              size="small"
+              checked={showGraphHorizontal}
+              onChange={(checked) => setShowGraphHorizontal(checked)}
+            />
+          </LitegraphFormItem>
+        )}
         <LitegraphTooltip
           title={
             isNodesLoading || isEdgesLoading
@@ -148,93 +156,69 @@ const GraphViewer = ({
                 setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
               }}
               size="small"
+              data-testid="3d-switch"
             />
           </LitegraphFormItem>
         </LitegraphTooltip>
       </LitegraphFlex>
-      <div className={styles.graphContainer} ref={ref}>
-        <>
-          {isError ? (
-            <FallBack className="mt-lg" type={FallBackEnums.ERROR} retry={refetch}>
-              Error loading graph
-            </FallBack>
-          ) : isLoading && nodes.length === 0 ? (
-            <PageLoading />
-          ) : !nodes.length && !isLoading ? (
-            <FallBack className="mt-lg" type={FallBackEnums.WARNING}>
-              This graph has no nodes.
-            </FallBack>
-          ) : (
-            <>
-              {show3d && (
-                <GraphLoader3d
-                  nodes={nodes}
-                  edges={edges}
-                  setTooltip={setNodeTooltip}
-                  setEdgeTooltip={setEdgeTooltip}
-                  ref={ref}
-                  containerDivHeightAndWidth={containerDivHeightAndWidth}
-                />
-              )}
-              <SigmaContainer
-                className={show3d ? 'd-none' : ''}
-                key={selectedGraphRedux} // Force re-render when the context changes
-                style={{ height: '100%' }}
-                settings={{
-                  enableEdgeHoverEvents: true, // Explicitly enable edge hover events
-                  enableEdgeClickEvents: true, // Enable click events for edges
-                  defaultNodeColor: '#999',
-                  defaultEdgeColor: '#999',
-                  labelSize: 14,
-                  labelWeight: 'bold',
-                  renderEdgeLabels: true,
-                  renderLabels: false,
-                  edgeLabelSize: 12,
-                  minCameraRatio: 0.1,
-                  maxCameraRatio: 10,
-                  nodeReducer: (node, data) => ({
-                    ...data,
-                    highlighted: data.highlighted,
-                    size: data.highlighted ? 12 : 7,
-                    color: data.highlighted ? '#ff9900' : data.color,
-                  }),
-                  edgeReducer: (edge, data) => ({
-                    ...data,
-                    size: data.size * (data.highlighted ? 1.2 : 0.7),
-                    color: data.highlighted ? '#ff9900' : data.color,
-                    label: data.highlighted ? data.label : undefined,
-                  }),
-                }}
-                graph={MultiDirectedGraph}
-              >
-                <GraphLoader
-                  nodes={nodes}
-                  edges={edges}
-                  gexfContent={''}
-                  setTooltip={setNodeTooltip}
-                  setEdgeTooltip={setEdgeTooltip}
-                  nodeTooltip={nodeTooltip}
-                  edgeTooltip={edgeTooltip}
-                />
-              </SigmaContainer>
-            </>
-          )}
-          {nodeTooltip.visible && (
-            <NodeToolTip
-              tooltip={nodeTooltip}
-              setTooltip={setNodeTooltip}
-              graphId={selectedGraphRedux}
-            />
-          )}
-          {edgeTooltip.visible && (
-            <EdgeToolTip
-              tooltip={edgeTooltip}
-              setTooltip={setEdgeTooltip}
-              graphId={selectedGraphRedux}
-            />
-          )}
-        </>
-      </div>
+      <ErrorBoundary>
+        <div className={styles.graphContainer} ref={ref}>
+          <>
+            {isError ? (
+              <FallBack className="mt-lg" type={FallBackEnums.ERROR} retry={refetch}>
+                Error loading graph
+              </FallBack>
+            ) : isLoading && nodes.length === 0 ? (
+              <PageLoading />
+            ) : !nodes.length && !isLoading ? (
+              <FallBack className="mt-lg" type={FallBackEnums.WARNING}>
+                This graph has no nodes.
+              </FallBack>
+            ) : (
+              <>
+                {show3d ? (
+                  <GraphLoader3d
+                    nodes={nodes}
+                    edges={edges}
+                    setTooltip={setNodeTooltip}
+                    setEdgeTooltip={setEdgeTooltip}
+                    ref={ref}
+                    containerDivHeightAndWidth={containerDivHeightAndWidth}
+                  />
+                ) : (
+                  <Graph2DViewer
+                    show3d={show3d}
+                    selectedGraphRedux={selectedGraphRedux}
+                    nodes={nodes}
+                    edges={edges}
+                    gexfContent={''}
+                    setTooltip={setNodeTooltip}
+                    setEdgeTooltip={setEdgeTooltip}
+                    nodeTooltip={nodeTooltip}
+                    edgeTooltip={edgeTooltip}
+                  />
+                )}
+              </>
+            )}
+            {nodeTooltip.visible && (
+              <NodeToolTip
+                tooltip={nodeTooltip}
+                setTooltip={setNodeTooltip}
+                graphId={selectedGraphRedux}
+                data-testid="node-tooltip"
+              />
+            )}
+            {edgeTooltip.visible && (
+              <EdgeToolTip
+                tooltip={edgeTooltip}
+                setTooltip={setEdgeTooltip}
+                graphId={selectedGraphRedux}
+                data-testid="edge-tooltip"
+              />
+            )}
+          </>
+        </div>
+      </ErrorBoundary>
     </div>
   );
 };

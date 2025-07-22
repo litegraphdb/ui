@@ -343,3 +343,46 @@ export function getMockEnumerateQueryData<T>(data: T[]): EnumerateResponse<T> {
     Objects: data,
   } as EnumerateResponse<T>;
 }
+
+// mockData.ts
+
+export const mockToken = {
+  AccessToken: 'mocked-access-token',
+  ExpiresIn: 3600,
+  RefreshToken: 'mocked-refresh-token',
+  TokenType: 'Bearer',
+  GUID: 'mock-token-guid',
+  CreatedAt: new Date().toISOString(),
+};
+
+export const mockUser = {
+  id: 'user-123-456',
+  email: 'test@example.com',
+  name: 'Test User',
+  role: 'user',
+  permissions: ['read', 'write'],
+  avatar: 'https://example.com/avatar.jpg',
+  createdAt: '2024-01-01T00:00:00Z',
+  lastLogin: '2024-01-15T10:30:00Z',
+};
+
+export const mockAdminUser = {
+  id: 'admin-123-456',
+  email: 'admin@example.com',
+  name: 'Admin User',
+  role: 'admin',
+  permissions: ['read', 'write', 'delete', 'admin'],
+  avatar: 'https://example.com/admin-avatar.jpg',
+  createdAt: '2024-01-01T00:00:00Z',
+  lastLogin: '2024-01-15T09:00:00Z',
+};
+export const mockTenant = {
+  GUID: 'tenant-123-456-789',
+  Name: 'Test Tenant',
+  Description: 'A test tenant for development',
+  Status: 'Active',
+  CreatedAt: '2024-01-01T00:00:00Z',
+  UpdatedAt: '2024-01-01T00:00:00Z',
+  DatabaseUrl: 'postgresql://localhost:5432/test_tenant',
+  SchemaVersion: '1.0.0',
+};

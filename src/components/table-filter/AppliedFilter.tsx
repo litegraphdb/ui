@@ -19,7 +19,6 @@ const AppliedFilter = ({
   entityName?: string;
   onClear: () => void;
 }) => {
-  console.log(searchParams, 'searchParams');
   return (
     <>
       {Boolean(Object.keys(searchParams).length) && (

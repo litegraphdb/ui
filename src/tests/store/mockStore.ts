@@ -26,7 +26,7 @@
 // };
 
 // tests/store/mockStore.ts
-import { RootState } from '@/lib/store/store';
+import { RootState, AppStore, AppDispatch } from '@/lib/store/store';
 import { configureStore } from '@reduxjs/toolkit';
 import sdkSlice from '@/lib/store/rtk/rtkSdkInstance';
 import { mockTenantData } from '../pages/mockData';
@@ -55,3 +55,14 @@ export const createMockStore = (initialState: RootState) => {
   });
 };
 
+// Test function to ensure store types are used
+export const testStoreTypes = () => {
+  const initialState = createMockInitialState();
+  const store = createMockStore(initialState);
+
+  // This ensures the types are used and covered
+  const storeType: AppStore = store;
+  const dispatchType: AppDispatch = store.dispatch;
+
+  return { storeType, dispatchType, initialState };
+};

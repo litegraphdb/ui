@@ -110,9 +110,11 @@ const GraphPage = () => {
   );
 
   if (graphError) {
-    <FallBack retry={refetchGraphs}>
-      {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
-    </FallBack>;
+    return (
+      <FallBack retry={refetchGraphs}>
+        {graphError ? 'Something went wrong.' : "Can't view details at the moment."}
+      </FallBack>
+    );
   }
 
   return (

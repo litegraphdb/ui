@@ -10,7 +10,13 @@ import {
 } from '@/lib/store/slice/slice';
 import { useEffect, useRef, useState } from 'react';
 import { Edge, EnumerateResponse, Node } from 'litegraphdb/dist/types/types';
-import { parseEdge, parseNode } from '@/lib/graph/parser';
+import {
+  buildAdjacencyList,
+  topologicalSortKahn,
+  parseEdge,
+  parseNode,
+  renderTree,
+} from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 
 export const useCurrentTenant = () => {
@@ -64,7 +70,7 @@ export const useNodeAndEdge = (graphId: string) => {
 export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => {
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Node> | null>(null);
-  const [nodes, setNodes] = useState<NodeData[]>([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined);
   const isFirstRender = useRef(true);
   const {
@@ -76,7 +82,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   } = useEnumerateAndSearchNodeQuery(
     {
       graphId,
-      request: { MaxResults: 50, ContinuationToken: continuationToken },
+      request: { MaxResults: 50, ContinuationToken: continuationToken, IncludeSubordinates: true },
     },
     { skip: !graphId }
   );
@@ -84,11 +90,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   useEffect(() => {
     setLoading(true);
     if (nodesList?.Objects?.length) {
-      const uniqueNodes = parseNode(
-        nodesList.Objects,
-        firstResult ? firstResult.TotalRecords : nodesList.TotalRecords
-      ).filter((node) => !nodes.some((n) => n.id === node.id));
-      const updatedNodes = [...nodes, ...uniqueNodes];
+      const updatedNodes = [...nodes, ...nodesList.Objects];
       setNodes(updatedNodes);
     } else {
       setLoading(false);
@@ -138,7 +140,7 @@ export const useLazyLoadEdges = (
 ) => {
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Edge> | null>(null);
-  const [edges, setEdges] = useState<EdgeData[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined);
   const {
     data: edgesList,
@@ -157,10 +159,7 @@ export const useLazyLoadEdges = (
   useEffect(() => {
     setLoading(true);
     if (edgesList?.Objects?.length) {
-      const uniqueEdges = parseEdge(edgesList.Objects).filter(
-        (edge) => !edges.some((e) => e.id === edge.id)
-      );
-      const updatedEdges = [...edges, ...uniqueEdges];
+      const updatedEdges = [...edges, ...edgesList.Objects];
       setEdges(updatedEdges);
     } else {
       setLoading(false);
@@ -197,7 +196,9 @@ export const useLazyLoadEdges = (
   };
 };
 
-export const useLazyLoadEdgesAndNodes = (graphId: string) => {
+export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: boolean) => {
+  const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
+  const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
   const {
     nodes,
@@ -215,13 +216,37 @@ export const useLazyLoadEdgesAndNodes = (graphId: string) => {
     isEdgesError,
   } = useLazyLoadEdges(graphId, () => setDoNotFetchEdgesOnRender(true), doNotFetchEdgesOnRender);
 
-  // useEffect(() => {
-  //   dispatch(sdkSlice.util.invalidateTags([SliceTags.RESET] as any));
-  // }, [graphId]);
+  useEffect(() => {
+    const adjList = buildAdjacencyList(
+      nodes,
+      edges.map((edge) => ({ from: edge.From, to: edge.To }))
+    );
+    console.log(adjList);
+    const topologicalOrder = topologicalSortKahn(adjList);
+    console.log(topologicalOrder);
+    const uniqueNodes = parseNode(
+      nodes,
+      nodes.length,
+      adjList,
+      topologicalOrder,
+      showGraphHorizontal
+    );
+    setNodesForGraph(uniqueNodes);
+    const nodeIds = uniqueNodes.map((node) => node.id);
+    setEdgesForGraph(
+      parseEdge(
+        edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
+      )
+    );
+    // const graph = renderTree(nodes, edges, showGraphHorizontal);
+    // console.log(graph.nodes, 'chk graph');
+    // setNodesForGraph(graph.nodes);
+    // setEdgesForGraph(graph.edges);
+  }, [nodes, edges, showGraphHorizontal]);
 
   return {
-    nodes,
-    edges,
+    nodes: nodesForGraph,
+    edges: edgesForGraph,
     isNodesLoading,
     isEdgesLoading,
     isLoading: isNodesLoading || isEdgesLoading,

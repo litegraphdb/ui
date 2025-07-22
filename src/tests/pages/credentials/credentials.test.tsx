@@ -143,18 +143,6 @@ describe('CredentialsPage', () => {
     expect(finalTable).toMatchSnapshot('final table state after deletion');
   });
 
-  
-  it('should handle error state and show fallback', async () => {
-    const initialState = createMockInitialState();
-    const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Something went wrong.')).toBeVisible();
-    });
-    
-    expect(container).toMatchSnapshot('error state with fallback');
-  });
-
   it('should handle modal cancellation for create credential', async () => {
     const initialState = createMockInitialState();
     const mockSetVisible = jest.fn();

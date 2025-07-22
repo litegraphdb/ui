@@ -3,7 +3,12 @@ import { GraphEdgeTooltip } from './types';
 import { Dispatch, SetStateAction, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
-import { CloseCircleFilled, ExpandOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CloseCircleFilled,
+  CopyOutlined,
+  ExpandOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import FallBack from '@/components/base/fallback/FallBack';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphFlex from '@/components/base/flex/Flex';
@@ -21,6 +26,7 @@ import {
   useGetGraphGexfContentQuery,
   useGetManyNodesQuery,
 } from '@/lib/store/slice/slice';
+import { copyTextToClipboard } from '@/utils/jsonCopyUtils';
 
 type EdgeTooltipProps = {
   tooltip: GraphEdgeTooltip;
@@ -121,10 +127,19 @@ const EdgeToolTip = ({ tooltip, setTooltip, graphId }: EdgeTooltipProps) => {
             // Ready to show data after API is ready
             <LitegraphFlex vertical>
               <LitegraphFlex vertical className="card-details">
+                <LitegraphText data-testid="edge-guid">
+                  <strong>GUID: </strong>
+                  {edge?.GUID}{' '}
+                  <CopyOutlined
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      copyTextToClipboard(edge?.GUID || '', 'GUID');
+                    }}
+                  />
+                </LitegraphText>
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {edge?.Name}{' '}
-                  <LitegraphText color="gray" fontSize={12}>{`[${edge?.GUID}]`}</LitegraphText>
+                  {edge?.Name}
                 </LitegraphText>
 
                 <LitegraphText>

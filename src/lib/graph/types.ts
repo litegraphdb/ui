@@ -4,6 +4,7 @@ export interface NodeData {
   type: string;
   x: number;
   y: number;
+  z: number;
   vx: number;
   vy: number;
   isDragging?: boolean;
