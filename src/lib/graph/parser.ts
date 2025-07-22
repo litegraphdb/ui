@@ -89,7 +89,7 @@ export const buildAdjacencyList = (nodes: Node[], dependencies: { from: string; 
 
   // Add dependencies to the adjacency list
   dependencies.forEach((dependency) => {
-    adjList[dependency.from].push(dependency.to);
+    adjList[dependency.from]?.push(dependency.to);
   });
 
   return adjList;
@@ -159,23 +159,16 @@ export function parseNode(
   adjList: Record<string, string[]>, // adjacency list (node dependencies)
   topologicalOrder: { id: string; x: number; y: number; z: number }[], // topological sort order of node GUIDs
   showGraphHorizontal = false,
-  centerX = 5000, // Center X position (where the topological order starts)
-  centerY = 5000, // Base Y position (used for vertical stacking)
-  centerZ = 5000, // Base Z position (used for depth stacking)
-  horizontalSpacing = 25000, // Spacing between nodes in the x-direction
-  verticalSpacing = 100000, // Base spacing between layers in the y-direction
+  centerX = 0, // Center X position (where the topological order starts)
+  centerY = 0, // Base Y position (used for vertical stacking)
+  centerZ = 0, // Base Z position (used for depth stacking)
+  horizontalSpacing = 100, // Spacing between nodes in the x-direction
+  verticalSpacing = 200, // Base spacing between layers in the y-direction
   depthSpacing = 1000 // Spacing between layers in the z-direction
 ): NodeData[] {
   const existingNodeCount = totalNodes;
 
   // Create a map of node GUID to its index in the topological order
-  const nodeIndexMap = topologicalOrder.reduce(
-    (acc, nodeId, index) => {
-      acc[nodeId.id] = index;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
 
   // 1. Initialize depth for each node and calculate the depths
   const nodeDepthMap: Record<string, number> = {};
@@ -203,21 +196,39 @@ export function parseNode(
       calculateDepth(node.id);
     }
   });
-
+  console.log(nodeDepthMap, 'chk nodeDepthMap');
+  const nodesInEachDepth = Object.entries(nodeDepthMap).reduce(
+    (acc, [nodeId, depth]) => {
+      acc[depth] = [...(acc[depth] || []), nodeId];
+      return acc;
+    },
+    {} as Record<number, string[]>
+  );
+  console.log(nodesInEachDepth, 'chk nodesInEachDepth');
   // 2. Assign x, y, z positions based on topological order and calculated depths
   return nodes.map((node, i) => {
     // Get the topological position of the node in the sorted list
-    const sortedIndex = nodeIndexMap[node.GUID] ?? i; // Fallback to 'i' if the node is not in the topological order
+    const depth = nodeDepthMap[node.GUID] ?? 0; // Depth of the current
+    const nodesInDepth = nodesInEachDepth[depth] ?? 0;
+    const nodeIndexMap = nodesInDepth.reduce(
+      (acc, nodeId, index) => {
+        acc[nodeId] = index;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+    const sortedIndex = nodeIndexMap[node.GUID] ?? i; // Fallback to 'i' if the node is not in the topological ordernode
 
     // Position nodes along the x-axis based on the sorted order
-    const x = centerX + sortedIndex * horizontalSpacing;
-
+    const x =
+      centerX -
+      Math.abs(((nodesInDepth.length - 1) * horizontalSpacing) / 2) +
+      sortedIndex * horizontalSpacing;
     // Calculate y-position using node depth and vertical spacing
-    const depth = nodeDepthMap[node.GUID] ?? 0; // Depth of the current node
-    const y = centerY + depth * verticalSpacing;
+    const y = centerY - depth * verticalSpacing;
 
     // Calculate z-position based on depth and a new spacing
-    const z = centerZ + depth * depthSpacing;
+    const z = centerZ - depth * depthSpacing;
 
     return {
       id: node.GUID,

@@ -5,6 +5,7 @@
   background: transparent;
   :global {
     .ant-card {
+      width: 400px !important;
       overflow: hidden;
       position: relative;
       border: 1px solid var(--ant-color-border) !important;

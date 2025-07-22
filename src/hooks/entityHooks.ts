@@ -82,7 +82,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   } = useEnumerateAndSearchNodeQuery(
     {
       graphId,
-      request: { MaxResults: 50, ContinuationToken: continuationToken },
+      request: { MaxResults: 50, ContinuationToken: continuationToken, IncludeSubordinates: true },
     },
     { skip: !graphId }
   );
@@ -232,7 +232,12 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
       showGraphHorizontal
     );
     setNodesForGraph(uniqueNodes);
-    setEdgesForGraph(parseEdge(edges));
+    const nodeIds = uniqueNodes.map((node) => node.id);
+    setEdgesForGraph(
+      parseEdge(
+        edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
+      )
+    );
     // const graph = renderTree(nodes, edges, showGraphHorizontal);
     // console.log(graph.nodes, 'chk graph');
     // setNodesForGraph(graph.nodes);

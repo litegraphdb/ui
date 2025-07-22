@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import GraphLoader from '@/components/base/graph/GraphLoader';
+import GraphLoader from '@/components/base/graph/graph-2d/SigmaGraphLoader';
 import { GraphNodeTooltip, GraphEdgeTooltip } from '@/components/base/graph/types';
 import { NodeData, EdgeData } from '@/lib/graph/types';
 import { createMockInitialState } from '../../../store/mockStore';
@@ -93,6 +93,7 @@ describe('GraphLoader Component', () => {
       type: 'circle',
       vx: 0,
       vy: 0,
+      z: 0,
     },
     {
       id: 'node2',
@@ -102,6 +103,7 @@ describe('GraphLoader Component', () => {
       type: 'circle',
       vx: 0,
       vy: 0,
+      z: 0,
     },
   ];
 

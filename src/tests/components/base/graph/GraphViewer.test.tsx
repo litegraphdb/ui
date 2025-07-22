@@ -16,7 +16,7 @@ jest.mock('@react-sigma/core', () => ({
 }));
 
 // Mock the GraphLoader component
-jest.mock('@/components/base/graph/GraphLoader', () => {
+jest.mock('@/components/base/graph/graph-2d/SigmaGraphLoader', () => {
   return function MockGraphLoader(props: any) {
     return (
       <div
@@ -365,7 +365,7 @@ describe('GraphViewer Component', () => {
       createMockInitialState()
     );
 
-    const switchElement = screen.getByRole('switch');
+    const switchElement = screen.getByTestId('3d-switch');
     fireEvent.click(switchElement);
 
     expect(screen.getByTestId('graph-loader-3d')).toBeInTheDocument();
@@ -411,7 +411,7 @@ describe('GraphViewer Component', () => {
       createMockInitialState()
     );
 
-    const switchElement = screen.getByRole('switch');
+    const switchElement = screen.getByTestId('3d-switch');
     expect(switchElement).toBeDisabled();
   });
 
@@ -483,7 +483,7 @@ describe('GraphViewer Component', () => {
     );
 
     // Enable 3D view
-    const switchElement = screen.getByRole('switch');
+    const switchElement = screen.getByTestId('3d-switch');
     fireEvent.click(switchElement);
     expect(screen.getByTestId('graph-loader-3d')).toBeInTheDocument();
 
@@ -573,7 +573,7 @@ describe('GraphViewer Component', () => {
     );
 
     // Enable 3D view
-    const switchElement = screen.getByRole('switch');
+    const switchElement = screen.getByTestId('3d-switch');
     fireEvent.click(switchElement);
 
     const graphLoader3d = screen.getByTestId('graph-loader-3d');

@@ -139,7 +139,7 @@ describe('NodeToolTip Component', () => {
       createMockInitialState()
     );
 
-    expect(screen.getByText('[test-node-id]')).toBeInTheDocument();
+    expect(screen.getByTestId('node-guid')).toBeInTheDocument();
   });
 
   it('handles complex tag objects', () => {

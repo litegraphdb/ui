@@ -16,12 +16,10 @@ import { NodeType } from '@/types/types';
 import DeleteNode from '@/page/nodes/components/DeleteNode';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
-import { pluralize } from '@/utils/stringUtils';
 import classNames from 'classnames';
 import styles from './tooltip.module.scss';
-import { copyJsonToClipboard } from '@/utils/jsonCopyUtils';
-import { useGetGraphGexfContentQuery, useGetNodeByIdQuery } from '@/lib/store/slice/slice';
-import { decodeToJSON } from '@/utils/appUtils';
+import { copyTextToClipboard } from '@/utils/jsonCopyUtils';
+import { useGetNodeByIdQuery } from '@/lib/store/slice/slice';
 
 type NodeTooltipProps = {
   tooltip: GraphNodeTooltip;
@@ -134,10 +132,19 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
             // Ready to show data after API is ready
             <LitegraphFlex vertical>
               <LitegraphFlex vertical className="card-details">
+                <LitegraphText data-testid="node-guid">
+                  <strong>GUID: </strong>
+                  {node?.GUID}{' '}
+                  <CopyOutlined
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      copyTextToClipboard(node?.GUID || '', 'GUID');
+                    }}
+                  />
+                </LitegraphText>
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {node?.Name}{' '}
-                  <LitegraphText color="gray" fontSize={12}>{`[${node?.GUID}]`}</LitegraphText>
+                  {node?.Name}
                 </LitegraphText>
 
                 <LitegraphText>

@@ -156,6 +156,7 @@ const GraphViewer = ({
                 setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
               }}
               size="small"
+              data-testid="3d-switch"
             />
           </LitegraphFormItem>
         </LitegraphTooltip>
@@ -204,6 +205,7 @@ const GraphViewer = ({
                 tooltip={nodeTooltip}
                 setTooltip={setNodeTooltip}
                 graphId={selectedGraphRedux}
+                data-testid="node-tooltip"
               />
             )}
             {edgeTooltip.visible && (
@@ -211,6 +213,7 @@ const GraphViewer = ({
                 tooltip={edgeTooltip}
                 setTooltip={setEdgeTooltip}
                 graphId={selectedGraphRedux}
+                data-testid="edge-tooltip"
               />
             )}
           </>

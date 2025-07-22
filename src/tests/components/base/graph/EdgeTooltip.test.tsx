@@ -155,6 +155,6 @@ describe('EdgeTooltip Component', () => {
       createMockInitialState()
     );
 
-    expect(screen.getByText('[test-edge-id]')).toBeInTheDocument();
+    expect(screen.getByTestId('edge-guid')).toBeInTheDocument();
   });
 });

@@ -53,7 +53,7 @@ export const calculateTooltipPosition = (
   x: number,
   y: number,
   popupHeight: number = 320,
-  popupWidth: number = 310
+  popupWidth: number = 410
 ) => {
   // Get popup dimensions
   const viewportWidth = window.innerWidth;

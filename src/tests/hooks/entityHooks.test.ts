@@ -41,6 +41,9 @@ jest.mock('@/lib/graph/utils', () => ({
 jest.mock('@/lib/graph/parser', () => ({
   parseNode: jest.fn(),
   parseEdge: jest.fn(),
+  buildAdjacencyList: jest.fn(() => ({})),
+  topologicalSortKahn: jest.fn(() => []),
+  renderTree: jest.fn(() => ({ nodes: [], edges: [] })),
 }));
 
 describe('Entity Hooks', () => {
@@ -217,7 +220,7 @@ describe('Entity Hooks', () => {
       expect(useEnumerateAndSearchNodeQuery).toHaveBeenCalledWith(
         {
           graphId: 'graph-123',
-          request: { MaxResults: 50, ContinuationToken: undefined },
+          request: { MaxResults: 50, ContinuationToken: undefined, IncludeSubordinates: true },
         },
         { skip: false }
       );
@@ -329,8 +332,29 @@ describe('Entity Hooks', () => {
   });
 
   describe('useLazyLoadEdgesAndNodes', () => {
+    beforeEach(() => {
+      (useEnumerateAndSearchNodeQuery as jest.Mock).mockReturnValue({
+        data: null,
+        refetch: jest.fn(),
+        isLoading: false,
+        isFetching: false,
+        isError: false,
+      });
+
+      (useEnumerateAndSearchEdgeQuery as jest.Mock).mockReturnValue({
+        data: null,
+        refetch: jest.fn(),
+        isLoading: false,
+        isFetching: false,
+        isError: false,
+      });
+
+      (parseNode as jest.Mock).mockReturnValue([]);
+      (parseEdge as jest.Mock).mockReturnValue([]);
+    });
+    
     it('should return correct structure', () => {
-      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123'));
+      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123', false));
 
       expect(result.current).toHaveProperty('nodes');
       expect(result.current).toHaveProperty('edges');
@@ -348,7 +372,7 @@ describe('Entity Hooks', () => {
     });
 
     it('should provide refetch function', () => {
-      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123'));
+      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123', false));
 
       expect(typeof result.current.refetch).toBe('function');
 
@@ -357,7 +381,7 @@ describe('Entity Hooks', () => {
     });
 
     it('should handle loading states', () => {
-      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123'));
+      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123', false));
 
       expect(typeof result.current.isLoading).toBe('boolean');
       expect(typeof result.current.isNodesLoading).toBe('boolean');
@@ -365,7 +389,7 @@ describe('Entity Hooks', () => {
     });
 
     it('should handle error states', () => {
-      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123'));
+      const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123', false));
 
       expect(typeof result.current.isError).toBe('boolean');
       expect(typeof result.current.isNodesError).toBe('boolean');
