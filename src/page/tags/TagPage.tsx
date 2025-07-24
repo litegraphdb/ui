@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { PlusSquareOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusSquareOutlined, RedoOutlined } from '@ant-design/icons';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
@@ -21,6 +21,9 @@ import {
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { getNodeAndEdgeGUIDsByEntityList } from '@/utils/dataUtils';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import LitegraphText from '@/components/base/typograpghy/Text';
+import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 
 const TagPage = () => {
   // Redux state for the list of graphs
@@ -103,7 +106,18 @@ const TagPage = () => {
   return (
     <PageContainer
       id="tags"
-      pageTitle={'Tags'}
+      pageTitle={
+        <LitegraphFlex align="center" gap={10}>
+          <LitegraphText>Tags</LitegraphText>
+        {isTagsLoading ? (
+          <LoadingOutlined className="loading-icon" />
+        ) : (
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchTagsList} />
+            </LitegraphTooltip>
+        )}
+        </LitegraphFlex>
+        }
       pageTitleRightContent={
         <>
           {selectedGraphRedux && (

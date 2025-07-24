@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { PlusSquareOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusSquareOutlined, RedoOutlined } from '@ant-design/icons';
 import LitegraphTable from '@/components/base/table/Table';
 import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
@@ -20,6 +20,9 @@ import {
 import { usePagination } from '@/hooks/appHooks';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { getNodeAndEdgeGUIDsByEntityList } from '@/utils/dataUtils';
+import LitegraphText from '@/components/base/typograpghy/Text';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 
 const VectorPage = () => {
   // Redux state for the list of graphs
@@ -108,7 +111,18 @@ const VectorPage = () => {
   return (
     <PageContainer
       id="vectors"
-      pageTitle={'Vectors'}
+      pageTitle={
+        <LitegraphFlex align="center" gap={10}>
+          <LitegraphText>Vectors</LitegraphText>
+          {isVectorsLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : (
+                  <LitegraphTooltip title="Refresh Data" placement="right">
+                  <RedoOutlined className="cursor-pointer" onClick={fetchVectorsList} />
+                </LitegraphTooltip>
+          )}
+        </LitegraphFlex>
+      }
       pageTitleRightContent={
         <>
           {selectedGraphRedux && (

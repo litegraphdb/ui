@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
+import { CloseOutlined, LoadingOutlined, PlusSquareOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
 import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
@@ -23,6 +23,7 @@ import { tablePaginationConfig } from '@/constants/pagination';
 import { useEnumerateAndSearchEdgeQuery, useGetManyNodesQuery } from '@/lib/store/slice/slice';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 import AppliedFilter from '@/components/table-filter/AppliedFilter';
+import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 
 const EdgePage = () => {
   // Redux state for the list of graphs
@@ -107,6 +108,13 @@ const EdgePage = () => {
           <LitegraphText>Edges</LitegraphText>
           {selectedGraphRedux && (
             <SearchOutlined className="cursor-pointer" onClick={() => setShowSearchModal(true)} />
+          )}
+          {isEdgesLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : (
+              <LitegraphTooltip title="Refresh Data" placement="right">
+                <RedoOutlined className="cursor-pointer" onClick={fetchEdgesList} />
+              </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }
