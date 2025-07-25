@@ -17,6 +17,7 @@ import {
   parseNode,
   renderTree,
   parseCircularNode,
+  parseCircularNodeDeterministic,
 } from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 
@@ -72,6 +73,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Node> | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
+  const [processedNodes, setProcessedNodes] = useState<NodeData[]>([]);
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined);
   const isFirstRender = useRef(true);
   const {
@@ -88,11 +90,23 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     { skip: !graphId }
   );
   const isLoadingOrFetching = isLoading || isFetching;
+
   useEffect(() => {
     setLoading(true);
     if (nodesList?.Objects?.length) {
       const updatedNodes = [...nodes, ...nodesList.Objects];
       setNodes(updatedNodes);
+
+      // Only process new nodes to avoid shuffling existing ones
+      const newNodes = nodesList.Objects;
+      const newProcessedNodes = parseCircularNodeDeterministic(newNodes);
+
+      // Merge with existing processed nodes, preserving their positions
+      setProcessedNodes((prevProcessedNodes) => {
+        const existingNodeIds = new Set(prevProcessedNodes.map((node) => node.id));
+        const newNodesToAdd = newProcessedNodes.filter((node) => !existingNodeIds.has(node.id));
+        return [...prevProcessedNodes, ...newNodesToAdd];
+      });
     } else {
       setLoading(false);
     }
@@ -116,6 +130,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     }
 
     setNodes([]);
+    setProcessedNodes([]);
     setFirstResult(null);
     setContinuationToken(undefined);
     try {
@@ -127,6 +142,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
 
   return {
     nodes,
+    processedNodes,
     refetchNodes: fetchNodesList,
     firstResult,
     isNodesError,
@@ -205,6 +221,7 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
 
   const {
     nodes,
+    processedNodes,
     isNodesLoading,
     refetchNodes,
     firstResult: nodesFirstResult,
@@ -231,9 +248,8 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
     if (!nodes.length) return;
 
     if (!edgesFetched || isEdgesLoading) {
-      // Use circular layout while edges are still loading
-      const circularNodes = parseCircularNode(nodes, 0);
-      setNodesForGraph(circularNodes);
+      // Use processed circular nodes while edges are still loading
+      setNodesForGraph(processedNodes);
       setEdgesForGraph([]); // No edges while loading
     } else {
       // Use topological layout once edges are fetched
@@ -259,7 +275,7 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
         )
       );
     }
-  }, [nodes, edges, showGraphHorizontal, edgesFetched, isEdgesLoading]);
+  }, [nodes, processedNodes, edges, showGraphHorizontal, edgesFetched, isEdgesLoading]);
 
   // Reset edgesFetched when graphId changes
   useEffect(() => {
@@ -269,6 +285,7 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
   return {
     nodes: nodesForGraph,
     edges: edgesForGraph,
+    rawEdges: edges, // Add raw edges for progress bar
     isNodesLoading,
     isEdgesLoading,
     isLoading: isNodesLoading || isEdgesLoading,

@@ -452,3 +452,47 @@ export function parseCircularNode(
     };
   });
 }
+
+// New deterministic circular layout that doesn't shuffle during lazy loading
+export function parseCircularNodeDeterministic(
+  nodes: Node[],
+  radiusStep = 200,
+  centerX = 5000,
+  centerY = 5000
+): NodeData[] {
+  return nodes.map((node) => {
+    // Use a hash of the node ID to create deterministic positions
+    const hash = node.GUID.split('').reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+
+    // Use hash to determine circle index
+    const circleIndex = Math.abs(hash) % 5; // Fixed number of circles (0-4)
+
+    // Band radius range
+    const minRadius = circleIndex * radiusStep;
+    const maxRadius = (circleIndex + 1) * radiusStep;
+
+    // Deterministic radius within band
+    const radius = minRadius + (Math.abs(hash) % (maxRadius - minRadius));
+
+    // Deterministic angle based on hash
+    const angle = (Math.abs(hash) % 360) * (Math.PI / 180);
+
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    return {
+      id: node.GUID,
+      label: node.Name,
+      type: 'server',
+      x,
+      y,
+      z: 0,
+      vx: 0,
+      vy: 0,
+      isDragging: false,
+    };
+  });
+}

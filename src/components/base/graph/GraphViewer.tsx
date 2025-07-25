@@ -55,6 +55,7 @@ const GraphViewer = ({
   const {
     nodes,
     edges,
+    rawEdges,
     refetch,
     isError,
     nodesFirstResult,
@@ -126,7 +127,7 @@ const GraphViewer = ({
           />
         ) : isEdgesLoading ? (
           <ProgressBar
-            loaded={edges.length}
+            loaded={rawEdges.length}
             total={edgesFirstResult?.TotalRecords || 0}
             label="Loading edges..."
           />

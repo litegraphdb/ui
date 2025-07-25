@@ -130,6 +130,7 @@ describe('GraphViewer Component', () => {
     useLazyLoadEdgesAndNodes.mockReturnValue({
       nodes: mockNodes,
       edges: mockEdges,
+      rawEdges: mockEdges,
       refetch: jest.fn(),
       isError: false,
       nodesFirstResult: { TotalRecords: 2 },
@@ -199,6 +200,7 @@ describe('GraphViewer Component', () => {
     useLazyLoadEdgesAndNodes.mockReturnValue({
       nodes: [],
       edges: [],
+      rawEdges: [],
       refetch: jest.fn(),
       isError: false,
       nodesFirstResult: { TotalRecords: 2 },
@@ -230,6 +232,7 @@ describe('GraphViewer Component', () => {
     useLazyLoadEdgesAndNodes.mockReturnValue({
       nodes: mockNodes,
       edges: [],
+      rawEdges: [],
       refetch: jest.fn(),
       isError: false,
       nodesFirstResult: { TotalRecords: 2 },
@@ -909,6 +912,7 @@ describe('GraphViewer Component', () => {
     useLazyLoadEdgesAndNodes.mockReturnValue({
       nodes: mockNodes,
       edges: [],
+      rawEdges: [],
       refetch: jest.fn(),
       isError: false,
       nodesFirstResult: { TotalRecords: 2 },
