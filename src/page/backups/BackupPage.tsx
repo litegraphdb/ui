@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { PlusSquareOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusSquareOutlined, RedoOutlined } from '@ant-design/icons';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
@@ -13,6 +13,9 @@ import { toast } from 'react-hot-toast';
 import { globalToastId } from '@/constants/config';
 import { useReadAllBackupsQuery, useReadBackupMutation } from '@/lib/store/slice/slice';
 import { BackupMetaData } from 'litegraphdb/dist/types/types';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import LitegraphText from '@/components/base/typograpghy/Text';
+import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 
 const BackupPage = () => {
   const [isDeleteBackupVisible, setIsDeleteBackupVisible] = useState(false);
@@ -53,7 +56,18 @@ const BackupPage = () => {
   return (
     <PageContainer
       id="backups"
-      pageTitle="Backups"
+      pageTitle={
+        <LitegraphFlex align="center" gap={10}>
+          <LitegraphText>Backups</LitegraphText>
+          {isBackupsLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : ( 
+              <LitegraphTooltip title="Refresh Data" placement="right">
+                <RedoOutlined className="cursor-pointer" onClick={fetchBackupsList} />
+              </LitegraphTooltip>
+          )}
+        </LitegraphFlex>
+      }
       pageTitleRightContent={
         <LitegraphButton
           type="link"

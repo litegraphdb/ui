@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { PlusSquareOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusSquareOutlined, RedoOutlined } from '@ant-design/icons';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import LitegraphButton from '@/components/base/button/Button';
 import LitegraphTable from '@/components/base/table/Table';
@@ -13,6 +13,9 @@ import { useEnumerateUserQuery } from '@/lib/store/slice/slice';
 import { tablePaginationConfig } from '@/constants/pagination';
 import { useSelectedTenant } from '@/hooks/entityHooks';
 import { UserMetadata } from 'litegraphdb/dist/types/types';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import LitegraphText from '@/components/base/typograpghy/Text';
+import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 
 const UserPage = () => {
   const [selectedUser, setSelectedUser] = useState<UserMetadata | null>(null);
@@ -56,7 +59,18 @@ const UserPage = () => {
   return (
     <PageContainer
       id="users"
-      pageTitle="Users"
+      pageTitle={
+        <LitegraphFlex align="center" gap={10}>
+          <LitegraphText>Users</LitegraphText>
+          {isUsersLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : (
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchUsersList} />
+            </LitegraphTooltip>
+          )}
+        </LitegraphFlex>
+      }
       pageTitleRightContent={
         <LitegraphButton
           type="link"

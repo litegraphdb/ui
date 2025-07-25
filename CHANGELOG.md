@@ -51,3 +51,8 @@ v1.0.2
 
 - added dark mode
 - minor tweek and asjustments
+
+  1.0.3
+
+- added refresh btn
+- graph viewer imporvements

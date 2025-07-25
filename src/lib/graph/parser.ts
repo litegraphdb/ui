@@ -411,3 +411,88 @@ export function renderTree(nodes: Node[], edges: Edge[], showGraphHorizontal: bo
   const edgeData: EdgeData[] = parseEdge(edges); // Parse the edge data as well
   return { nodes: nodeData, edges: edgeData };
 }
+
+export function parseCircularNode(
+  nodes: Node[],
+  totalNodes: number, // pass in your current graph instance
+  nodesPerCircle = 10,
+  radiusStep = 200,
+  centerX = 5000,
+  centerY = 5000
+): NodeData[] {
+  const existingNodeCount = totalNodes;
+
+  return nodes.map((node, i) => {
+    const globalIndex = existingNodeCount + i;
+    const circleIndex = Math.floor(globalIndex / nodesPerCircle);
+
+    // Band radius range
+    const minRadius = circleIndex * radiusStep;
+    const maxRadius = (circleIndex + 1) * radiusStep;
+
+    // Random radius within band
+    const radius = minRadius + Math.random() * (maxRadius - minRadius);
+
+    // Random angle
+    const angle = Math.random() * 2 * Math.PI;
+
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    return {
+      id: node.GUID,
+      label: node.Name,
+      type: 'server',
+      x,
+      y,
+      z: 0,
+      vx: 0,
+      vy: 0,
+      isDragging: false,
+    };
+  });
+}
+
+// New deterministic circular layout that doesn't shuffle during lazy loading
+export function parseCircularNodeDeterministic(
+  nodes: Node[],
+  radiusStep = 200,
+  centerX = 5000,
+  centerY = 5000
+): NodeData[] {
+  return nodes.map((node) => {
+    // Use a hash of the node ID to create deterministic positions
+    const hash = node.GUID.split('').reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+
+    // Use hash to determine circle index
+    const circleIndex = Math.abs(hash) % 5; // Fixed number of circles (0-4)
+
+    // Band radius range
+    const minRadius = circleIndex * radiusStep;
+    const maxRadius = (circleIndex + 1) * radiusStep;
+
+    // Deterministic radius within band
+    const radius = minRadius + (Math.abs(hash) % (maxRadius - minRadius));
+
+    // Deterministic angle based on hash
+    const angle = (Math.abs(hash) % 360) * (Math.PI / 180);
+
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    return {
+      id: node.GUID,
+      label: node.Name,
+      type: 'server',
+      x,
+      y,
+      z: 0,
+      vx: 0,
+      vy: 0,
+      isDragging: false,
+    };
+  });
+}

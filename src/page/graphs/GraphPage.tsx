@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { CloseOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
+import { CloseOutlined, LoadingOutlined, PlusSquareOutlined, RedoOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { tableColumns } from './constant';
 import { useGetGraphGexfContentByIdMutation } from '@/lib/store/slice/slice';
 import { GraphData } from '@/types/types';
@@ -25,6 +25,7 @@ import { tablePaginationConfig } from '@/constants/pagination';
 import { EnumerateAndSearchRequest } from 'litegraphdb/dist/types/types';
 import AddEditGraph from './components/AddEditGraph';
 import AppliedFilter from '@/components/table-filter/AppliedFilter';
+import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 
 const GraphPage = () => {
   const { page, pageSize, skip, handlePageChange } = usePagination();
@@ -124,6 +125,13 @@ const GraphPage = () => {
         <LitegraphFlex align="center" gap={10}>
           <LitegraphText>Graphs</LitegraphText>
           <SearchOutlined className="cursor-pointer" onClick={() => setShowSearchModal(true)} />
+          {isGraphsLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : (
+              <LitegraphTooltip title="Refresh Data" placement="right">
+                <RedoOutlined className="cursor-pointer" onClick={refetchGraphs} />
+              </LitegraphTooltip>
+          )}
         </LitegraphFlex>
       }
       pageTitleRightContent={

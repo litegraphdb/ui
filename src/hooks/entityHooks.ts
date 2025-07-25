@@ -16,6 +16,8 @@ import {
   parseEdge,
   parseNode,
   renderTree,
+  parseCircularNode,
+  parseCircularNodeDeterministic,
 } from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 
@@ -71,6 +73,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Node> | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
+  const [processedNodes, setProcessedNodes] = useState<NodeData[]>([]);
   const [continuationToken, setContinuationToken] = useState<string | undefined>(undefined);
   const isFirstRender = useRef(true);
   const {
@@ -87,11 +90,23 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     { skip: !graphId }
   );
   const isLoadingOrFetching = isLoading || isFetching;
+
   useEffect(() => {
     setLoading(true);
     if (nodesList?.Objects?.length) {
       const updatedNodes = [...nodes, ...nodesList.Objects];
       setNodes(updatedNodes);
+
+      // Only process new nodes to avoid shuffling existing ones
+      const newNodes = nodesList.Objects;
+      const newProcessedNodes = parseCircularNodeDeterministic(newNodes);
+
+      // Merge with existing processed nodes, preserving their positions
+      setProcessedNodes((prevProcessedNodes) => {
+        const existingNodeIds = new Set(prevProcessedNodes.map((node) => node.id));
+        const newNodesToAdd = newProcessedNodes.filter((node) => !existingNodeIds.has(node.id));
+        return [...prevProcessedNodes, ...newNodesToAdd];
+      });
     } else {
       setLoading(false);
     }
@@ -115,6 +130,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     }
 
     setNodes([]);
+    setProcessedNodes([]);
     setFirstResult(null);
     setContinuationToken(undefined);
     try {
@@ -126,6 +142,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
 
   return {
     nodes,
+    processedNodes,
     refetchNodes: fetchNodesList,
     firstResult,
     isNodesError,
@@ -200,13 +217,17 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
   const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
   const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
+  const [edgesFetched, setEdgesFetched] = useState(false);
+
   const {
     nodes,
+    processedNodes,
     isNodesLoading,
     refetchNodes,
     firstResult: nodesFirstResult,
     isNodesError,
   } = useLazyLoadNodes(graphId, () => setDoNotFetchEdgesOnRender(false));
+
   const dispatch = useAppDispatch();
   const {
     edges,
@@ -214,39 +235,57 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
     refetchEdges,
     firstResult: edgesFirstResult,
     isEdgesError,
-  } = useLazyLoadEdges(graphId, () => setDoNotFetchEdgesOnRender(true), doNotFetchEdgesOnRender);
+  } = useLazyLoadEdges(
+    graphId,
+    () => {
+      setDoNotFetchEdgesOnRender(true);
+      setEdgesFetched(true);
+    },
+    doNotFetchEdgesOnRender
+  );
 
   useEffect(() => {
-    const adjList = buildAdjacencyList(
-      nodes,
-      edges.map((edge) => ({ from: edge.From, to: edge.To }))
-    );
-    console.log(adjList);
-    const topologicalOrder = topologicalSortKahn(adjList);
-    console.log(topologicalOrder);
-    const uniqueNodes = parseNode(
-      nodes,
-      nodes.length,
-      adjList,
-      topologicalOrder,
-      showGraphHorizontal
-    );
-    setNodesForGraph(uniqueNodes);
-    const nodeIds = uniqueNodes.map((node) => node.id);
-    setEdgesForGraph(
-      parseEdge(
-        edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
-      )
-    );
-    // const graph = renderTree(nodes, edges, showGraphHorizontal);
-    // console.log(graph.nodes, 'chk graph');
-    // setNodesForGraph(graph.nodes);
-    // setEdgesForGraph(graph.edges);
-  }, [nodes, edges, showGraphHorizontal]);
+    if (!nodes.length) return;
+
+    if (!edgesFetched || isEdgesLoading) {
+      // Use processed circular nodes while edges are still loading
+      setNodesForGraph(processedNodes);
+      setEdgesForGraph([]); // No edges while loading
+    } else {
+      // Use topological layout once edges are fetched
+      const adjList = buildAdjacencyList(
+        nodes,
+        edges.map((edge) => ({ from: edge.From, to: edge.To }))
+      );
+      console.log(adjList);
+      const topologicalOrder = topologicalSortKahn(adjList);
+      console.log(topologicalOrder);
+      const uniqueNodes = parseNode(
+        nodes,
+        nodes.length,
+        adjList,
+        topologicalOrder,
+        showGraphHorizontal
+      );
+      setNodesForGraph(uniqueNodes);
+      const nodeIds = uniqueNodes.map((node) => node.id);
+      setEdgesForGraph(
+        parseEdge(
+          edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
+        )
+      );
+    }
+  }, [nodes, processedNodes, edges, showGraphHorizontal, edgesFetched, isEdgesLoading]);
+
+  // Reset edgesFetched when graphId changes
+  useEffect(() => {
+    setEdgesFetched(false);
+  }, [graphId]);
 
   return {
     nodes: nodesForGraph,
     edges: edgesForGraph,
+    rawEdges: edges, // Add raw edges for progress bar
     isNodesLoading,
     isEdgesLoading,
     isLoading: isNodesLoading || isEdgesLoading,
@@ -261,5 +300,6 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
     refetchNodes,
     refetchEdges,
     isError: isNodesError || isEdgesError,
+    edgesFetched, // Expose this state for debugging or other uses
   };
 };
