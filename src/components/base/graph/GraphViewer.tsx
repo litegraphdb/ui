@@ -20,6 +20,7 @@ import LitegraphFormItem from '../form/FormItem';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
+import { nodeLightColorByType } from './constants';
 
 const GraphViewer = ({
   isAddEditNodeVisible,
@@ -49,7 +50,10 @@ const GraphViewer = ({
     width: undefined,
   });
   const [show3d, setShow3d] = useState(false);
+  const [topologicalSortNodes, setTopologicalSortNodes] = useState(false);
   const [showGraphHorizontal, setShowGraphHorizontal] = useState(false);
+  const [showGraphLegend, setShowGraphLegend] = useState(true);
+  const [showLabel, setShowLabel] = useState(false);
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const ref = useRef<HTMLDivElement>(null);
   const {
@@ -63,7 +67,7 @@ const GraphViewer = ({
     isLoading,
     isNodesLoading,
     isEdgesLoading,
-  } = useLazyLoadEdgesAndNodes(selectedGraphRedux, showGraphHorizontal);
+  } = useLazyLoadEdgesAndNodes(selectedGraphRedux, showGraphHorizontal, topologicalSortNodes);
 
   useEffect(() => {
     setShow3d(false);
@@ -132,13 +136,36 @@ const GraphViewer = ({
             label="Loading edges..."
           />
         ) : (
-          <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
-            <Switch
-              size="small"
-              checked={showGraphHorizontal}
-              onChange={(checked) => setShowGraphHorizontal(checked)}
-            />
-          </LitegraphFormItem>
+          <LitegraphFlex gap={10} align="center">
+            <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
+              <Switch
+                size="small"
+                checked={showGraphHorizontal}
+                onChange={(checked) => setShowGraphHorizontal(checked)}
+              />
+            </LitegraphFormItem>
+            <LitegraphFormItem className="mb-0" label={'Sort nodes topologically'}>
+              <Switch
+                size="small"
+                checked={topologicalSortNodes}
+                onChange={(checked) => setTopologicalSortNodes(checked)}
+              />
+            </LitegraphFormItem>
+            <LitegraphFormItem className="mb-0" label={'Show graph legend'}>
+              <Switch
+                size="small"
+                checked={showGraphLegend}
+                onChange={(checked) => setShowGraphLegend(checked)}
+              />
+            </LitegraphFormItem>
+            <LitegraphFormItem className="mb-0" label={'Show labels'}>
+              <Switch
+                size="small"
+                checked={showLabel}
+                onChange={(checked) => setShowLabel(checked)}
+              />
+            </LitegraphFormItem>
+          </LitegraphFlex>
         )}
         <LitegraphTooltip
           title={
@@ -177,7 +204,20 @@ const GraphViewer = ({
               </FallBack>
             ) : (
               <>
-                {show3d ? (
+                {showGraphLegend && (
+                  <LitegraphFlex className={styles.legendContainer} gap={15}>
+                    {Object.keys(nodeLightColorByType).map((key) => (
+                      <LitegraphFlex key={key} align="center" gap={5}>
+                        <div
+                          className={styles.legendColor}
+                          style={{ backgroundColor: nodeLightColorByType[key] }}
+                        />
+                        <span>{key}</span>
+                      </LitegraphFlex>
+                    ))}
+                  </LitegraphFlex>
+                )}
+                {show3d && (
                   <GraphLoader3d
                     nodes={nodes}
                     edges={edges}
@@ -186,19 +226,21 @@ const GraphViewer = ({
                     ref={ref}
                     containerDivHeightAndWidth={containerDivHeightAndWidth}
                   />
-                ) : (
-                  <Graph2DViewer
-                    show3d={show3d}
-                    selectedGraphRedux={selectedGraphRedux}
-                    nodes={nodes}
-                    edges={edges}
-                    gexfContent={''}
-                    setTooltip={setNodeTooltip}
-                    setEdgeTooltip={setEdgeTooltip}
-                    nodeTooltip={nodeTooltip}
-                    edgeTooltip={edgeTooltip}
-                  />
                 )}
+                <Graph2DViewer
+                  show3d={show3d}
+                  selectedGraphRedux={selectedGraphRedux}
+                  nodes={nodes}
+                  edges={edges}
+                  gexfContent={''}
+                  showGraphHorizontal={showGraphHorizontal}
+                  topologicalSortNodes={topologicalSortNodes}
+                  setTooltip={setNodeTooltip}
+                  setEdgeTooltip={setEdgeTooltip}
+                  nodeTooltip={nodeTooltip}
+                  edgeTooltip={edgeTooltip}
+                  showLabel={showLabel}
+                />
               </>
             )}
             {nodeTooltip.visible && (

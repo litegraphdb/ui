@@ -9,6 +9,7 @@ import { EdgeData, NodeData } from '@/lib/graph/types';
 import { darkTheme, LightGraphTheme, primaryTheme } from '@/theme/theme';
 import { calculateTooltipPosition } from '@/utils/appUtils';
 import { useAppContext } from '@/hooks/appHooks';
+import { nodeLightColorByType } from './constants';
 // Dynamically load to avoid SSR issues with Three.js
 const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
 
@@ -94,7 +95,9 @@ export default function GraphLoader3d({
       nodeOpacity={0.8}
       backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
       nodeColor={(node) => {
-        return theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight;
+        return theme === ThemeEnum.LIGHT
+          ? nodeLightColorByType[node.type]
+          : nodeLightColorByType[node.type];
       }}
       linkColor={(link) => {
         return theme === ThemeEnum.LIGHT ? '#000' : '#fff';

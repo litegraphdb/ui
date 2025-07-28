@@ -1,6 +1,6 @@
 import { transformToOptions } from '@/lib/graph/utils';
 
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import {
   useGetAllNodesQuery,
@@ -15,9 +15,8 @@ import {
   topologicalSortKahn,
   parseEdge,
   parseNode,
-  renderTree,
-  parseCircularNode,
   parseCircularNodeDeterministic,
+  parseNodeGroupedByLabel,
 } from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 
@@ -213,11 +212,15 @@ export const useLazyLoadEdges = (
   };
 };
 
-export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: boolean) => {
+export const useLazyLoadEdgesAndNodes = (
+  graphId: string,
+  showGraphHorizontal: boolean,
+  topologicalSortNodes: boolean
+) => {
   const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
   const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
-  const [edgesFetched, setEdgesFetched] = useState(false);
+  const [renderNodesRandomly, setRenderNodesRandomly] = useState<boolean>(true);
 
   const {
     nodes,
@@ -226,9 +229,11 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
     refetchNodes,
     firstResult: nodesFirstResult,
     isNodesError,
-  } = useLazyLoadNodes(graphId, () => setDoNotFetchEdgesOnRender(false));
+  } = useLazyLoadNodes(graphId, () => {
+    setDoNotFetchEdgesOnRender(false);
+    setRenderNodesRandomly(false);
+  });
 
-  const dispatch = useAppDispatch();
   const {
     edges,
     isEdgesLoading,
@@ -239,7 +244,6 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
     graphId,
     () => {
       setDoNotFetchEdgesOnRender(true);
-      setEdgesFetched(true);
     },
     doNotFetchEdgesOnRender
   );
@@ -247,7 +251,7 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
   useEffect(() => {
     if (!nodes.length) return;
 
-    if (!edgesFetched || isEdgesLoading) {
+    if (renderNodesRandomly) {
       // Use processed circular nodes while edges are still loading
       setNodesForGraph(processedNodes);
       setEdgesForGraph([]); // No edges while loading
@@ -260,13 +264,20 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
       console.log(adjList);
       const topologicalOrder = topologicalSortKahn(adjList);
       console.log(topologicalOrder);
-      const uniqueNodes = parseNode(
-        nodes,
-        nodes.length,
-        adjList,
-        topologicalOrder,
-        showGraphHorizontal
-      );
+      let uniqueNodes: NodeData[] = [];
+
+      if (topologicalSortNodes) {
+        uniqueNodes = parseNode(
+          nodes,
+          nodes.length,
+          adjList,
+          topologicalOrder,
+          showGraphHorizontal
+        );
+      } else {
+        uniqueNodes = parseNodeGroupedByLabel(nodes, showGraphHorizontal);
+      }
+
       setNodesForGraph(uniqueNodes);
       const nodeIds = uniqueNodes.map((node) => node.id);
       setEdgesForGraph(
@@ -275,11 +286,18 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
         )
       );
     }
-  }, [nodes, processedNodes, edges, showGraphHorizontal, edgesFetched, isEdgesLoading]);
+  }, [
+    nodes,
+    processedNodes,
+    edges,
+    showGraphHorizontal,
+    renderNodesRandomly,
+    topologicalSortNodes,
+  ]);
 
   // Reset edgesFetched when graphId changes
   useEffect(() => {
-    setEdgesFetched(false);
+    setRenderNodesRandomly(false);
   }, [graphId]);
 
   return {
@@ -300,6 +318,6 @@ export const useLazyLoadEdgesAndNodes = (graphId: string, showGraphHorizontal: b
     refetchNodes,
     refetchEdges,
     isError: isNodesError || isEdgesError,
-    edgesFetched, // Expose this state for debugging or other uses
+    renderNodesRandomly,
   };
 };

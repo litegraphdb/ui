@@ -233,7 +233,7 @@ export function parseNode(
     return {
       id: node.GUID,
       label: node.Name,
-      type: 'server',
+      type: node.Labels[0],
       x: showGraphHorizontal ? y : x,
       y: showGraphHorizontal ? x : y,
       z, // Add the z-axis position for 3D visualization
@@ -257,200 +257,6 @@ export function parseEdge(edges: Edge[]): EdgeData[] {
     targetX: 0,
     targetY: 0,
   }));
-}
-type NodeMember = {
-  id: string;
-  x: number;
-  y: number;
-  siblings: NodeMember[];
-};
-// Topological Sort using Kahn's Algorithm with positions (x, y, z)
-export const topologicalSortKahn2 = (
-  adjList: Record<string, string[]>
-): { id: string; x: number; y: number; z: number }[] => {
-  const inDegree: Record<string, number> = {}; // In-degree for each node
-  const queue: { id: string; x: number; y: number; z: number }[] = []; // Queue for nodes with in-degree 0
-  const topologicalOrder: { id: string; x: number; y: number; z: number }[] = [];
-
-  // Initialize in-degree of all nodes to 0
-  Object.keys(adjList).forEach((node) => {
-    inDegree[node] = 0; // Initially, no incoming edges
-  });
-
-  // Calculate the in-degree for each node based on adjList
-  Object.keys(adjList).forEach((node) => {
-    adjList[node].forEach((neighbor) => {
-      inDegree[neighbor]++;
-    });
-  });
-
-  // Add nodes with in-degree 0 to the queue
-  Object.keys(inDegree).forEach((node) => {
-    if (inDegree[node] === 0) {
-      queue.push({ id: node, x: 0, y: 0, z: 0 });
-    }
-  });
-
-  // Process nodes in the queue recursively
-  function processNode(node: { id: string; x: number; y: number; z: number }) {
-    topologicalOrder.push(node);
-
-    adjList[node.id].forEach((neighbor) => {
-      inDegree[neighbor]--;
-      if (inDegree[neighbor] === 0) {
-        queue.push({ id: neighbor, x: node.x + 1, y: node.y + 1, z: 0 });
-      }
-    });
-
-    if (queue.length > 0) {
-      processNode(queue.shift()!);
-    }
-  }
-
-  const node = queue.shift();
-  if (node) {
-    processNode(node);
-  }
-
-  // Check if there was a cycle (not all nodes were processed)
-  if (topologicalOrder.length !== Object.keys(adjList).length) {
-    throw new Error('The graph has a cycle and cannot be topologically sorted');
-  }
-
-  return topologicalOrder;
-};
-
-// Build adjacency list from nodes and edges
-function buildAdjacencyList2(nodes: Node[], edges: Edge[]) {
-  const adjList: { [key: string]: string[] } = {};
-
-  // Initialize adjacency list with empty arrays for each node
-  nodes.forEach((node) => {
-    adjList[node.GUID] = [];
-  });
-
-  // Add edges to the adjacency list
-  edges.forEach((edge) => {
-    adjList[edge.From].push(edge.To);
-  });
-
-  return adjList;
-}
-
-function dfs(
-  tree: { [key: string]: string[] },
-  startNodeId: string,
-  positions: any = {},
-  visited = new Set(),
-  x = 0,
-  y = 0,
-  parentPosition: Record<string, { x: number; y: number }> = {} // Track number of nodes at each level
-) {
-  visited.add(startNodeId);
-
-  // Set the position for this node
-  positions[startNodeId] = { x, y };
-  parentPosition[startNodeId] = { x: x, y: y };
-  // Go through each child node and adjust the x and y based on the depth (y) and sibling index (x)
-  tree[startNodeId]?.forEach((childId, index) => {
-    if (!visited.has(childId)) {
-      const pPos = parentPosition[startNodeId] || { x: 0, y: 0 }; // How many siblings at this level
-      const startX =
-        pPos.x -
-        (tree[startNodeId].length - index) * Math.max(500 - Math.abs(pPos.y / 1000) * 100, 100);
-      positions[childId] = { x: startX + index * 1000, y: pPos.y - 1000 }; // Adjust x with spacing for siblings
-
-      // Recursively call DFS for the child node
-      dfs(
-        tree,
-        childId,
-        positions,
-        visited,
-        positions[childId].x,
-        positions[childId].y,
-        parentPosition
-      );
-    }
-  });
-
-  return positions;
-}
-
-// Main function to render the tree (nodes and edges)
-export function renderTree(nodes: Node[], edges: Edge[], showGraphHorizontal: boolean) {
-  // Step 1: Build adjacency list
-  const adjList = buildAdjacencyList2(nodes, edges);
-
-  // Step 2: Perform DFS to assign positions (x, y) to each node
-  const topOrder = topologicalSortKahn(adjList);
-
-  const visited = new Set();
-  const positions: { [key: string]: { x: number; y: number } } = {};
-  const parentPosition: Record<string, { x: number; y: number }> = {}; // To track x position for siblings
-
-  // Perform DFS starting from the root node (start with topological order)
-  dfs(adjList, topOrder[0]?.id, positions, visited, 0, 0, parentPosition);
-
-  // Step 3: Return nodes with positions (x, y)
-  const nodeData: NodeData[] = nodes.map((node) => {
-    const position = positions[node.GUID];
-    console.log(position, `chk position ${node.Name}`);
-    return {
-      id: node.GUID,
-      label: node.Name,
-      type: 'server',
-      x: showGraphHorizontal ? position?.y || 0 : position?.x || 0,
-      y: showGraphHorizontal ? position?.x || 0 : position?.y || 0,
-      z: 0, // You can adjust z if needed
-      vx: 0,
-      vy: 0,
-      isDragging: false,
-    };
-  });
-
-  const edgeData: EdgeData[] = parseEdge(edges); // Parse the edge data as well
-  return { nodes: nodeData, edges: edgeData };
-}
-
-export function parseCircularNode(
-  nodes: Node[],
-  totalNodes: number, // pass in your current graph instance
-  nodesPerCircle = 10,
-  radiusStep = 200,
-  centerX = 5000,
-  centerY = 5000
-): NodeData[] {
-  const existingNodeCount = totalNodes;
-
-  return nodes.map((node, i) => {
-    const globalIndex = existingNodeCount + i;
-    const circleIndex = Math.floor(globalIndex / nodesPerCircle);
-
-    // Band radius range
-    const minRadius = circleIndex * radiusStep;
-    const maxRadius = (circleIndex + 1) * radiusStep;
-
-    // Random radius within band
-    const radius = minRadius + Math.random() * (maxRadius - minRadius);
-
-    // Random angle
-    const angle = Math.random() * 2 * Math.PI;
-
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
-
-    return {
-      id: node.GUID,
-      label: node.Name,
-      type: 'server',
-      x,
-      y,
-      z: 0,
-      vx: 0,
-      vy: 0,
-      isDragging: false,
-    };
-  });
 }
 
 // New deterministic circular layout that doesn't shuffle during lazy loading
@@ -486,7 +292,7 @@ export function parseCircularNodeDeterministic(
     return {
       id: node.GUID,
       label: node.Name,
-      type: 'server',
+      type: node.Labels[0],
       x,
       y,
       z: 0,
@@ -495,4 +301,74 @@ export function parseCircularNodeDeterministic(
       isDragging: false,
     };
   });
+}
+
+export function parseNodeGroupedByLabel(
+  nodes: Node[],
+  showGraphHorizontal = false,
+  horizontalSpacing = 200,
+  verticalSpacing = 200,
+  depthSpacing = 1000
+): NodeData[] {
+  const fixedLevels = {
+    StoragePool: 0,
+    BucketMetadata: 1,
+    TenantMetadata: 1,
+    VectorRepository: 2,
+    Collection: 2,
+  };
+
+  const labelLevelMap: Record<string, number> = {};
+  let dynamicLevel = 3;
+
+  // Assign levels per label
+  for (const node of nodes) {
+    const label = node.Labels[0]; // Assume first label
+    if (fixedLevels[label as keyof typeof fixedLevels] !== undefined) {
+      labelLevelMap[label] = fixedLevels[label as keyof typeof fixedLevels];
+    } else if (!(label in labelLevelMap)) {
+      labelLevelMap[label] = dynamicLevel++;
+    }
+  }
+
+  // Group nodes by level
+  const levelGroups: Record<number, Node[]> = {};
+  for (const node of nodes) {
+    const label = node.Labels[0];
+    const level = labelLevelMap[label];
+    if (!levelGroups[level]) levelGroups[level] = [];
+    levelGroups[level].push(node);
+  }
+
+  const result: NodeData[] = [];
+
+  Object.entries(levelGroups).forEach(([levelStr, group]) => {
+    const level = parseInt(levelStr);
+    const groupSize = group.length;
+
+    group.forEach((node, i) => {
+      const offset = (groupSize - 1) / 2; // center align
+      const x = showGraphHorizontal
+        ? level * horizontalSpacing // Root on left, children go right
+        : (i - offset) * horizontalSpacing;
+
+      const y = showGraphHorizontal
+        ? (i - offset) * verticalSpacing // Stack vertically
+        : -level * verticalSpacing; // Root on top, children below
+
+      result.push({
+        id: node.GUID,
+        label: node.Name,
+        type: node.Labels[0],
+        x,
+        y,
+        z: level * depthSpacing,
+        vx: 0,
+        vy: 0,
+        isDragging: false,
+      });
+    });
+  });
+
+  return result;
 }

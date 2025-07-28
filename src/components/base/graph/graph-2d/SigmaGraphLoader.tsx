@@ -9,6 +9,7 @@ import { EdgeData, NodeData } from '@/lib/graph/types';
 import { LightGraphTheme } from '@/theme/theme';
 import { useAppContext } from '@/hooks/appHooks';
 import { ThemeEnum } from '@/types/types';
+import { nodeLightColorByType } from '../constants';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -66,7 +67,10 @@ const GraphLoader = ({
         y: node.y,
         size: 15,
         label: node.label,
-        color: theme === ThemeEnum.LIGHT ? LightGraphTheme.primary : LightGraphTheme.primaryLight,
+        color:
+          theme === ThemeEnum.LIGHT
+            ? nodeLightColorByType[node.type]
+            : nodeLightColorByType[node.type],
         type: 'circle',
         vx: 0,
         vy: 0,
@@ -83,7 +87,7 @@ const GraphLoader = ({
         {
           size: 3,
           label: `${edge.id}${edge.cost}`,
-          color: '#aaa',
+          color: theme === ThemeEnum.LIGHT ? '#aaa' : '#555',
           type: 'arrow',
         }
         // { generateId: () => edge.id }
@@ -208,7 +212,7 @@ const GraphLoader = ({
 
         sigma.getGraph().updateEdgeAttributes(edge, (attrs) => ({
           ...attrs,
-          color: '#999',
+          color: theme === ThemeEnum.LIGHT ? '#aaa' : '#555',
           size: 5, // Reset to default size
         }));
 

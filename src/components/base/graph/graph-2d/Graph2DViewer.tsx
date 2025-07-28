@@ -1,10 +1,13 @@
 import { SigmaContainer } from '@react-sigma/core';
 import { MultiDirectedGraph } from 'graphology';
-import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import SigmaGraphLoader from './SigmaGraphLoader';
 import { GraphEdgeTooltip, GraphNodeTooltip } from '../types';
 import { EdgeData, NodeData } from '@/lib/graph/types';
 import { uuid } from '@/utils/stringUtils';
+import { useAppContext } from '@/hooks/appHooks';
+import { ThemeEnum } from '@/types/types';
+import { LightGraphTheme } from '@/theme/theme';
 
 interface Graph2DViewerProps {
   show3d: boolean;
@@ -16,6 +19,9 @@ interface Graph2DViewerProps {
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
   nodeTooltip: GraphNodeTooltip;
   edgeTooltip: GraphEdgeTooltip;
+  showGraphHorizontal: boolean;
+  topologicalSortNodes: boolean;
+  showLabel: boolean;
 }
 const Graph2DViewer = ({
   show3d,
@@ -27,16 +33,22 @@ const Graph2DViewer = ({
   setEdgeTooltip,
   nodeTooltip,
   edgeTooltip,
+  showGraphHorizontal,
+  topologicalSortNodes,
+  showLabel,
 }: Graph2DViewerProps) => {
-  const refId = useRef<string>(uuid());
+  const [refId, setRefId] = useState<string>(uuid());
+  const { theme } = useAppContext();
+
   useEffect(() => {
-    refId.current = uuid();
-    console.log('nodes on graph 2d viewer', { nodes, edges });
-  }, [nodes, edges]);
+    setRefId(uuid());
+    // console.log('nodes on graph 2d viewer', { nodes, edges });
+  }, [nodes, edges, showGraphHorizontal, theme, topologicalSortNodes, showLabel]);
+
   return (
     <SigmaContainer
       className={show3d ? 'd-none' : ''}
-      key={refId.current} // Force re-render when the context changes
+      key={refId} // Force re-render when the context changes
       style={{ height: '100%' }}
       settings={{
         enableEdgeHoverEvents: true, // Explicitly enable edge hover events
@@ -45,8 +57,28 @@ const Graph2DViewer = ({
         defaultEdgeColor: '#999',
         labelSize: 14,
         labelWeight: 'bold',
-        renderEdgeLabels: true,
-        renderLabels: false,
+        renderEdgeLabels: showLabel,
+        labelRenderer: (context: CanvasRenderingContext2D, data: any, settings: any) => {
+          const size = settings.labelSize || 14;
+          const font = `bold ${size}px ${settings.labelFont || '"Inter", "serif"'}`;
+
+          context.font = font;
+          context.fillStyle = theme === ThemeEnum.LIGHT ? '#666' : '#aaa';
+          context.textAlign = 'center';
+          context.textBaseline = 'bottom'; // Positions label above the node
+          context.fillText(data.label, data.x, data.y - (data.size || 10) - 4); // shift above node
+        },
+        hoverRenderer: (context: CanvasRenderingContext2D, data: any, settings: any) => {
+          const size = settings.labelSize || 14;
+          const font = `bold ${size}px ${settings.labelFont || '"Inter", "serif"'}`;
+
+          context.font = font;
+          context.fillStyle = theme === ThemeEnum.LIGHT ? '#222' : '#ddd';
+          context.textAlign = 'center';
+          context.textBaseline = 'bottom'; // Positions label above the node
+          context.fillText(data.label, data.x, data.y - (data.size || 10) - 4); // shift above node
+        },
+        renderLabels: showLabel,
         edgeLabelSize: 12,
         minCameraRatio: 0.1,
         maxCameraRatio: 10,
