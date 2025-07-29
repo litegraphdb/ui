@@ -93,6 +93,10 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   useEffect(() => {
     setLoading(true);
     if (nodesList?.Objects?.length) {
+      if (nodes.length === nodesList.TotalRecords) {
+        console.log('clearing nodes');
+        setNodes([]);
+      }
       const updatedNodes = [...nodes, ...nodesList.Objects];
       setNodes(updatedNodes);
 

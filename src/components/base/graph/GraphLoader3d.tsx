@@ -1,18 +1,68 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { GraphData, LinkObject, NodeObject } from 'react-force-graph-3d';
 import { GraphEdgeTooltip, GraphNodeTooltip } from './types';
 import { NodeType, ThemeEnum } from '@/types/types';
 import { EdgeData, NodeData } from '@/lib/graph/types';
-import { darkTheme, LightGraphTheme, primaryTheme } from '@/theme/theme';
+import { darkTheme } from '@/theme/theme';
 import { calculateTooltipPosition } from '@/utils/appUtils';
 import { useAppContext } from '@/hooks/appHooks';
-import { nodeLightColorByType } from './constants';
-// Dynamically load to avoid SSR issues with Three.js
-const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), { ssr: false });
+import * as THREE from 'three';
+import { defaultNodeColor, nodeLightColorByType } from './constant';
+import useToken from 'antd/es/theme/useToken';
+import { GlobalToken } from 'antd';
 
+const ForceGraph3D = dynamic(() => import('react-force-graph-3d'), {
+  ssr: false,
+});
+
+// --- HELPER: Create label canvas with word wrap ---
+function createTextCanvas(text: string, token: GlobalToken): HTMLCanvasElement | null {
+  const maxLineChars = 30;
+  const fontSize = 30;
+  const padding = 20;
+
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    if ((currentLine + word).length > maxLineChars) {
+      lines.push(currentLine.trim());
+      currentLine = word + ' ';
+    } else {
+      currentLine += word + ' ';
+    }
+  }
+  if (currentLine) lines.push(currentLine.trim());
+
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d')!;
+  tempCtx.font = `bold ${fontSize}px "Inter", "serif"`;
+  const maxLineWidthPx = Math.max(...lines.map((line) => tempCtx.measureText(line).width));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.pow(2, Math.ceil(Math.log2(maxLineWidthPx + padding * 2)));
+  canvas.height = Math.pow(2, Math.ceil(Math.log2((fontSize + 10) * lines.length + padding * 2)));
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.font = `bold ${fontSize}px "Inter", "serif"`;
+  ctx.fillStyle = token.colorTextSecondary || 'white';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, canvas.width / 2, padding + (i + 0.5) * (fontSize + 10));
+  });
+
+  return canvas;
+}
+
+// --- MAIN COMPONENT ---
 export default function GraphLoader3d({
   nodes,
   edges,
@@ -21,6 +71,7 @@ export default function GraphLoader3d({
   className,
   ref,
   containerDivHeightAndWidth,
+  showLabels = true,
 }: {
   nodes: NodeData[];
   edges: EdgeData[];
@@ -29,22 +80,20 @@ export default function GraphLoader3d({
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
   ref: React.RefObject<HTMLDivElement | null>;
   containerDivHeightAndWidth: { height?: number; width?: number };
+  showLabels?: boolean;
 }) {
   const { theme } = useAppContext();
-  const [graphData, setGraphData] = useState<GraphData>({
-    nodes: [],
-    links: [],
-  });
+  const [_, token] = useToken();
+  const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
+  const labelRefs = useRef(new Map<string, THREE.Sprite>());
+  const fgRef = useRef<any>(null);
 
+  // --- Map raw data to force-graph format ---
   useEffect(() => {
-    // Map your nodes and edges to 3D-force-graph format
     const mappedNodes = nodes.map((n) => ({
       id: n.id,
       name: n.label,
       type: n.type,
-      x: n.x,
-      y: n.y,
-      z: n.z,
     }));
 
     const mappedLinks = edges.map((e) => ({
@@ -55,6 +104,8 @@ export default function GraphLoader3d({
       name: e.label,
     }));
 
+    labelRefs.current.clear(); // clear old labels
+
     setGraphData({
       nodes: mappedNodes,
       links: mappedLinks,
@@ -63,50 +114,74 @@ export default function GraphLoader3d({
 
   const handleNodeClick = (node: NodeObject<NodeType>, event: any) => {
     setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
-
-    const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
+    const { x, y } = calculateTooltipPosition(event.clientX, event.clientY);
     setTooltip({
       visible: true,
       nodeId: node.id as string,
-      x: tooltipX,
-      y: tooltipY,
+      x,
+      y,
     });
   };
 
   const handleLinkClick = (link: LinkObject<NodeData, EdgeData>, event: any) => {
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
-    const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(event.clientX, event.clientY);
+    const { x, y } = calculateTooltipPosition(event.clientX, event.clientY);
     setEdgeTooltip({
       visible: true,
       edgeId: link.id,
-      x: tooltipX,
-      y: tooltipY,
+      x,
+      y,
     });
   };
-  console.log(containerDivHeightAndWidth);
+
   return (
     <ForceGraph3D
+      ref={fgRef}
       height={containerDivHeightAndWidth.height}
       width={containerDivHeightAndWidth.width}
       graphData={graphData}
+      backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
+      nodeOpacity={0.8}
       nodeAutoColorBy="type"
       nodeLabel="name"
       linkLabel="name"
-      nodeOpacity={0.8}
-      backgroundColor={theme === ThemeEnum.LIGHT ? '#fff' : darkTheme.token?.colorBgBase}
-      nodeColor={(node) => {
-        return theme === ThemeEnum.LIGHT
-          ? nodeLightColorByType[node.type]
-          : nodeLightColorByType[node.type];
-      }}
-      linkColor={(link) => {
-        return theme === ThemeEnum.LIGHT ? '#000' : '#fff';
-      }}
-      enableNodeDrag
-      showNavInfo
+      linkColor={() => (theme === ThemeEnum.LIGHT ? '#000' : '#fff')}
       linkWidth={1}
+      showNavInfo
+      enableNodeDrag
       onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
       onLinkClick={(link, event) => handleLinkClick(link as LinkObject<NodeData, EdgeData>, event)}
+      nodeColor={(node) =>
+        theme === ThemeEnum.LIGHT
+          ? nodeLightColorByType[node.type] || defaultNodeColor
+          : nodeLightColorByType[node.type] || defaultNodeColor
+      }
+      nodeThreeObject={
+        showLabels
+          ? (node: any) => {
+              const canvas = createTextCanvas(node.name as string, token);
+              if (!canvas) return new THREE.Object3D();
+
+              const texture = new THREE.CanvasTexture(canvas);
+              texture.minFilter = THREE.LinearFilter;
+              texture.magFilter = THREE.LinearFilter;
+              texture.generateMipmaps = false;
+
+              const sprite = new THREE.Sprite(
+                new THREE.SpriteMaterial({ map: texture, depthWrite: false })
+              );
+
+              const scaleY = 12;
+              const scaleX = (canvas.width / canvas.height) * scaleY;
+              sprite.scale.set(scaleX, scaleY, 1);
+              sprite.position.set(0, 5, 0);
+
+              labelRefs.current.set(node.id as string, sprite);
+              return sprite;
+            }
+          : undefined
+      }
+      nodeThreeObjectExtend={showLabels}
     />
   );
 }

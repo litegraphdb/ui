@@ -9,6 +9,7 @@ import { NONE, NOT_AVAILABLE } from '@/constants/uiLabels';
 import TableSearch from '@/components/table-search/TableSearch';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import { onGUIDFilter, onLabelFilter, onNameFilter, onTagFilter } from '@/constants/table';
+import LitegraphTag from '@/components/base/tag/Tag';
 
 export const tableColumns = (
   handleEdit: (record: EdgeType) => void,
@@ -109,7 +110,7 @@ export const tableColumns = (
     onFilter: (value, record) => onLabelFilter(value, record.Labels),
     render: (Labels: string[]) => (
       <div>
-        <div>{Labels?.length ? Labels?.join(', ') : NOT_AVAILABLE}</div>
+        {Labels?.length ? Labels?.map((label) => <LitegraphTag key={label} label={label} />) : NONE}
       </div>
     ),
   },

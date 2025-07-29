@@ -47,6 +47,7 @@
     "react-toggle-dark-mode": "^1.1.1",
     "sass": "^1.83.0",
     "sigma": "^2.4.0",
+    "three": "^0.178.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
@@ -58,6 +59,7 @@
     "@types/node": "^20.11.25",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
+    "@types/three": "^0.178.1",
     "autoprefixer": "^10.4.18",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

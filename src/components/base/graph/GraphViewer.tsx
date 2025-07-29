@@ -20,7 +20,7 @@ import LitegraphFormItem from '../form/FormItem';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
-import { nodeLightColorByType } from './constants';
+import { nodeLightColorByType } from './constant';
 
 const GraphViewer = ({
   isAddEditNodeVisible,
@@ -137,20 +137,24 @@ const GraphViewer = ({
           />
         ) : (
           <LitegraphFlex gap={10} align="center">
-            <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
-              <Switch
-                size="small"
-                checked={showGraphHorizontal}
-                onChange={(checked) => setShowGraphHorizontal(checked)}
-              />
-            </LitegraphFormItem>
-            <LitegraphFormItem className="mb-0" label={'Sort nodes topologically'}>
-              <Switch
-                size="small"
-                checked={topologicalSortNodes}
-                onChange={(checked) => setTopologicalSortNodes(checked)}
-              />
-            </LitegraphFormItem>
+            {!show3d && (
+              <>
+                <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
+                  <Switch
+                    size="small"
+                    checked={showGraphHorizontal}
+                    onChange={(checked) => setShowGraphHorizontal(checked)}
+                  />
+                </LitegraphFormItem>
+                <LitegraphFormItem className="mb-0" label={'Sort nodes topologically'}>
+                  <Switch
+                    size="small"
+                    checked={topologicalSortNodes}
+                    onChange={(checked) => setTopologicalSortNodes(checked)}
+                  />
+                </LitegraphFormItem>
+              </>
+            )}
             <LitegraphFormItem className="mb-0" label={'Show graph legend'}>
               <Switch
                 size="small"
@@ -158,7 +162,7 @@ const GraphViewer = ({
                 onChange={(checked) => setShowGraphLegend(checked)}
               />
             </LitegraphFormItem>
-            <LitegraphFormItem className="mb-0" label={'Show labels'}>
+            <LitegraphFormItem className="mb-0" label={'Show node name'}>
               <Switch
                 size="small"
                 checked={showLabel}
@@ -217,30 +221,32 @@ const GraphViewer = ({
                     ))}
                   </LitegraphFlex>
                 )}
-                {show3d && (
+                {show3d ? (
                   <GraphLoader3d
                     nodes={nodes}
                     edges={edges}
                     setTooltip={setNodeTooltip}
                     setEdgeTooltip={setEdgeTooltip}
                     ref={ref}
+                    showLabels={showLabel}
                     containerDivHeightAndWidth={containerDivHeightAndWidth}
                   />
+                ) : (
+                  <Graph2DViewer
+                    show3d={show3d}
+                    selectedGraphRedux={selectedGraphRedux}
+                    nodes={nodes}
+                    edges={edges}
+                    gexfContent={''}
+                    showGraphHorizontal={showGraphHorizontal}
+                    topologicalSortNodes={topologicalSortNodes}
+                    setTooltip={setNodeTooltip}
+                    setEdgeTooltip={setEdgeTooltip}
+                    nodeTooltip={nodeTooltip}
+                    edgeTooltip={edgeTooltip}
+                    showLabel={showLabel}
+                  />
                 )}
-                <Graph2DViewer
-                  show3d={show3d}
-                  selectedGraphRedux={selectedGraphRedux}
-                  nodes={nodes}
-                  edges={edges}
-                  gexfContent={''}
-                  showGraphHorizontal={showGraphHorizontal}
-                  topologicalSortNodes={topologicalSortNodes}
-                  setTooltip={setNodeTooltip}
-                  setEdgeTooltip={setEdgeTooltip}
-                  nodeTooltip={nodeTooltip}
-                  edgeTooltip={edgeTooltip}
-                  showLabel={showLabel}
-                />
               </>
             )}
             {nodeTooltip.visible && (

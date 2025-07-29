@@ -21,10 +21,12 @@
   transform: translateX(50%);
   z-index: 1000;
   display: flex;
+  font-size: var(--ant-font-size);
   // background-color: var(--ant-color-bg-base);
   border-radius: var(--ant-border-radius-lg);
+  overflow: hidden;
   border: 1px solid var(--ant-color-border-secondary);
-  padding: var(--ant-padding-sm);
+  padding: var(--ant-padding-xs) var(--ant-padding-sm);
   box-shadow: var(--ant-box-shadow-secondary);
   position: absolute;
   backdrop-filter: blur(5px);

@@ -9,7 +9,7 @@ import { EdgeData, NodeData } from '@/lib/graph/types';
 import { LightGraphTheme } from '@/theme/theme';
 import { useAppContext } from '@/hooks/appHooks';
 import { ThemeEnum } from '@/types/types';
-import { nodeLightColorByType } from '../constants';
+import { defaultNodeColor, nodeLightColorByType } from '../constant';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -69,8 +69,8 @@ const GraphLoader = ({
         label: node.label,
         color:
           theme === ThemeEnum.LIGHT
-            ? nodeLightColorByType[node.type]
-            : nodeLightColorByType[node.type],
+            ? nodeLightColorByType[node.type] || defaultNodeColor
+            : nodeLightColorByType[node.type] || defaultNodeColor,
         type: 'circle',
         vx: 0,
         vy: 0,

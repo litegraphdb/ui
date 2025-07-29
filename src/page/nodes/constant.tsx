@@ -58,7 +58,7 @@ export const tableColumns = (
     onFilter: (value, record) => onLabelFilter(value, record.Labels),
     render: (label: string[]) => (
       <div>
-        <div>{label?.length ? label?.map((label) => <LitegraphTag label={label} />) : NONE}</div>
+        {label?.length ? label?.map((label) => <LitegraphTag key={label} label={label} />) : NONE}
       </div>
     ),
   },
