@@ -8,8 +8,8 @@ export const errorHandler = (er: any) => {
   const error = er?.payload || {};
   const endpointName = er?.meta?.arg?.endpointName;
   const serverErrorMessage = error?.data?.message || error?.data?.detail;
-  if (isNumber(error?.status)) {
-    switch (error.status) {
+  if (isNumber(error?.status) || isNumber(error?.StatusCode)) {
+    switch (error.status || error.StatusCode) {
       case 401:
       case 403:
         if (endpointName !== 'login') {
