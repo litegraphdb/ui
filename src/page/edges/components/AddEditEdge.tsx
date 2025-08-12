@@ -48,6 +48,13 @@ interface AddEditEdgeProps {
   fromNodeGUID?: string;
   readonly?: boolean;
   onClose?: () => void;
+  // Local state update functions for graph viewer
+  updateLocalEdge?: (edge: any) => void;
+  addLocalEdge?: (edge: any) => void;
+  removeLocalEdge?: (edgeId: string) => void;
+  // Current graph data for immediate updates
+  currentNodes?: any[];
+  currentEdges?: any[];
 }
 
 const AddEditEdge = ({
@@ -59,6 +66,11 @@ const AddEditEdge = ({
   fromNodeGUID,
   onClose,
   readonly,
+  updateLocalEdge,
+  addLocalEdge,
+  removeLocalEdge,
+  currentNodes,
+  currentEdges,
 }: AddEditEdgeProps) => {
   const [form] = Form.useForm();
   const formValue = useWatch('from', form);
@@ -129,51 +141,94 @@ const AddEditEdge = ({
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
+
       if (edge && edgeWithOldData?.GUID) {
         // Edit edge
-        const data: Edge = {
-          TenantGUID: edge.TenantGUID,
-          LastUpdateUtc: edge.LastUpdateUtc,
-          GUID: edge.GUID,
-          GraphGUID: edge.GraphGUID,
-          CreatedUtc: edge.CreatedUtc,
-          Name: values.name,
-          From: values.from,
-          To: values.to,
-          Cost: values.cost,
-          Data: values.data,
-          Labels: values.labels || [],
-          Tags: tags,
-          Vectors: convertVectorsToAPIRecord(values.vectors),
-        };
-        const res = await updateEdgeById(data);
-        if (res) {
+        if (updateLocalEdge) {
+          // Use local state update for graph viewer
+          const updatedEdgeData = {
+            id: edge.GUID,
+            source: values.from,
+            target: values.to,
+            cost: values.cost,
+            label: values.name,
+            data: JSON.stringify(values.data),
+            sourceX: 0, // These will be set by the graph layout
+            sourceY: 0,
+            targetX: 0,
+            targetY: 0,
+          };
+          updateLocalEdge(updatedEdgeData);
           toast.success('Update Edge successfully');
           setIsAddEditEdgeVisible(false);
           onEdgeUpdated && (await onEdgeUpdated());
         } else {
-          throw new Error('Failed to update edge - no response received');
+          // Fallback to API call for other contexts
+          const data: Edge = {
+            TenantGUID: edge.TenantGUID,
+            LastUpdateUtc: edge.LastUpdateUtc,
+            GUID: edge.GUID,
+            GraphGUID: edge.GraphGUID,
+            CreatedUtc: edge.CreatedUtc,
+            Name: values.name,
+            From: values.from,
+            To: values.to,
+            Cost: values.cost,
+            Data: values.data,
+            Labels: values.labels || [],
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
+          };
+          const res = await updateEdgeById(data);
+          if (res) {
+            toast.success('Update Edge successfully');
+            setIsAddEditEdgeVisible(false);
+            onEdgeUpdated && (await onEdgeUpdated());
+          } else {
+            throw new Error('Failed to update edge - no response received');
+          }
         }
       } else {
         // Add edge
-        const data: EdgeCreateRequest = {
-          GraphGUID: selectedGraph,
-          Name: values.name,
-          From: values.from,
-          To: values.to,
-          Cost: values.cost,
-          Data: values.data,
-          Labels: values.labels || [],
-          Tags: tags,
-          Vectors: convertVectorsToAPIRecord(values.vectors),
-        };
-        const res = await createEdges(data);
-        if (res) {
+        if (addLocalEdge) {
+          // Use local state update for graph viewer
+          const newEdgeData = {
+            id: v4(), // Generate temporary ID
+            source: values.from,
+            target: values.to,
+            cost: values.cost,
+            label: values.name,
+            data: JSON.stringify(values.data),
+            sourceX: 0, // These will be set by the graph layout
+            sourceY: 0,
+            targetX: 0,
+            targetY: 0,
+          };
+          addLocalEdge(newEdgeData);
           toast.success('Add Edge successfully');
           setIsAddEditEdgeVisible(false);
           onEdgeUpdated && (await onEdgeUpdated());
         } else {
-          throw new Error('Failed to create edge - no response received');
+          // Fallback to API call for other contexts
+          const data: EdgeCreateRequest = {
+            GraphGUID: selectedGraph,
+            Name: values.name,
+            From: values.from,
+            To: values.to,
+            Cost: values.cost,
+            Data: values.data,
+            Labels: values.labels || [],
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
+          };
+          const res = await createEdges(data);
+          if (res) {
+            toast.success('Add Edge successfully');
+            setIsAddEditEdgeVisible(false);
+            onEdgeUpdated && (await onEdgeUpdated());
+          } else {
+            throw new Error('Failed to create edge - no response received');
+          }
         }
       }
     } catch (error: unknown) {

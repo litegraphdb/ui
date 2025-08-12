@@ -44,6 +44,13 @@ interface AddEditNodeProps {
   onNodeUpdated?: () => Promise<void>;
   readonly?: boolean;
   onClose?: () => void;
+  // Local state update functions for graph viewer
+  updateLocalNode?: (node: any) => void;
+  addLocalNode?: (node: any) => void;
+  removeLocalNode?: (nodeId: string) => void;
+  // Current graph data for immediate updates
+  currentNodes?: any[];
+  currentEdges?: any[];
 }
 
 const AddEditNode = ({
@@ -54,6 +61,11 @@ const AddEditNode = ({
   onNodeUpdated,
   readonly,
   onClose,
+  updateLocalNode,
+  addLocalNode,
+  removeLocalNode,
+  currentNodes,
+  currentEdges,
 }: AddEditNodeProps) => {
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
@@ -108,45 +120,84 @@ const AddEditNode = ({
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
+
       if (node && nodeWithOldData?.GUID) {
         // Edit Node
-        const data: Node = {
-          TenantGUID: node.TenantGUID,
-          LastUpdateUtc: node.LastUpdateUtc,
-          GUID: node.GUID,
-          GraphGUID: node.GraphGUID,
-          CreatedUtc: node.CreatedUtc,
-          Name: values.name,
-          Data: values.data,
-          Labels: values.labels,
-          Tags: tags,
-          Vectors: convertVectorsToAPIRecord(values.vectors),
-        };
-        const res = await updateNodeById(data);
-        if (res) {
+        if (updateLocalNode) {
+          // Use local state update for graph viewer
+          const updatedNodeData = {
+            id: node.GUID,
+            label: values.name,
+            type: node.Labels?.[0] || 'default',
+            x: 0, // These will be set by the graph layout
+            y: 0,
+            z: 0,
+            vx: 0,
+            vy: 0,
+          };
+          updateLocalNode(updatedNodeData);
           toast.success('Update Node successfully');
           setIsAddEditNodeVisible(false);
           onNodeUpdated && (await onNodeUpdated());
         } else {
-          throw new Error('Failed to update node - no response received');
+          // Fallback to API call for other contexts
+          const data: Node = {
+            TenantGUID: node.TenantGUID,
+            LastUpdateUtc: node.LastUpdateUtc,
+            GUID: node.GUID,
+            GraphGUID: node.GraphGUID,
+            CreatedUtc: node.CreatedUtc,
+            Name: values.name,
+            Data: values.data,
+            Labels: values.labels,
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
+          };
+          const res = await updateNodeById(data);
+          if (res) {
+            toast.success('Update Node successfully');
+            setIsAddEditNodeVisible(false);
+            onNodeUpdated && (await onNodeUpdated());
+          } else {
+            throw new Error('Failed to update node - no response received');
+          }
         }
       } else {
         // Add Node
-        const data: NodeCreateRequest = {
-          GraphGUID: selectedGraph,
-          Name: values.name,
-          Data: values.data,
-          Labels: values.labels,
-          Tags: tags,
-          Vectors: convertVectorsToAPIRecord(values.vectors),
-        };
-        const res = await createNodes(data);
-        if (res) {
+        if (addLocalNode) {
+          // Use local state update for graph viewer
+          const newNodeData = {
+            id: v4(), // Generate temporary ID
+            label: values.name,
+            type: values.labels?.[0] || 'default',
+            x: Math.random() * 800, // Random position
+            y: Math.random() * 600,
+            z: 0,
+            vx: 0,
+            vy: 0,
+          };
+          addLocalNode(newNodeData);
           toast.success('Add Node successfully');
           setIsAddEditNodeVisible(false);
           onNodeUpdated && (await onNodeUpdated());
         } else {
-          throw new Error('Failed to create node - no response received');
+          // Fallback to API call for other contexts
+          const data: NodeCreateRequest = {
+            GraphGUID: selectedGraph,
+            Name: values.name,
+            Data: values.data,
+            Labels: values.labels,
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
+          };
+          const res = await createNodes(data);
+          if (res) {
+            toast.success('Add Node successfully');
+            setIsAddEditNodeVisible(false);
+            onNodeUpdated && (await onNodeUpdated());
+          } else {
+            throw new Error('Failed to create node - no response received');
+          }
         }
       }
     } catch (error: unknown) {

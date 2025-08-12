@@ -252,6 +252,39 @@ export const useLazyLoadEdgesAndNodes = (
     doNotFetchEdgesOnRender
   );
 
+  // Local state update functions for nodes and edges
+  const updateLocalNode = (updatedNode: NodeData) => {
+    setNodesForGraph((prevNodes) =>
+      prevNodes.map((node) => (node.id === updatedNode.id ? updatedNode : node))
+    );
+  };
+
+  const addLocalNode = (newNode: NodeData) => {
+    setNodesForGraph((prevNodes) => [...prevNodes, newNode]);
+  };
+
+  const removeLocalNode = (nodeId: string) => {
+    setNodesForGraph((prevNodes) => prevNodes.filter((node) => node.id !== nodeId));
+    // Also remove edges connected to this node
+    setEdgesForGraph((prevEdges) =>
+      prevEdges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+    );
+  };
+
+  const updateLocalEdge = (updatedEdge: EdgeData) => {
+    setEdgesForGraph((prevEdges) =>
+      prevEdges.map((edge) => (edge.id === updatedEdge.id ? updatedEdge : edge))
+    );
+  };
+
+  const addLocalEdge = (newEdge: EdgeData) => {
+    setEdgesForGraph((prevEdges) => [...prevEdges, newEdge]);
+  };
+
+  const removeLocalEdge = (edgeId: string) => {
+    setEdgesForGraph((prevEdges) => prevEdges.filter((edge) => edge.id !== edgeId));
+  };
+
   useEffect(() => {
     if (!nodes.length) return;
 
@@ -323,5 +356,12 @@ export const useLazyLoadEdgesAndNodes = (
     refetchEdges,
     isError: isNodesError || isEdgesError,
     renderNodesRandomly,
+    // Local state update functions
+    updateLocalNode,
+    addLocalNode,
+    removeLocalNode,
+    updateLocalEdge,
+    addLocalEdge,
+    removeLocalEdge,
   };
 };

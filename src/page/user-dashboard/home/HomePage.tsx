@@ -1,17 +1,18 @@
 'use client';
-import LitegraphButton from '@/components/base/button/Button';
 import FallBack from '@/components/base/fallback/FallBack';
-import LitegraphFlex from '@/components/base/flex/Flex';
 import { defaultEdgeTooltip, defaultNodeTooltip } from '@/components/base/graph/constant';
 import { GraphEdgeTooltip, GraphNodeTooltip } from '@/components/base/graph/types';
 import PageLoading from '@/components/base/loading/PageLoading';
 import PageContainer from '@/components/base/pageContainer/PageContainer';
 import { useLayoutContext } from '@/components/layout/context';
-import { useAppSelector } from '@/lib/store/hooks';
-import { RootState } from '@/lib/store/store';
-import { PlusSquareOutlined } from '@ant-design/icons';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import LitegraphButton from '@/components/base/button/Button';
+import LitegraphFlex from '@/components/base/flex/Flex';
+import { PlusSquareOutlined } from '@ant-design/icons';
+import { useAppSelector } from '@/lib/store/hooks';
+import { RootState } from '@/lib/store/store';
+
 const GraphViewer = dynamic(() => import('@/components/base/graph/GraphViewer'), {
   ssr: false,
 });
@@ -21,8 +22,10 @@ const HomePage = () => {
   const [nodeTooltip, setNodeTooltip] = useState<GraphNodeTooltip>(defaultNodeTooltip);
   const [edgeTooltip, setEdgeTooltip] = useState<GraphEdgeTooltip>(defaultEdgeTooltip);
 
-  const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState(false);
-  const [isAddEditEdgeVisible, setIsAddEditEdgeVisible] = useState(false);
+  // Modal state management
+  const [isAddEditNodeVisible, setIsAddEditNodeVisible] = useState<boolean>(false);
+  const [isAddEditEdgeVisible, setIsAddEditEdgeVisible] = useState<boolean>(false);
+
   const { isGraphsLoading, graphError, refetchGraphs } = useLayoutContext();
 
   if (isGraphsLoading) {
@@ -67,16 +70,16 @@ const HomePage = () => {
       }
     >
       <div data-testid="graph-viewer">
-      <GraphViewer
-        isAddEditNodeVisible={isAddEditNodeVisible}
-        setIsAddEditNodeVisible={setIsAddEditNodeVisible}
-        nodeTooltip={nodeTooltip}
-        edgeTooltip={edgeTooltip}
-        setNodeTooltip={setNodeTooltip}
-        setEdgeTooltip={setEdgeTooltip}
-        isAddEditEdgeVisible={isAddEditEdgeVisible}
-        setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
-      />
+        <GraphViewer
+          isAddEditNodeVisible={isAddEditNodeVisible}
+          setIsAddEditNodeVisible={setIsAddEditNodeVisible}
+          nodeTooltip={nodeTooltip}
+          edgeTooltip={edgeTooltip}
+          setNodeTooltip={setNodeTooltip}
+          setEdgeTooltip={setEdgeTooltip}
+          isAddEditEdgeVisible={isAddEditEdgeVisible}
+          setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
+        />
       </div>
     </PageContainer>
   );

@@ -20,25 +20,108 @@ import classNames from 'classnames';
 import styles from './tooltip.module.scss';
 import { copyTextToClipboard } from '@/utils/jsonCopyUtils';
 import { useGetNodeByIdQuery } from '@/lib/store/slice/slice';
+import { useEnumerateAndSearchTagQuery } from '@/lib/store/slice/slice';
 
 type NodeTooltipProps = {
   tooltip: GraphNodeTooltip;
   setTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
   graphId: string;
+  // Local state update functions for graph viewer
+  updateLocalNode?: (node: any) => void;
+  addLocalNode?: (node: any) => void;
+  removeLocalNode?: (nodeId: string) => void;
+  updateLocalEdge?: (edge: any) => void;
+  addLocalEdge?: (edge: any) => void;
+  removeLocalEdge?: (edgeId: string) => void;
+  // Current graph data for immediate updates
+  currentNodes?: any[];
+  currentEdges?: any[];
 };
-const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
+
+const NodeToolTip = ({
+  tooltip,
+  setTooltip,
+  graphId,
+  updateLocalNode,
+  addLocalNode,
+  removeLocalNode,
+  updateLocalEdge,
+  addLocalEdge,
+  removeLocalEdge,
+  currentNodes,
+  currentEdges,
+}: NodeTooltipProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  // Find the current node data from local state first, fallback to API if not found
+  const localNodeData = currentNodes?.find((node: any) => node.id === tooltip.nodeId);
+
+  // Check if this is for adding a new node
+  const isAddingNewNode = tooltip.nodeId === 'new';
+
   const {
     data: node,
     isLoading,
     isFetching,
     error,
     refetch,
-  } = useGetNodeByIdQuery({
-    graphId,
-    nodeId: tooltip.nodeId,
-    request: { includeSubordinates: true },
-  });
+  } = useGetNodeByIdQuery(
+    {
+      graphId,
+      nodeId: tooltip.nodeId,
+      request: { includeSubordinates: true },
+    },
+    {
+      skip: !graphId || !tooltip.nodeId || !!localNodeData || isAddingNewNode, // Skip API call if we have local data or adding new
+    }
+  );
+
+  // Use local data if available, otherwise use API data
+  const displayNode = localNodeData
+    ? {
+        // Use local data for basic properties
+        GUID: localNodeData.id,
+        Name: localNodeData.label,
+        Labels: [localNodeData.type],
+        // Preserve original node data for complex properties like Tags, Data, Vectors
+        Data: node?.Data || {},
+        Tags: node?.Tags || {},
+        Vectors: node?.Vectors || [],
+        TenantGUID: node?.TenantGUID || '',
+        GraphGUID: graphId,
+        CreatedUtc: node?.CreatedUtc || new Date().toISOString(),
+        LastUpdateUtc: node?.LastUpdateUtc || new Date().toISOString(),
+      }
+    : node;
+
+  // Fetch tags separately since they are not included in the node response
+  const { data: tagsData, isLoading: isTagsLoading } = useEnumerateAndSearchTagQuery(
+    {
+      MaxResults: 1000, // Fetch more tags to ensure we get all relevant ones
+      GraphGUID: graphId,
+    },
+    {
+      skip: !graphId || tooltip.nodeId === 'new',
+    }
+  );
+
+  // Filter tags by NodeGUID
+  const nodeTags = tagsData?.Objects?.filter((tag) => tag.NodeGUID === tooltip.nodeId) || [];
+
+  // Merge tags data with displayNode
+  const nodeWithTags = displayNode
+    ? {
+        ...displayNode,
+        Tags: nodeTags.reduce(
+          (acc, tag) => {
+            acc[tag.Key] = tag.Value;
+            return acc;
+          },
+          {} as Record<string, string>
+        ),
+      }
+    : displayNode;
+
   // const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
 
   // State for AddEditDeleteNode visibility and selected node
@@ -52,9 +135,8 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
     if (graphId && tooltip.nodeId) {
       //Graph re-renders
       // await fetchGexfByGraphId();
-
-      // Clear node tooltip
-      setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+      // Don't clear the tooltip immediately - let the user see the updated information
+      // The tooltip will be updated with new data from local state
     }
   };
 
@@ -106,7 +188,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
                 <ExpandOutlined
                   className="cursor-pointer"
                   onClick={() => {
-                    setSelectedNode(node);
+                    setSelectedNode(nodeWithTags);
                     setIsExpanded(true);
                     setIsAddEditNodeVisible(true);
                   }}
@@ -128,28 +210,45 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
             <FallBack retry={refetch}>
               {error ? 'Something went wrong.' : "Can't view details at the moment."}
             </FallBack>
+          ) : isAddingNewNode ? (
+            // Show Add Node form
+            <LitegraphFlex vertical>
+              <LitegraphText>
+                <strong>Add New Node</strong>
+              </LitegraphText>
+              <LitegraphButton
+                type="primary"
+                onClick={() => {
+                  setSelectedNode(null); // null means new node
+                  setIsAddEditNodeVisible(true);
+                }}
+                className="mt-2"
+              >
+                Open Add Node Form
+              </LitegraphButton>
+            </LitegraphFlex>
           ) : (
             // Ready to show data after API is ready
             <LitegraphFlex vertical>
               <LitegraphFlex vertical className="card-details">
                 <LitegraphText data-testid="node-guid">
                   <strong>GUID: </strong>
-                  {node?.GUID}{' '}
+                  {nodeWithTags?.GUID}{' '}
                   <CopyOutlined
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
-                      copyTextToClipboard(node?.GUID || '', 'GUID');
+                      copyTextToClipboard(nodeWithTags?.GUID || '', 'GUID');
                     }}
                   />
                 </LitegraphText>
                 <LitegraphText>
                   <strong>Name: </strong>
-                  {node?.Name}
+                  {nodeWithTags?.Name}
                 </LitegraphText>
 
                 <LitegraphText>
                   <strong>Labels: </strong>
-                  {`${node?.Labels?.length ? node?.Labels?.join(', ') : 'None'}`}
+                  {`${nodeWithTags?.Labels?.length ? nodeWithTags?.Labels?.join(', ') : 'None'}`}
                 </LitegraphText>
 
                 {/* <LitegraphText>
@@ -159,20 +258,25 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
 
                 <LitegraphText>
                   <strong>Tags: </strong>
-                  {Object.keys(node?.Tags || {}).length > 0 ? (
-                    <JsonEditor
-                      key={JSON.stringify(node?.Tags && JSON.parse(JSON.stringify(node.Tags)))}
-                      value={(node?.Tags && JSON.parse(JSON.stringify(node.Tags))) || {}}
-                      mode="view" // Use 'view' mode to make it read-only
-                      mainMenuBar={false} // Hide the menu bar
-                      statusBar={false} // Hide the status bar
-                      navigationBar={false} // Hide the navigation bar
-                      enableSort={false}
-                      enableTransform={false}
-                    />
-                  ) : (
-                    <LitegraphText>None</LitegraphText>
-                  )}
+                  {(() => {
+                    const tags = nodeWithTags?.Tags || {};
+                    const tagKeys = Object.keys(tags);
+
+                    return tagKeys.length > 0 ? (
+                      <JsonEditor
+                        key={JSON.stringify(tags)}
+                        value={tags}
+                        mode="view" // Use 'view' mode to make it read-only
+                        mainMenuBar={false} // Hide the menu bar
+                        statusBar={false} // Hide the status bar
+                        navigationBar={false} // Hide the navigation bar
+                        enableSort={false}
+                        enableTransform={false}
+                      />
+                    ) : (
+                      <LitegraphText>None</LitegraphText>
+                    );
+                  })()}
                 </LitegraphText>
 
                 {/* <LitegraphFlex align="center" gap={6}>
@@ -205,7 +309,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
                   <LitegraphButton
                     type="link"
                     onClick={() => {
-                      setSelectedNode(node);
+                      setSelectedNode(nodeWithTags);
                       setIsAddEditNodeVisible(true);
                     }}
                   >
@@ -217,7 +321,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
                   <LitegraphButton
                     type="link"
                     onClick={() => {
-                      setSelectedNode(node);
+                      setSelectedNode(nodeWithTags);
                       setIsDeleteModelVisible(true);
                     }}
                   >
@@ -242,18 +346,27 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
       </LiteGraphSpace>
 
       {/* AddEditNode Component On Update*/}
-      {selectedNode && (
+      {selectedNode !== undefined && (
         <AddEditNode
           isAddEditNodeVisible={isAddEditNodeVisible}
           setIsAddEditNodeVisible={setIsAddEditNodeVisible}
-          node={selectedNode || null}
+          node={selectedNode}
           selectedGraph={graphId}
           readonly={isExpanded}
           onNodeUpdated={handleNodeUpdate} // Pass callback to handle updates
           onClose={() => {
             setIsExpanded(false);
-            setSelectedNode(null);
+            setSelectedNode(undefined);
+            // Close the tooltip if it was for adding a new node
+            if (tooltip.nodeId === 'new') {
+              setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+            }
           }}
+          updateLocalNode={updateLocalNode}
+          addLocalNode={addLocalNode}
+          removeLocalNode={removeLocalNode}
+          currentNodes={currentNodes}
+          currentEdges={currentEdges}
         />
       )}
 
@@ -266,6 +379,7 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
         selectedNode={selectedNode}
         setSelectedNode={setSelectedNode}
         onNodeDeleted={handleNodeDelete}
+        removeLocalNode={removeLocalNode}
       />
 
       {/* AddEditEdge Component On Add*/}
@@ -276,6 +390,11 @@ const NodeToolTip = ({ tooltip, setTooltip, graphId }: NodeTooltipProps) => {
         selectedGraph={graphId}
         onEdgeUpdated={handleEdgeUpdate} // Pass callback to handle updates
         fromNodeGUID={tooltip?.nodeId}
+        updateLocalEdge={updateLocalEdge}
+        addLocalEdge={addLocalEdge}
+        removeLocalEdge={removeLocalEdge}
+        currentNodes={currentNodes}
+        currentEdges={currentEdges}
       />
     </>
   );
