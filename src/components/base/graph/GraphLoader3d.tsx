@@ -96,7 +96,20 @@ export default function GraphLoader3d({
       type: n.type,
     }));
 
-    const mappedLinks = edges.map((e) => ({
+    // Filter edges to only include those with valid source and target nodes
+    const validEdges = edges.filter((e) => {
+      const hasValidSource = nodes.some((n) => n.id === e.source);
+      const hasValidTarget = nodes.some((n) => n.id === e.target);
+      if (!hasValidSource || !hasValidTarget) {
+        console.warn(
+          `Skipping edge ${e.id}: source node ${e.source} or target node ${e.target} not found in nodes`
+        );
+        return false;
+      }
+      return true;
+    });
+
+    const mappedLinks = validEdges.map((e) => ({
       source: e.source,
       target: e.target,
       id: e.id,

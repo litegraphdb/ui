@@ -86,10 +86,10 @@ const AddEditEdge = ({
   } = useGetEdgeByIdQuery(
     {
       graphId: selectedGraph,
-      edgeId: edgeWithOldData?.GUID || '',
+      edgeId: edgeWithOldData?.GUID || edgeWithOldData?.id || '',
       request: { includeData: true, includeSubordinates: true },
     },
-    { skip: !edgeWithOldData?.GUID || !selectedGraph }
+    { skip: !(edgeWithOldData?.GUID || edgeWithOldData?.id) || !selectedGraph }
   );
   const isEdgeLoading = isEdgeLoading1 || isEdgeFetching;
   const [createEdges, { isLoading: isCreateLoading }] = useCreateEdgeMutation();
@@ -106,7 +106,11 @@ const AddEditEdge = ({
   }, [formValues, form]);
 
   useEffect(() => {
+    // Check if this is an existing edge (either API edge with GUID or local edge with id)
+    const isExistingEdge = edgeWithOldData?.GUID || edgeWithOldData?.id;
+
     if (edge && edgeWithOldData?.GUID) {
+      // API edge - use API data
       form.resetFields();
       form.setFieldsValue({
         name: edge.Name,
@@ -122,7 +126,25 @@ const AddEditEdge = ({
         vectors: edge.Vectors,
       });
       setUniqueKey(v4());
-    } else if (!edgeWithOldData?.GUID) {
+    } else if (isExistingEdge && !edge) {
+      // Local edge - use local data
+      form.resetFields();
+      form.setFieldsValue({
+        name: edgeWithOldData.Name || edgeWithOldData.label || '',
+        from: edgeWithOldData.From || edgeWithOldData.source || '',
+        to: edgeWithOldData.To || edgeWithOldData.target || '',
+        cost: edgeWithOldData.Cost || edgeWithOldData.cost || 0,
+        data: edgeWithOldData.Data || JSON.parse(edgeWithOldData.data || '{}'),
+        labels: edgeWithOldData.Labels || [],
+        tags: Object.entries(edgeWithOldData.Tags || {}).map(([key, value]) => ({
+          key,
+          value,
+        })),
+        vectors: edgeWithOldData.Vectors || [],
+      });
+      setUniqueKey(v4());
+    } else if (!isExistingEdge) {
+      // New edge
       form.resetFields();
       form.setFieldsValue({ from: undefined, to: undefined });
       fromNodeGUID && form.setFieldsValue({ from: fromNodeGUID, data: {} });
@@ -135,19 +157,22 @@ const AddEditEdge = ({
       .validateFields({ validateOnly: true })
       .then(() => setFormValid(true))
       .catch(() => setFormValid(false));
-  }, [edge, selectedGraph, fromNodeGUID, form, edgeWithOldData?.GUID]);
+  }, [edge, selectedGraph, fromNodeGUID, form, edgeWithOldData?.GUID, edgeWithOldData?.id]);
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
 
-      if (edge && edgeWithOldData?.GUID) {
+      // Check if this is an existing edge (either API edge with GUID or local edge with id)
+      const isExistingEdge = edgeWithOldData?.GUID || edgeWithOldData?.id;
+
+      if (isExistingEdge) {
         // Edit edge
         if (updateLocalEdge) {
           // Use local state update for graph viewer
           const updatedEdgeData = {
-            id: edge.GUID,
+            id: edgeWithOldData.GUID || edgeWithOldData.id, // Handle both API edges (GUID) and local edges (id)
             source: values.from,
             target: values.to,
             cost: values.cost,
@@ -165,11 +190,11 @@ const AddEditEdge = ({
         } else {
           // Fallback to API call for other contexts
           const data: Edge = {
-            TenantGUID: edge.TenantGUID,
-            LastUpdateUtc: edge.LastUpdateUtc,
-            GUID: edge.GUID,
-            GraphGUID: edge.GraphGUID,
-            CreatedUtc: edge.CreatedUtc,
+            TenantGUID: edgeWithOldData.TenantGUID || '',
+            LastUpdateUtc: edgeWithOldData.LastUpdateUtc || new Date().toISOString(),
+            GUID: edgeWithOldData.GUID || edgeWithOldData.id,
+            GraphGUID: edgeWithOldData.GraphGUID || selectedGraph,
+            CreatedUtc: edgeWithOldData.CreatedUtc || new Date().toISOString(),
             Name: values.name,
             From: values.from,
             To: values.to,
@@ -244,11 +269,11 @@ const AddEditEdge = ({
       title={getCreateEditViewModelTitle(
         'Edge',
         isEdgeLoading,
-        !edgeWithOldData,
-        !!edgeWithOldData,
-        Boolean(readonly && !!edgeWithOldData)
+        !(edgeWithOldData?.GUID || edgeWithOldData?.id),
+        !!(edgeWithOldData?.GUID || edgeWithOldData?.id),
+        Boolean(readonly && !!(edgeWithOldData?.GUID || edgeWithOldData?.id))
       )}
-      okText={edgeWithOldData?.GUID ? 'Update' : 'Create'}
+      okText={edgeWithOldData?.GUID || edgeWithOldData?.id ? 'Update' : 'Create'}
       open={isAddEditEdgeVisible}
       onOk={handleSubmit}
       loading={isEdgeLoading}
@@ -265,7 +290,11 @@ const AddEditEdge = ({
         <PageLoading />
       ) : (
         <Form
-          initialValues={{ ...initialValues, from: edge?.From || fromNodeGUID || '' }}
+          initialValues={{
+            ...initialValues,
+            from:
+              edge?.From || edgeWithOldData?.From || edgeWithOldData?.source || fromNodeGUID || '',
+          }}
           form={form}
           layout="vertical"
           wrapperCol={{ span: 24 }}
@@ -296,6 +325,7 @@ const AddEditEdge = ({
               className="flex-1"
               label="From Node"
               rules={validationRules.From}
+              localNodes={currentNodes}
             />
             <NodeSelector
               name="to"
@@ -303,6 +333,7 @@ const AddEditEdge = ({
               className="flex-1"
               label="To Node"
               rules={validationRules.To}
+              localNodes={currentNodes}
             />
             {/* <LitegraphFormItem
               className="flex-1"

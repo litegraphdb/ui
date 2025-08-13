@@ -80,18 +80,25 @@ const GraphLoader = ({
 
     // Add edges with unique IDs
     edges.forEach((edge) => {
-      graph.addEdgeWithKey(
-        edge.id,
-        edge.source,
-        edge.target,
-        {
-          size: 3,
-          label: `${edge.id}${edge.cost}`,
-          color: theme === ThemeEnum.LIGHT ? '#aaa' : '#555',
-          type: 'arrow',
-        }
-        // { generateId: () => edge.id }
-      );
+      // Check if both source and target nodes exist in the graph
+      if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
+        graph.addEdgeWithKey(
+          edge.id,
+          edge.source,
+          edge.target,
+          {
+            size: 3,
+            label: `${edge.id}${edge.cost}`,
+            color: theme === ThemeEnum.LIGHT ? '#aaa' : '#555',
+            type: 'arrow',
+          }
+          // { generateId: () => edge.id }
+        );
+      } else {
+        console.warn(
+          `Skipping edge ${edge.id}: source node ${edge.source} or target node ${edge.target} not found in graph`
+        );
+      }
     });
 
     loadGraph(graph);

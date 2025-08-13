@@ -85,10 +85,11 @@ const EdgeToolTip = ({
   const displayEdge = localEdgeData
     ? {
         GUID: localEdgeData.id,
-        Name: localEdgeData.label,
+        id: localEdgeData.id, // Add id property for consistency
+        Name: localEdgeData.label || '',
         From: localEdgeData.source,
         To: localEdgeData.target,
-        Cost: localEdgeData.cost,
+        Cost: localEdgeData.cost || 0,
         Data: JSON.parse(localEdgeData.data || '{}'),
         Labels: [],
         Tags: {},
@@ -97,6 +98,12 @@ const EdgeToolTip = ({
         GraphGUID: graphId,
         CreatedUtc: new Date().toISOString(),
         LastUpdateUtc: new Date().toISOString(),
+        // Add source and target properties for consistency with local edge structure
+        source: localEdgeData.source,
+        target: localEdgeData.target,
+        label: localEdgeData.label || '',
+        cost: localEdgeData.cost || 0,
+        data: localEdgeData.data || '',
       }
     : edge;
   // const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
@@ -335,7 +342,7 @@ const EdgeToolTip = ({
 
       {/* DeleteEdge Component On Delete*/}
       <DeleteEdge
-        title={`Are you sure you want to delete "${selectedEdge?.Name}" edge?`}
+        title={`Are you sure you want to delete "${selectedEdge?.Name || selectedEdge?.label || 'Unknown'}" edge?`}
         paragraphText={'This action will delete edge.'}
         isDeleteModelVisisble={isDeleteModelVisisble}
         setIsDeleteModelVisisble={setIsDeleteModelVisisble}

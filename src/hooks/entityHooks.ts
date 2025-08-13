@@ -272,13 +272,45 @@ export const useLazyLoadEdgesAndNodes = (
   };
 
   const updateLocalEdge = (updatedEdge: EdgeData) => {
-    setEdgesForGraph((prevEdges) =>
-      prevEdges.map((edge) => (edge.id === updatedEdge.id ? updatedEdge : edge))
-    );
+    // Don't update edges when in random rendering mode (edges not loaded yet)
+    if (renderNodesRandomly) {
+      console.warn(
+        `Cannot update edge ${updatedEdge.id}: graph is in random rendering mode, edges not loaded yet`
+      );
+      return;
+    }
+
+    // Validate that the updated edge references existing nodes
+    const nodeIds = nodesForGraph.map((node) => node.id);
+    if (nodeIds.includes(updatedEdge.source) && nodeIds.includes(updatedEdge.target)) {
+      setEdgesForGraph((prevEdges) =>
+        prevEdges.map((edge) => (edge.id === updatedEdge.id ? updatedEdge : edge))
+      );
+    } else {
+      console.warn(
+        `Cannot update edge ${updatedEdge.id}: source node ${updatedEdge.source} or target node ${updatedEdge.target} not found in graph`
+      );
+    }
   };
 
   const addLocalEdge = (newEdge: EdgeData) => {
-    setEdgesForGraph((prevEdges) => [...prevEdges, newEdge]);
+    // Don't add edges when in random rendering mode (edges not loaded yet)
+    if (renderNodesRandomly) {
+      console.warn(
+        `Cannot add edge ${newEdge.id}: graph is in random rendering mode, edges not loaded yet`
+      );
+      return;
+    }
+
+    // Validate that the edge references existing nodes
+    const nodeIds = nodesForGraph.map((node) => node.id);
+    if (nodeIds.includes(newEdge.source) && nodeIds.includes(newEdge.target)) {
+      setEdgesForGraph((prevEdges) => [...prevEdges, newEdge]);
+    } else {
+      console.warn(
+        `Cannot add edge ${newEdge.id}: source node ${newEdge.source} or target node ${newEdge.target} not found in graph`
+      );
+    }
   };
 
   const removeLocalEdge = (edgeId: string) => {
@@ -286,7 +318,7 @@ export const useLazyLoadEdgesAndNodes = (
   };
 
   useEffect(() => {
-    if (!nodes.length) return;
+    if (!nodes.length || !edges.length) return;
 
     if (renderNodesRandomly) {
       // Use processed circular nodes while edges are still loading
@@ -317,11 +349,29 @@ export const useLazyLoadEdgesAndNodes = (
 
       setNodesForGraph(uniqueNodes);
       const nodeIds = uniqueNodes.map((node) => node.id);
-      setEdgesForGraph(
-        parseEdge(
-          edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
-        )
+
+      // Parse API edges and preserve locally added edges
+      const apiEdges = parseEdge(
+        edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
       );
+
+      // Get existing locally added edges (edges with temporary UUIDs that don't exist in API)
+      // Only include edges whose source and target nodes exist in the current graph
+      const existingLocalEdges =
+        edgesForGraph.length > 0
+          ? edgesForGraph.filter((edge) => {
+              // Check if this is a locally added edge (temporary UUID format)
+              const isLocalEdge = edge.id.length === 36 && edge.id.includes('-');
+              // Check if this edge is not in the API response
+              const isNotInApi = !apiEdges.some((apiEdge) => apiEdge.id === edge.id);
+              // Check if both source and target nodes exist in the current graph
+              const hasValidNodes = nodeIds.includes(edge.source) && nodeIds.includes(edge.target);
+              return isLocalEdge && isNotInApi && hasValidNodes;
+            })
+          : [];
+
+      // Combine API edges with locally added edges
+      setEdgesForGraph([...apiEdges, ...existingLocalEdges]);
     }
   }, [
     nodes,
