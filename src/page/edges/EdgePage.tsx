@@ -1,6 +1,12 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { CloseOutlined, LoadingOutlined, PlusSquareOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  PlusSquareOutlined,
+  RedoOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
@@ -112,9 +118,9 @@ const EdgePage = () => {
           {isEdgesLoading ? (
             <LoadingOutlined className="loading-icon" />
           ) : (
-              <LitegraphTooltip title="Refresh Data" placement="right">
-                <RedoOutlined className="cursor-pointer" onClick={fetchEdgesList} />
-              </LitegraphTooltip>
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchEdgesList} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }
@@ -174,9 +180,6 @@ const EdgePage = () => {
         setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
         edge={selectedEdge ? selectedEdge : null}
         selectedGraph={selectedGraphRedux}
-        onEdgeUpdated={async () => {
-          await fetchEdgesList();
-        }}
       />
 
       <DeleteEdge

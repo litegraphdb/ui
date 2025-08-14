@@ -86,10 +86,10 @@ const AddEditEdge = ({
   } = useGetEdgeByIdQuery(
     {
       graphId: selectedGraph,
-      edgeId: edgeWithOldData?.GUID || edgeWithOldData?.id || '',
+      edgeId: edgeWithOldData?.GUID || '',
       request: { includeData: true, includeSubordinates: true },
     },
-    { skip: !(edgeWithOldData?.GUID || edgeWithOldData?.id) || !selectedGraph }
+    { skip: !edgeWithOldData?.GUID || !selectedGraph || !!(edgeWithOldData as any)?.isLocal }
   );
   const isEdgeLoading = isEdgeLoading1 || isEdgeFetching;
   const [createEdges, { isLoading: isCreateLoading }] = useCreateEdgeMutation();
@@ -107,9 +107,9 @@ const AddEditEdge = ({
 
   useEffect(() => {
     // Check if this is an existing edge (either API edge with GUID or local edge with id)
-    const isExistingEdge = edgeWithOldData?.GUID || edgeWithOldData?.id;
+    const isExistingEdge = edgeWithOldData?.GUID;
 
-    if (edge && edgeWithOldData?.GUID) {
+    if (edge && edgeWithOldData?.GUID && !(edgeWithOldData as any)?.isLocal) {
       // API edge - use API data
       form.resetFields();
       form.setFieldsValue({
@@ -126,21 +126,23 @@ const AddEditEdge = ({
         vectors: edge.Vectors,
       });
       setUniqueKey(v4());
-    } else if (isExistingEdge && !edge) {
+    } else if (isExistingEdge && (edgeWithOldData as any)?.isLocal) {
       // Local edge - use local data
       form.resetFields();
       form.setFieldsValue({
-        name: edgeWithOldData.Name || edgeWithOldData.label || '',
-        from: edgeWithOldData.From || edgeWithOldData.source || '',
-        to: edgeWithOldData.To || edgeWithOldData.target || '',
-        cost: edgeWithOldData.Cost || edgeWithOldData.cost || 0,
-        data: edgeWithOldData.Data || JSON.parse(edgeWithOldData.data || '{}'),
-        labels: edgeWithOldData.Labels || [],
-        tags: Object.entries(edgeWithOldData.Tags || {}).map(([key, value]) => ({
+        name: (edgeWithOldData as any).Name || (edgeWithOldData as any).label || '',
+        from: (edgeWithOldData as any).From || (edgeWithOldData as any).source || '',
+        to: (edgeWithOldData as any).To || (edgeWithOldData as any).target || '',
+        cost: (edgeWithOldData as any).Cost || (edgeWithOldData as any).cost || 0,
+        data:
+          (edgeWithOldData as any).Data ||
+          ((edgeWithOldData as any).data ? JSON.parse((edgeWithOldData as any).data) : {}),
+        labels: (edgeWithOldData as any).Labels || [],
+        tags: Object.entries((edgeWithOldData as any).Tags || {}).map(([key, value]) => ({
           key,
           value,
         })),
-        vectors: edgeWithOldData.Vectors || [],
+        vectors: (edgeWithOldData as any).Vectors || [],
       });
       setUniqueKey(v4());
     } else if (!isExistingEdge) {
@@ -157,7 +159,7 @@ const AddEditEdge = ({
       .validateFields({ validateOnly: true })
       .then(() => setFormValid(true))
       .catch(() => setFormValid(false));
-  }, [edge, selectedGraph, fromNodeGUID, form, edgeWithOldData?.GUID, edgeWithOldData?.id]);
+  }, [edge, selectedGraph, fromNodeGUID, form, edgeWithOldData?.GUID]);
 
   const handleSubmit = async () => {
     try {
@@ -165,14 +167,14 @@ const AddEditEdge = ({
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
 
       // Check if this is an existing edge (either API edge with GUID or local edge with id)
-      const isExistingEdge = edgeWithOldData?.GUID || edgeWithOldData?.id;
+      const isExistingEdge = edgeWithOldData?.GUID;
 
       if (isExistingEdge) {
         // Edit edge
-        if (updateLocalEdge) {
+        if ((edgeWithOldData as any)?.isLocal && updateLocalEdge) {
           // Use local state update for graph viewer
           const updatedEdgeData = {
-            id: edgeWithOldData.GUID || edgeWithOldData.id, // Handle both API edges (GUID) and local edges (id)
+            id: edgeWithOldData.GUID,
             source: values.from,
             target: values.to,
             cost: values.cost,
@@ -182,6 +184,15 @@ const AddEditEdge = ({
             sourceY: 0,
             targetX: 0,
             targetY: 0,
+            isLocal: true,
+            Name: values.name,
+            From: values.from,
+            To: values.to,
+            Cost: values.cost,
+            Data: values.data,
+            Labels: values.labels || [],
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
           };
           updateLocalEdge(updatedEdgeData);
           toast.success('Update Edge successfully');
@@ -192,7 +203,7 @@ const AddEditEdge = ({
           const data: Edge = {
             TenantGUID: edgeWithOldData.TenantGUID || '',
             LastUpdateUtc: edgeWithOldData.LastUpdateUtc || new Date().toISOString(),
-            GUID: edgeWithOldData.GUID || edgeWithOldData.id,
+            GUID: edgeWithOldData.GUID,
             GraphGUID: edgeWithOldData.GraphGUID || selectedGraph,
             CreatedUtc: edgeWithOldData.CreatedUtc || new Date().toISOString(),
             Name: values.name,
@@ -206,6 +217,24 @@ const AddEditEdge = ({
           };
           const res = await updateEdgeById(data);
           if (res) {
+            // Reflect change locally for immediate UI update
+            if (updateLocalEdge) {
+              const edgeId = edgeWithOldData.GUID;
+              const updatedEdgeData = {
+                id: edgeId,
+                source: values.from,
+                target: values.to,
+                cost: values.cost,
+                label: values.name,
+                data: JSON.stringify(values.data ?? {}),
+                sourceX: 0,
+                sourceY: 0,
+                targetX: 0,
+                targetY: 0,
+                isLocal: false,
+              };
+              updateLocalEdge(updatedEdgeData);
+            }
             toast.success('Update Edge successfully');
             setIsAddEditEdgeVisible(false);
             onEdgeUpdated && (await onEdgeUpdated());
@@ -214,46 +243,51 @@ const AddEditEdge = ({
           }
         }
       } else {
-        // Add edge
-        if (addLocalEdge) {
-          // Use local state update for graph viewer
-          const newEdgeData = {
-            id: v4(), // Generate temporary ID
-            source: values.from,
-            target: values.to,
-            cost: values.cost,
-            label: values.name,
-            data: JSON.stringify(values.data),
-            sourceX: 0, // These will be set by the graph layout
-            sourceY: 0,
-            targetX: 0,
-            targetY: 0,
-          };
-          addLocalEdge(newEdgeData);
+        // Add edge - always call API first, then optionally mirror locally
+        const data: EdgeCreateRequest = {
+          GraphGUID: selectedGraph,
+          Name: values.name,
+          From: values.from,
+          To: values.to,
+          Cost: values.cost,
+          Data: values.data,
+          Labels: values.labels || [],
+          Tags: tags,
+          Vectors: convertVectorsToAPIRecord(values.vectors),
+        };
+        const res = await createEdges(data);
+        if (res) {
+          // Mirror into local graph state if available so user sees it instantly
+          const created: any = (res as any)?.data || res;
+          if (addLocalEdge) {
+            const idForLocal = created?.GUID || v4();
+            addLocalEdge({
+              id: idForLocal,
+              source: created?.From || values.from,
+              target: created?.To || values.to,
+              cost: created?.Cost ?? values.cost ?? 0,
+              label: created?.Name || values.name,
+              data: JSON.stringify(created?.Data ?? values.data ?? {}),
+              sourceX: 0,
+              sourceY: 0,
+              targetX: 0,
+              targetY: 0,
+              isLocal: false,
+              Name: created?.Name || values.name,
+              From: created?.From || values.from,
+              To: created?.To || values.to,
+              Cost: created?.Cost ?? values.cost ?? 0,
+              Data: created?.Data ?? values.data ?? {},
+              Labels: created?.Labels ?? values.labels ?? [],
+              Tags: created?.Tags ?? tags ?? {},
+              Vectors: created?.Vectors ?? convertVectorsToAPIRecord(values.vectors) ?? [],
+            });
+          }
           toast.success('Add Edge successfully');
           setIsAddEditEdgeVisible(false);
           onEdgeUpdated && (await onEdgeUpdated());
         } else {
-          // Fallback to API call for other contexts
-          const data: EdgeCreateRequest = {
-            GraphGUID: selectedGraph,
-            Name: values.name,
-            From: values.from,
-            To: values.to,
-            Cost: values.cost,
-            Data: values.data,
-            Labels: values.labels || [],
-            Tags: tags,
-            Vectors: convertVectorsToAPIRecord(values.vectors),
-          };
-          const res = await createEdges(data);
-          if (res) {
-            toast.success('Add Edge successfully');
-            setIsAddEditEdgeVisible(false);
-            onEdgeUpdated && (await onEdgeUpdated());
-          } else {
-            throw new Error('Failed to create edge - no response received');
-          }
+          throw new Error('Failed to create edge - no response received');
         }
       }
     } catch (error: unknown) {
@@ -269,11 +303,11 @@ const AddEditEdge = ({
       title={getCreateEditViewModelTitle(
         'Edge',
         isEdgeLoading,
-        !(edgeWithOldData?.GUID || edgeWithOldData?.id),
-        !!(edgeWithOldData?.GUID || edgeWithOldData?.id),
-        Boolean(readonly && !!(edgeWithOldData?.GUID || edgeWithOldData?.id))
+        !edgeWithOldData?.GUID,
+        !!edgeWithOldData?.GUID,
+        Boolean(readonly && !!edgeWithOldData?.GUID)
       )}
-      okText={edgeWithOldData?.GUID || edgeWithOldData?.id ? 'Update' : 'Create'}
+      okText={edgeWithOldData?.GUID ? 'Update' : 'Create'}
       open={isAddEditEdgeVisible}
       onOk={handleSubmit}
       loading={isEdgeLoading}
@@ -292,8 +326,7 @@ const AddEditEdge = ({
         <Form
           initialValues={{
             ...initialValues,
-            from:
-              edge?.From || edgeWithOldData?.From || edgeWithOldData?.source || fromNodeGUID || '',
+            from: edge?.From || edgeWithOldData?.From || fromNodeGUID || '',
           }}
           form={form}
           layout="vertical"

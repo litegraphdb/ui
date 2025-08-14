@@ -96,7 +96,7 @@ const AddEditNode = ({
         includeSubordinates: true,
       },
     },
-    { skip: !nodeWithOldData?.GUID }
+    { skip: !nodeWithOldData?.GUID || !!(nodeWithOldData as any)?.isLocal }
   );
   const isNodeLoading = isNodeLoading1 || isNodeFetching;
   const [createNodes, { isLoading: isCreateLoading }] = useCreateNodeMutation();
@@ -121,19 +121,27 @@ const AddEditNode = ({
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
 
-      if (node && nodeWithOldData?.GUID) {
+      if (nodeWithOldData?.GUID) {
         // Edit Node
-        if (updateLocalNode) {
+        if ((nodeWithOldData as any)?.isLocal && updateLocalNode) {
           // Use local state update for graph viewer
           const updatedNodeData = {
-            id: node.GUID,
+            id: (nodeWithOldData as any).GUID || (nodeWithOldData as any).id,
             label: values.name,
-            type: node.Labels?.[0] || 'default',
+            type:
+              (nodeWithOldData as any).Labels?.[0] ||
+              (nodeWithOldData as any).labels?.[0] ||
+              'default',
             x: 0, // These will be set by the graph layout
             y: 0,
             z: 0,
             vx: 0,
             vy: 0,
+            isLocal: true,
+            Data: values.data || {},
+            Labels: values.labels || [],
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
           };
           updateLocalNode(updatedNodeData);
           toast.success('Update Node successfully');
@@ -155,6 +163,23 @@ const AddEditNode = ({
           };
           const res = await updateNodeById(data);
           if (res) {
+            // Reflect change locally for immediate UI update
+            if (updateLocalNode) {
+              const nodeId = node.GUID;
+              const existing = (currentNodes || []).find((n: any) => n.id === nodeId);
+              const updatedNodeData = {
+                id: nodeId,
+                label: values.name,
+                type: values.labels?.[0] || existing?.type || 'default',
+                x: existing?.x ?? 0,
+                y: existing?.y ?? 0,
+                z: existing?.z ?? 0,
+                vx: existing?.vx ?? 0,
+                vy: existing?.vy ?? 0,
+                isLocal: false,
+              };
+              updateLocalNode(updatedNodeData);
+            }
             toast.success('Update Node successfully');
             setIsAddEditNodeVisible(false);
             onNodeUpdated && (await onNodeUpdated());
@@ -163,41 +188,42 @@ const AddEditNode = ({
           }
         }
       } else {
-        // Add Node
-        if (addLocalNode) {
-          // Use local state update for graph viewer
-          const newNodeData = {
-            id: v4(), // Generate temporary ID
-            label: values.name,
-            type: values.labels?.[0] || 'default',
-            x: Math.random() * 800, // Random position
-            y: Math.random() * 600,
-            z: 0,
-            vx: 0,
-            vy: 0,
-          };
-          addLocalNode(newNodeData);
+        // Add Node - always call API, then optionally mirror locally
+        const data: NodeCreateRequest = {
+          GraphGUID: selectedGraph,
+          Name: values.name,
+          Data: values.data,
+          Labels: values.labels,
+          Tags: tags,
+          Vectors: convertVectorsToAPIRecord(values.vectors),
+        };
+        const res = await createNodes(data);
+        if (res) {
+          // Mirror into local graph state if available so user sees it instantly
+          const created: any = (res as any)?.data || res;
+          if (addLocalNode) {
+            const idForLocal = created?.GUID || v4();
+            addLocalNode({
+              id: idForLocal,
+              label: created?.Name || values.name,
+              type: (created?.Labels && created.Labels[0]) || values.labels?.[0] || 'default',
+              x: Math.random() * 800,
+              y: Math.random() * 600,
+              z: 0,
+              vx: 0,
+              vy: 0,
+              isLocal: false,
+              Data: created?.Data ?? values.data ?? {},
+              Labels: created?.Labels ?? values.labels ?? [],
+              Tags: created?.Tags ?? tags ?? {},
+              Vectors: created?.Vectors ?? convertVectorsToAPIRecord(values.vectors) ?? [],
+            });
+          }
           toast.success('Add Node successfully');
           setIsAddEditNodeVisible(false);
           onNodeUpdated && (await onNodeUpdated());
         } else {
-          // Fallback to API call for other contexts
-          const data: NodeCreateRequest = {
-            GraphGUID: selectedGraph,
-            Name: values.name,
-            Data: values.data,
-            Labels: values.labels,
-            Tags: tags,
-            Vectors: convertVectorsToAPIRecord(values.vectors),
-          };
-          const res = await createNodes(data);
-          if (res) {
-            toast.success('Add Node successfully');
-            setIsAddEditNodeVisible(false);
-            onNodeUpdated && (await onNodeUpdated());
-          } else {
-            throw new Error('Failed to create node - no response received');
-          }
+          throw new Error('Failed to create node - no response received');
         }
       }
     } catch (error: unknown) {
@@ -208,7 +234,7 @@ const AddEditNode = ({
   };
 
   useEffect(() => {
-    if (node && nodeWithOldData?.GUID) {
+    if (node && nodeWithOldData?.GUID && !(nodeWithOldData as any)?.isLocal) {
       // Reset the form and set values for the new node
       form.resetFields();
       // Ensure form values are updated when editing
@@ -221,6 +247,20 @@ const AddEditNode = ({
           value,
         })),
         vectors: node.Vectors || [],
+      });
+      setUniqueKey(v4());
+    } else if ((nodeWithOldData as any)?.isLocal && nodeWithOldData?.GUID) {
+      // Local node - set from local values only
+      form.resetFields();
+      form.setFieldsValue({
+        name: nodeWithOldData?.Name || nodeWithOldData?.label || '',
+        data: (nodeWithOldData as any)?.Data || {},
+        labels: (nodeWithOldData as any)?.Labels || (nodeWithOldData as any)?.labels || [],
+        tags: Object.entries((nodeWithOldData as any)?.Tags || {}).map(([key, value]) => ({
+          key,
+          value,
+        })),
+        vectors: (nodeWithOldData as any)?.Vectors || [],
       });
       setUniqueKey(v4());
     } else if (!nodeWithOldData?.GUID) {

@@ -235,7 +235,7 @@ export const useLazyLoadEdgesAndNodes = (
     isNodesError,
   } = useLazyLoadNodes(graphId, () => {
     setDoNotFetchEdgesOnRender(false);
-    setRenderNodesRandomly(false);
+    // Keep circular layout until edges finish loading
   });
 
   const {
@@ -247,7 +247,9 @@ export const useLazyLoadEdgesAndNodes = (
   } = useLazyLoadEdges(
     graphId,
     () => {
+      // Edges finished loading; switch to topological layout
       setDoNotFetchEdgesOnRender(true);
+      setRenderNodesRandomly(false);
     },
     doNotFetchEdgesOnRender
   );
@@ -318,14 +320,14 @@ export const useLazyLoadEdgesAndNodes = (
   };
 
   useEffect(() => {
-    if (!nodes.length || !edges.length) return;
+    if (!nodes.length) return;
 
     if (renderNodesRandomly) {
       // Use processed circular nodes while edges are still loading
       setNodesForGraph(processedNodes);
       setEdgesForGraph([]); // No edges while loading
     } else {
-      // Use topological layout once edges are fetched
+      // Use topological layout once edges are fetched (or even if edges are not yet available)
       const adjList = buildAdjacencyList(
         nodes,
         edges.map((edge) => ({ from: edge.From, to: edge.To }))
@@ -382,9 +384,11 @@ export const useLazyLoadEdgesAndNodes = (
     topologicalSortNodes,
   ]);
 
-  // Reset edgesFetched when graphId changes
+  // On graph change, start with circular layout and fetch fresh edges
   useEffect(() => {
-    setRenderNodesRandomly(false);
+    setRenderNodesRandomly(true);
+    setNodesForGraph([]);
+    setEdgesForGraph([]);
   }, [graphId]);
 
   return {

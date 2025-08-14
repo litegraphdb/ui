@@ -60,6 +60,7 @@ const EdgeToolTip = ({
 
   // Find the current edge data from local state first, fallback to API if not found
   const localEdgeData = currentEdges?.find((edge: any) => edge.id === tooltip.edgeId);
+  const isLocalEdge = Boolean(localEdgeData && (localEdgeData as any).isLocal);
 
   // Check if this is for adding a new edge
   const isAddingNewEdge = tooltip.edgeId === 'new';
@@ -77,12 +78,12 @@ const EdgeToolTip = ({
       request: { includeSubordinates: true },
     },
     {
-      skip: !graphId || !tooltip.edgeId || !!localEdgeData || isAddingNewEdge, // Skip API call if we have local data or adding new
+      skip: !graphId || !tooltip.edgeId || isLocalEdge || isAddingNewEdge, // Skip API call for local edges or adding new
     }
   );
 
   // Use local data if available, otherwise use API data
-  const displayEdge = localEdgeData
+  const displayEdge = isLocalEdge
     ? {
         GUID: localEdgeData.id,
         id: localEdgeData.id, // Add id property for consistency
@@ -90,20 +91,22 @@ const EdgeToolTip = ({
         From: localEdgeData.source,
         To: localEdgeData.target,
         Cost: localEdgeData.cost || 0,
-        Data: JSON.parse(localEdgeData.data || '{}'),
-        Labels: [],
-        Tags: {},
-        Vectors: [],
-        TenantGUID: '',
+        Data:
+          (localEdgeData as any).Data || (localEdgeData.data ? JSON.parse(localEdgeData.data) : {}),
+        Labels: (localEdgeData as any).Labels || [],
+        Tags: (localEdgeData as any).Tags || {},
+        Vectors: (localEdgeData as any).Vectors || [],
+        TenantGUID: (localEdgeData as any).TenantGUID || '',
         GraphGUID: graphId,
-        CreatedUtc: new Date().toISOString(),
-        LastUpdateUtc: new Date().toISOString(),
+        CreatedUtc: (localEdgeData as any).CreatedUtc || new Date().toISOString(),
+        LastUpdateUtc: (localEdgeData as any).LastUpdateUtc || new Date().toISOString(),
         // Add source and target properties for consistency with local edge structure
         source: localEdgeData.source,
         target: localEdgeData.target,
         label: localEdgeData.label || '',
         cost: localEdgeData.cost || 0,
         data: localEdgeData.data || '',
+        isLocal: true,
       }
     : edge;
   // const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
@@ -154,7 +157,7 @@ const EdgeToolTip = ({
                 <ExpandOutlined
                   className="cursor-pointer"
                   onClick={() => {
-                    setSelectedEdge(displayEdge);
+                    setSelectedEdge({ ...(displayEdge as any), isLocal: isLocalEdge });
                     setIsExpanded(true);
                     setIsAddEditEdgeVisible(true);
                   }}
@@ -319,7 +322,7 @@ const EdgeToolTip = ({
         <AddEditEdge
           isAddEditEdgeVisible={isAddEditEdgeVisible}
           setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
-          edge={selectedEdge}
+          edge={selectedEdge as any}
           selectedGraph={graphId}
           onEdgeUpdated={handleEdgeUpdate} // Pass callback to handle updates
           readonly={isExpanded}
@@ -342,7 +345,7 @@ const EdgeToolTip = ({
 
       {/* DeleteEdge Component On Delete*/}
       <DeleteEdge
-        title={`Are you sure you want to delete "${selectedEdge?.Name || selectedEdge?.label || 'Unknown'}" edge?`}
+        title={`Are you sure you want to delete "${selectedEdge?.Name}|| ''" edge?`}
         paragraphText={'This action will delete edge.'}
         isDeleteModelVisisble={isDeleteModelVisisble}
         setIsDeleteModelVisisble={setIsDeleteModelVisisble}

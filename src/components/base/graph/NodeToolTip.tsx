@@ -55,6 +55,7 @@ const NodeToolTip = ({
 
   // Find the current node data from local state first, fallback to API if not found
   const localNodeData = currentNodes?.find((node: any) => node.id === tooltip.nodeId);
+  const isLocalNode = Boolean(localNodeData && (localNodeData as any).isLocal);
 
   // Check if this is for adding a new node
   const isAddingNewNode = tooltip.nodeId === 'new';
@@ -72,25 +73,24 @@ const NodeToolTip = ({
       request: { includeSubordinates: true },
     },
     {
-      skip: !graphId || !tooltip.nodeId || !!localNodeData || isAddingNewNode, // Skip API call if we have local data or adding new
+      skip: !graphId || !tooltip.nodeId || isLocalNode || isAddingNewNode, // Skip API call for local nodes or adding new
     }
   );
 
   // Use local data if available, otherwise use API data
-  const displayNode = localNodeData
+  const displayNode = isLocalNode
     ? {
-        // Use local data for basic properties
         GUID: localNodeData.id,
         Name: localNodeData.label,
         Labels: [localNodeData.type],
-        // Preserve original node data for complex properties like Tags, Data, Vectors
-        Data: node?.Data || {},
-        Tags: node?.Tags || {},
-        Vectors: node?.Vectors || [],
-        TenantGUID: node?.TenantGUID || '',
+        Data: (localNodeData as any).Data || {},
+        Tags: (localNodeData as any).Tags || {},
+        Vectors: (localNodeData as any).Vectors || [],
+        TenantGUID: '',
         GraphGUID: graphId,
-        CreatedUtc: node?.CreatedUtc || new Date().toISOString(),
-        LastUpdateUtc: node?.LastUpdateUtc || new Date().toISOString(),
+        CreatedUtc: new Date().toISOString(),
+        LastUpdateUtc: new Date().toISOString(),
+        isLocal: true,
       }
     : node;
 
@@ -101,7 +101,7 @@ const NodeToolTip = ({
       GraphGUID: graphId,
     },
     {
-      skip: !graphId || tooltip.nodeId === 'new',
+      skip: !graphId || tooltip.nodeId === 'new' || isLocalNode,
     }
   );
 
@@ -188,7 +188,7 @@ const NodeToolTip = ({
                 <ExpandOutlined
                   className="cursor-pointer"
                   onClick={() => {
-                    setSelectedNode(nodeWithTags);
+                    setSelectedNode({ ...(nodeWithTags as any), isLocal: isLocalNode });
                     setIsExpanded(true);
                     setIsAddEditNodeVisible(true);
                   }}

@@ -34,7 +34,7 @@ const DeleteEdge = ({
     if (selectedEdge) {
       if (removeLocalEdge) {
         // Use local state update for graph viewer
-        const edgeId = selectedEdge.GUID || selectedEdge.id; // Handle both API edges (GUID) and local edges (id)
+        const edgeId = selectedEdge.GUID; // Handle both API edges (GUID) and local edges (id)
         removeLocalEdge(edgeId);
         toast.success('Delete Edge successfully');
         setIsDeleteModelVisisble(false);

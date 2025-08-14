@@ -1,6 +1,12 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { CloseOutlined, LoadingOutlined, PlusSquareOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  PlusSquareOutlined,
+  RedoOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { useAppSelector } from '@/lib/store/hooks';
 import { RootState } from '@/lib/store/store';
 import LitegraphTable from '@/components/base/table/Table';
@@ -101,9 +107,9 @@ const NodePage = () => {
           {isNodesLoading ? (
             <LoadingOutlined className="loading-icon" />
           ) : (
-              <LitegraphTooltip title="Refresh Data" placement="right">
-                <RedoOutlined className="cursor-pointer" onClick={fetchNodesList} />
-              </LitegraphTooltip>
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchNodesList} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }
@@ -161,9 +167,6 @@ const NodePage = () => {
       )}
 
       <AddEditNode
-        onNodeUpdated={async () => {
-          await fetchNodesList();
-        }}
         isAddEditNodeVisible={isAddEditNodeVisible}
         setIsAddEditNodeVisible={setIsAddEditNodeVisible}
         node={selectedNode ? selectedNode : null}
