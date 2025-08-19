@@ -1,24 +1,18 @@
 # dependencies
-/node_modules
-/src/node_modules
+node_modules
 /.pnp
-/src/.pnp
 .pnp.js
 .yarn/install-state.gz
 
 # testing
 /coverage
-/src/coverage
 
 # next.js
-/.next/
-/src/.next/
+.next/
 /out/
-/src/out/
 
 # production
 /build
-/src/build
 
 # misc
 .DS_Store

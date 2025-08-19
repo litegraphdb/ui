@@ -1,4 +1,4 @@
-import TagPage from "@/page/tags/TagPage";
+import TagPage from '@/page/tags/TagPage';
 import { Metadata } from 'next';
 import React from 'react';
 

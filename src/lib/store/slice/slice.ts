@@ -150,14 +150,16 @@ const graphSlice = enhancedSdk.injectEndpoints({
       query: (node: NodeCreateRequest) => ({
         callback: () => sdk.Node.create(node),
       }),
-      invalidatesTags: [SliceTags.NODE],
+      // Do not invalidate to avoid batch re-fetch after create
+      invalidatesTags: [],
     }),
     //update node
     updateNode: build.mutation<Node, Node>({
       query: (node: Node) => ({
         callback: () => sdk.Node.update(node),
       }),
-      invalidatesTags: [SliceTags.NODE],
+      // Do not invalidate to avoid batch re-fetch after update
+      invalidatesTags: [],
     }),
     //delete node
     deleteNode: build.mutation<boolean, { graphId: string; nodeId: string }>({
@@ -223,14 +225,16 @@ const graphSlice = enhancedSdk.injectEndpoints({
       query: (edge: EdgeCreateRequest) => ({
         callback: () => sdk.Edge.create(edge),
       }),
-      invalidatesTags: [SliceTags.EDGE],
+      // Do not invalidate to avoid batch re-fetch after create
+      invalidatesTags: [],
     }),
     //update edge
     updateEdge: build.mutation<Edge, Edge>({
       query: (edge: Edge) => ({
         callback: () => sdk.Edge.update(edge),
       }),
-      invalidatesTags: [SliceTags.EDGE],
+      // Do not invalidate to avoid batch re-fetch after update
+      invalidatesTags: [],
     }),
     //delete edge
     deleteEdge: build.mutation<boolean, { graphId: string; edgeId: string }>({

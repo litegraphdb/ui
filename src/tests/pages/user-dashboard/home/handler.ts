@@ -6,11 +6,11 @@ export const graphHandlers = [
   // Simulate fetching selected graph details
   http.get(`${mockEndpoint}v1.0/graphs/selected`, () => {
     return HttpResponse.json({
-            selectedGraph: {
-            id: '1',
-            name: 'Sample Graph',
-            },
-        });
+      selectedGraph: {
+        id: '1',
+        name: 'Sample Graph',
+      },
+    });
   }),
 
   // Simulate fetching nodes for the graph
@@ -40,7 +40,7 @@ export const graphHandlers = [
 
   // Optional: Retry loading graph data
   http.get(`${mockEndpoint}v1.0/graphs/retry`, () => {
-        return HttpResponse.json({
+    return HttpResponse.json({
       nodes: mockNodeData,
       edges: mockEdgeData,
     });

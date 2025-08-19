@@ -1,6 +1,13 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { CloseOutlined, LoadingOutlined, PlusSquareOutlined, RedoOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  PlusSquareOutlined,
+  RedoOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { tableColumns } from './constant';
 import { useGetGraphGexfContentByIdMutation } from '@/lib/store/slice/slice';
 import { GraphData } from '@/types/types';
@@ -128,9 +135,9 @@ const GraphPage = () => {
           {isGraphsLoading ? (
             <LoadingOutlined className="loading-icon" />
           ) : (
-              <LitegraphTooltip title="Refresh Data" placement="right">
-                <RedoOutlined className="cursor-pointer" onClick={refetchGraphs} />
-              </LitegraphTooltip>
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={refetchGraphs} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }

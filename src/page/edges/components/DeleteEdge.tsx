@@ -14,7 +14,10 @@ type DeleteEdgeProps = {
   selectedEdge: EdgeType | null | undefined;
   setSelectedEdge: Dispatch<SetStateAction<EdgeType | null | undefined>>;
   onEdgeDeleted?: () => Promise<void>;
+  // Local state update functions for graph viewer
+  removeLocalEdge?: (edgeId: string) => void;
 };
+
 const DeleteEdge = ({
   title,
   paragraphText,
@@ -23,20 +26,32 @@ const DeleteEdge = ({
   selectedEdge,
   setSelectedEdge,
   onEdgeDeleted,
+  removeLocalEdge,
 }: DeleteEdgeProps) => {
   const [deleteEdgeById, { isLoading: isDeleteEdgeLoading }] = useDeleteEdgeMutation();
 
   const handleDeleteEdge = async () => {
     if (selectedEdge) {
-      const res = await deleteEdgeById({
-        graphId: selectedEdge.GraphGUID,
-        edgeId: selectedEdge.GUID,
-      });
-      if (res) {
+      if (removeLocalEdge) {
+        // Use local state update for graph viewer
+        const edgeId = selectedEdge.GUID; // Handle both API edges (GUID) and local edges (id)
+        removeLocalEdge(edgeId);
         toast.success('Delete Edge successfully');
         setIsDeleteModelVisisble(false);
         setSelectedEdge(null);
         onEdgeDeleted && onEdgeDeleted();
+      } else {
+        // Fallback to API call for other contexts
+        const res = await deleteEdgeById({
+          graphId: selectedEdge.GraphGUID,
+          edgeId: selectedEdge.GUID,
+        });
+        if (res) {
+          toast.success('Delete Edge successfully');
+          setIsDeleteModelVisisble(false);
+          setSelectedEdge(null);
+          onEdgeDeleted && onEdgeDeleted();
+        }
       }
     }
   };

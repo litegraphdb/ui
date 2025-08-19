@@ -109,15 +109,15 @@ const TagPage = () => {
       pageTitle={
         <LitegraphFlex align="center" gap={10}>
           <LitegraphText>Tags</LitegraphText>
-        {isTagsLoading ? (
-          <LoadingOutlined className="loading-icon" />
-        ) : (
+          {isTagsLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : (
             <LitegraphTooltip title="Refresh Data" placement="right">
               <RedoOutlined className="cursor-pointer" onClick={fetchTagsList} />
             </LitegraphTooltip>
-        )}
+          )}
         </LitegraphFlex>
-        }
+      }
       pageTitleRightContent={
         <>
           {selectedGraphRedux && (

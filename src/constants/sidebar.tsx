@@ -1,17 +1,12 @@
-import { MenuProps } from 'antd';
 import { paths } from './constant';
 import {
   HomeOutlined,
   ShareAltOutlined,
   NodeIndexOutlined,
   ApiOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   CrownOutlined,
   TeamOutlined,
   TagsOutlined,
-  KeyOutlined,
-  DatabaseOutlined,
   LockOutlined,
   SaveOutlined,
 } from '@ant-design/icons';

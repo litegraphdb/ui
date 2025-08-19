@@ -128,7 +128,20 @@ describe('CredentialsPage', () => {
 
   it('should delete credential successfully', async () => {
     const initialState = createMockInitialState();
-    const { container } = renderWithRedux(<DeleteCredential isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedCredential={mockCredentialData[0]} setSelectedCredential={() => {}} onCredentialDeleted={async () => {}} title="Delete Credential" paragraphText="Are you sure you want to delete this credential?" />, initialState, undefined, true);
+    const { container } = renderWithRedux(
+      <DeleteCredential
+        isDeleteModelVisible={true}
+        setIsDeleteModelVisible={() => {}}
+        selectedCredential={mockCredentialData[0]}
+        setSelectedCredential={() => {}}
+        onCredentialDeleted={async () => {}}
+        title="Delete Credential"
+        paragraphText="Are you sure you want to delete this credential?"
+      />,
+      initialState,
+      undefined,
+      true
+    );
 
     // Wait for modal to appear
     const confirmModal = await screen.findByTestId('delete-credential-modal');
@@ -146,7 +159,7 @@ describe('CredentialsPage', () => {
   it('should handle modal cancellation for create credential', async () => {
     const initialState = createMockInitialState();
     const mockSetVisible = jest.fn();
-    
+
     renderWithRedux(
       <AddEditCredential
         isAddEditCredentialVisible={true}
@@ -168,7 +181,7 @@ describe('CredentialsPage', () => {
     const initialState = createMockInitialState();
     const mockSetVisible = jest.fn();
     const mockSetSelected = jest.fn();
-    
+
     renderWithRedux(
       <DeleteCredential
         isDeleteModelVisible={true}
@@ -193,10 +206,10 @@ describe('CredentialsPage', () => {
   it('should handle loading states correctly', async () => {
     const initialState = createMockInitialState();
     const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
-    
+
     // Should show loading state initially
     expect(container.querySelector('.ant-spin')).toBeInTheDocument();
-    
+
     // Wait for loading to complete
     await waitFor(() => {
       expect(screen.getByText('Create Credential')).toBeVisible();
@@ -206,7 +219,7 @@ describe('CredentialsPage', () => {
   it('should handle empty credentials list', async () => {
     const initialState = createMockInitialState();
     const { container } = renderWithRedux(<CredentialPage />, initialState, undefined, true);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Create Credential')).toBeVisible();
     });
@@ -217,7 +230,7 @@ describe('CredentialsPage', () => {
 
   it('should handle pagination correctly', async () => {
     const initialState = createMockInitialState();
-    
+
     // Mock data with enough records to trigger pagination
     // Assuming default page size is 10, we'll mock 25 records
     const mockCredentialsWithPagination = Array.from({ length: 25 }, (_, i) => ({
@@ -226,9 +239,9 @@ describe('CredentialsPage', () => {
       Name: `Test Credential ${i + 1}`,
       UserGUID: mockUserData[0].GUID,
     }));
-    
+
     renderWithRedux(<CredentialPage />, initialState, undefined, true);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Create Credential')).toBeVisible();
     });
@@ -240,19 +253,22 @@ describe('CredentialsPage', () => {
     });
 
     // Check if pagination controls are present
-    await waitFor(() => {
-      const pagination = document.querySelector('.ant-pagination');
-      expect(pagination).toBeInTheDocument();
-    }, { timeout: 5000 });
-    
+    await waitFor(
+      () => {
+        const pagination = document.querySelector('.ant-pagination');
+        expect(pagination).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+
     // Check for pagination items (page numbers)
     const paginationItems = document.querySelectorAll('.ant-pagination-item');
     expect(paginationItems.length).toBeGreaterThan(0);
-    
+
     // Check if next button exists
     const nextButton = document.querySelector('.ant-pagination-next');
     expect(nextButton).toBeInTheDocument();
-    
+
     // Check if previous button exists
     const prevButton = document.querySelector('.ant-pagination-prev');
     expect(prevButton).toBeInTheDocument();
@@ -261,7 +277,7 @@ describe('CredentialsPage', () => {
   it('should handle user data loading for credentials mapping', async () => {
     const initialState = createMockInitialState();
     renderWithRedux(<CredentialPage />, initialState, undefined, true);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Create Credential')).toBeVisible();
     });
@@ -274,7 +290,7 @@ describe('CredentialsPage', () => {
 
   it('should handle bearer token field disabled state in edit mode', async () => {
     const initialState = createMockInitialState();
-    
+
     renderWithRedux(
       <AddEditCredential
         isAddEditCredentialVisible={true}
@@ -297,7 +313,7 @@ describe('CredentialsPage', () => {
 
   it('should handle form values change and validation', async () => {
     const initialState = createMockInitialState();
-    
+
     renderWithRedux(
       <AddEditCredential
         isAddEditCredentialVisible={true}
@@ -311,13 +327,13 @@ describe('CredentialsPage', () => {
 
     const nameInput = screen.getByTestId('name-input');
     const submitButton = screen.getByRole('button', { name: /ok/i });
-    
+
     // Initially disabled
     expect(submitButton).toBeDisabled();
-    
+
     // Fill name field
     fireEvent.change(nameInput, { target: { value: 'Test Name' } });
-    
+
     // Still disabled because other required fields are empty
     expect(submitButton).toBeDisabled();
   });
@@ -325,7 +341,7 @@ describe('CredentialsPage', () => {
   it('should handle credential update success callback', async () => {
     const initialState = createMockInitialState();
     const mockCallback = jest.fn();
-    
+
     renderWithRedux(
       <AddEditCredential
         isAddEditCredentialVisible={true}
@@ -359,15 +375,18 @@ describe('CredentialsPage', () => {
     fireEvent.click(submitButton);
 
     // Wait for the success toast and callback
-    await waitFor(() => {
-      expect(mockCallback).toHaveBeenCalled();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(mockCallback).toHaveBeenCalled();
+      },
+      { timeout: 10000 }
+    );
   });
 
   it('should handle delete success callback', async () => {
     const initialState = createMockInitialState();
     const mockCallback = jest.fn();
-    
+
     renderWithRedux(
       <DeleteCredential
         isDeleteModelVisible={true}

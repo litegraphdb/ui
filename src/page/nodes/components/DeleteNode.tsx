@@ -14,7 +14,10 @@ type DeleteNodeProps = {
   selectedNode: NodeType | null | undefined;
   setSelectedNode: Dispatch<SetStateAction<NodeType | null | undefined>>;
   onNodeDeleted?: () => Promise<void>;
+  // Local state update functions for graph viewer
+  removeLocalNode?: (nodeId: string) => void;
 };
+
 const DeleteNode = ({
   title,
   paragraphText,
@@ -23,20 +26,31 @@ const DeleteNode = ({
   selectedNode,
   setSelectedNode,
   onNodeDeleted,
+  removeLocalNode,
 }: DeleteNodeProps) => {
   const [deleteNodeById, { isLoading: isDeleteNodeLoading }] = useDeleteNodeMutation();
 
   const handleDeleteNode = async () => {
     if (selectedNode) {
-      const res = await deleteNodeById({
-        graphId: selectedNode.GraphGUID,
-        nodeId: selectedNode.GUID,
-      });
-      if (res) {
+      if (removeLocalNode) {
+        // Use local state update for graph viewer
+        removeLocalNode(selectedNode.GUID);
         toast.success('Delete Node successfully');
         setIsDeleteModelVisible(false);
         setSelectedNode(null);
         onNodeDeleted && onNodeDeleted();
+      } else {
+        // Fallback to API call for other contexts
+        const res = await deleteNodeById({
+          graphId: selectedNode.GraphGUID,
+          nodeId: selectedNode.GUID,
+        });
+        if (res) {
+          toast.success('Delete Node successfully');
+          setIsDeleteModelVisible(false);
+          setSelectedNode(null);
+          onNodeDeleted && onNodeDeleted();
+        }
       }
     }
   };

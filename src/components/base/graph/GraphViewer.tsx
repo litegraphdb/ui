@@ -21,23 +21,24 @@ import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import { nodeLightColorByType } from './constant';
+import LitegraphButton from '../button/Button';
 
 const GraphViewer = ({
-  isAddEditNodeVisible,
-  setIsAddEditNodeVisible,
   nodeTooltip,
   edgeTooltip,
   setNodeTooltip,
   setEdgeTooltip,
+  isAddEditNodeVisible,
+  setIsAddEditNodeVisible,
   isAddEditEdgeVisible,
   setIsAddEditEdgeVisible,
 }: {
-  isAddEditNodeVisible: boolean;
-  setIsAddEditNodeVisible: Dispatch<SetStateAction<boolean>>;
   nodeTooltip: GraphNodeTooltip;
   edgeTooltip: GraphEdgeTooltip;
   setNodeTooltip: Dispatch<SetStateAction<GraphNodeTooltip>>;
   setEdgeTooltip: Dispatch<SetStateAction<GraphEdgeTooltip>>;
+  isAddEditNodeVisible: boolean;
+  setIsAddEditNodeVisible: Dispatch<SetStateAction<boolean>>;
   isAddEditEdgeVisible: boolean;
   setIsAddEditEdgeVisible: Dispatch<SetStateAction<boolean>>;
 }) => {
@@ -67,14 +68,29 @@ const GraphViewer = ({
     isLoading,
     isNodesLoading,
     isEdgesLoading,
+    updateLocalNode,
+    addLocalNode,
+    removeLocalNode,
+    updateLocalEdge,
+    addLocalEdge,
+    removeLocalEdge,
   } = useLazyLoadEdgesAndNodes(selectedGraphRedux, showGraphHorizontal, topologicalSortNodes);
 
   useEffect(() => {
     setShow3d(false);
   }, [selectedGraphRedux]);
 
-  // Callback for handling node update
-  const handleNodeUpdate = async () => {};
+  // Callback for handling node update - now uses local state updates
+  const handleNodeUpdate = async () => {
+    // No API call needed - changes are handled locally
+    // The AddEditNode component will call this after successful update
+  };
+
+  // Callback for handling edge update - now uses local state updates
+  const handleEdgeUpdate = async () => {
+    // No API call needed - changes are handled locally
+    // The AddEditEdge component will call this after successful update
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -95,28 +111,6 @@ const GraphViewer = ({
 
   return (
     <div className="space-y-2">
-      {Boolean(selectedGraphRedux) && (
-        <AddEditNode
-          {...{
-            isAddEditNodeVisible,
-            setIsAddEditNodeVisible,
-            selectedGraph: selectedGraphRedux,
-            node: null,
-            onNodeUpdated: handleNodeUpdate,
-          }}
-        />
-      )}
-      {Boolean(selectedGraphRedux) && (
-        <AddEditEdge
-          {...{
-            isAddEditEdgeVisible,
-            setIsAddEditEdgeVisible,
-            selectedGraph: selectedGraphRedux,
-            edge: null,
-            onEdgeUpdated: handleNodeUpdate,
-          }}
-        />
-      )}
       <LitegraphFlex
         justify="space-between"
         align="center"
@@ -255,6 +249,14 @@ const GraphViewer = ({
                 setTooltip={setNodeTooltip}
                 graphId={selectedGraphRedux}
                 data-testid="node-tooltip"
+                updateLocalNode={updateLocalNode}
+                addLocalNode={addLocalNode}
+                removeLocalNode={removeLocalNode}
+                updateLocalEdge={updateLocalEdge}
+                addLocalEdge={addLocalEdge}
+                removeLocalEdge={removeLocalEdge}
+                currentNodes={nodes}
+                currentEdges={edges}
               />
             )}
             {edgeTooltip.visible && (
@@ -263,11 +265,54 @@ const GraphViewer = ({
                 setTooltip={setEdgeTooltip}
                 graphId={selectedGraphRedux}
                 data-testid="edge-tooltip"
+                updateLocalEdge={updateLocalEdge}
+                addLocalEdge={addLocalEdge}
+                removeLocalEdge={removeLocalEdge}
+                currentNodes={nodes}
+                currentEdges={edges}
               />
             )}
           </>
         </div>
       </ErrorBoundary>
+
+      {/* Add Node Modal */}
+      {isAddEditNodeVisible && (
+        <AddEditNode
+          isAddEditNodeVisible={isAddEditNodeVisible}
+          setIsAddEditNodeVisible={setIsAddEditNodeVisible}
+          node={null}
+          selectedGraph={selectedGraphRedux || ''}
+          onNodeUpdated={async () => {
+            // Refresh the graph data after node creation
+            // The GraphViewer will automatically update through its local state
+          }}
+          updateLocalNode={updateLocalNode}
+          addLocalNode={addLocalNode}
+          removeLocalNode={removeLocalNode}
+          currentNodes={nodes}
+          currentEdges={edges}
+        />
+      )}
+
+      {/* Add Edge Modal */}
+      {isAddEditEdgeVisible && (
+        <AddEditEdge
+          isAddEditEdgeVisible={isAddEditEdgeVisible}
+          setIsAddEditEdgeVisible={setIsAddEditEdgeVisible}
+          edge={null}
+          selectedGraph={selectedGraphRedux || ''}
+          onEdgeUpdated={async () => {
+            // Refresh the graph data after edge creation
+            // The GraphViewer will automatically update through its local state
+          }}
+          updateLocalEdge={updateLocalEdge}
+          addLocalEdge={addLocalEdge}
+          removeLocalEdge={removeLocalEdge}
+          currentNodes={nodes}
+          currentEdges={edges}
+        />
+      )}
     </div>
   );
 };

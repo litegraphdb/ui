@@ -1,4 +1,4 @@
-import LabelPage from "@/page/labels/LabelPage";
+import LabelPage from '@/page/labels/LabelPage';
 import { Metadata } from 'next';
 import React from 'react';
 

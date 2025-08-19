@@ -44,6 +44,13 @@ interface AddEditNodeProps {
   onNodeUpdated?: () => Promise<void>;
   readonly?: boolean;
   onClose?: () => void;
+  // Local state update functions for graph viewer
+  updateLocalNode?: (node: any) => void;
+  addLocalNode?: (node: any) => void;
+  removeLocalNode?: (nodeId: string) => void;
+  // Current graph data for immediate updates
+  currentNodes?: any[];
+  currentEdges?: any[];
 }
 
 const AddEditNode = ({
@@ -54,6 +61,11 @@ const AddEditNode = ({
   onNodeUpdated,
   readonly,
   onClose,
+  updateLocalNode,
+  addLocalNode,
+  removeLocalNode,
+  currentNodes,
+  currentEdges,
 }: AddEditNodeProps) => {
   const [form] = Form.useForm();
   const [formValid, setFormValid] = useState(false);
@@ -75,6 +87,7 @@ const AddEditNode = ({
     data: node,
     isLoading: isNodeLoading1,
     isFetching: isNodeFetching,
+    refetch: refetchNode,
   } = useGetNodeByIdQuery(
     {
       graphId: selectedGraph,
@@ -108,30 +121,65 @@ const AddEditNode = ({
     try {
       const values = await form.validateFields();
       const tags: Record<string, string> = convertTagsToRecord(values.tags);
-      if (node && nodeWithOldData?.GUID) {
+
+      if (nodeWithOldData?.GUID) {
         // Edit Node
-        const data: Node = {
-          TenantGUID: node.TenantGUID,
-          LastUpdateUtc: node.LastUpdateUtc,
-          GUID: node.GUID,
-          GraphGUID: node.GraphGUID,
-          CreatedUtc: node.CreatedUtc,
-          Name: values.name,
-          Data: values.data,
-          Labels: values.labels,
-          Tags: tags,
-          Vectors: convertVectorsToAPIRecord(values.vectors),
-        };
-        const res = await updateNodeById(data);
-        if (res) {
-          toast.success('Update Node successfully');
-          setIsAddEditNodeVisible(false);
-          onNodeUpdated && (await onNodeUpdated());
-        } else {
-          throw new Error('Failed to update node - no response received');
+        {
+          // Fallback to API call for other contexts
+          const data: Node = {
+            TenantGUID: node?.TenantGUID || (nodeWithOldData as any)?.TenantGUID || '',
+            LastUpdateUtc:
+              node?.LastUpdateUtc ||
+              (nodeWithOldData as any)?.LastUpdateUtc ||
+              new Date().toISOString(),
+            GUID: node?.GUID || (nodeWithOldData as any)?.GUID || '',
+            GraphGUID: node?.GraphGUID || selectedGraph,
+            CreatedUtc:
+              node?.CreatedUtc || (nodeWithOldData as any)?.CreatedUtc || new Date().toISOString(),
+            Name: values.name,
+            Data: values.data,
+            Labels: values.labels,
+            Tags: tags,
+            Vectors: convertVectorsToAPIRecord(values.vectors),
+          };
+          const res = await updateNodeById(data);
+          if (res) {
+            // Reflect change locally for immediate UI update
+            if (updateLocalNode) {
+              const nodeId = data.GUID;
+              const existing = (currentNodes || []).find((n: any) => n.id === nodeId);
+              const updatedNodeData = {
+                id: nodeId,
+                label: values.name,
+                type: values.labels?.[0] || existing?.type || 'default',
+                x: existing?.x ?? 0,
+                y: existing?.y ?? 0,
+                z: existing?.z ?? 0,
+                vx: existing?.vx ?? 0,
+                vy: existing?.vy ?? 0,
+              };
+              updateLocalNode(updatedNodeData);
+            }
+
+            // Refetch the node data to ensure UI reflects the latest changes
+            if (nodeWithOldData?.GUID) {
+              try {
+                await refetchNode();
+              } catch (error) {
+                console.warn('Could not refetch node data:', error);
+                // Continue with the update process even if refetch fails
+              }
+            }
+
+            toast.success('Update Node successfully');
+            setIsAddEditNodeVisible(false);
+            onNodeUpdated && (await onNodeUpdated());
+          } else {
+            throw new Error('Failed to update node - no response received');
+          }
         }
       } else {
-        // Add Node
+        // Add Node - always call API, then optionally mirror locally
         const data: NodeCreateRequest = {
           GraphGUID: selectedGraph,
           Name: values.name,
@@ -142,6 +190,25 @@ const AddEditNode = ({
         };
         const res = await createNodes(data);
         if (res) {
+          // Mirror into local graph state if available so user sees it instantly
+          const created: any = (res as any)?.data || res;
+          if (addLocalNode) {
+            const idForLocal = created?.GUID || v4();
+            addLocalNode({
+              id: idForLocal,
+              label: created?.Name || values.name,
+              type: (created?.Labels && created.Labels[0]) || values.labels?.[0] || 'default',
+              x: Math.random() * 800,
+              y: Math.random() * 600,
+              z: 0,
+              vx: 0,
+              vy: 0,
+              Data: created?.Data ?? values.data ?? {},
+              Labels: created?.Labels ?? values.labels ?? [],
+              Tags: created?.Tags ?? tags ?? {},
+              Vectors: created?.Vectors ?? convertVectorsToAPIRecord(values.vectors) ?? [],
+            });
+          }
           toast.success('Add Node successfully');
           setIsAddEditNodeVisible(false);
           onNodeUpdated && (await onNodeUpdated());

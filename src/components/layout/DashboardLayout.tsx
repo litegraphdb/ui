@@ -171,7 +171,7 @@ const DashboardLayout = ({
                   onClick={() => logOutFromSystem()}
                   role="button"
                   tabIndex={0}
-                > 
+                >
                   <LogoutOutlined className={styles.logoutIcon} />
                   <span>Logout</span>
                 </div>
@@ -183,7 +183,7 @@ const DashboardLayout = ({
               minHeight: 280,
               background: 'var(--ant-color-bg-base)',
             }}
-            data-testid="layout-children" 
+            data-testid="layout-children"
           >
             {children}
           </Content>

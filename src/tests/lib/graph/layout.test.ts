@@ -15,6 +15,7 @@ describe('Graph Layout', () => {
           type: 'default',
           x: 100,
           y: 100,
+          z: 0,
           vx: 0,
           vy: 0,
           isDragging: false,
@@ -25,6 +26,7 @@ describe('Graph Layout', () => {
           type: 'default',
           x: 200,
           y: 200,
+          z: 0,
           vx: 0,
           vy: 0,
           isDragging: false,
@@ -35,6 +37,7 @@ describe('Graph Layout', () => {
           type: 'default',
           x: 300,
           y: 300,
+          z: 0,
           vx: 0,
           vy: 0,
           isDragging: false,
@@ -117,8 +120,7 @@ describe('Graph Layout', () => {
 
       // Nodes should move apart due to repulsion
       const distance = Math.sqrt(
-        Math.pow(mockNodes[1].x - mockNodes[0].x, 2) +
-        Math.pow(mockNodes[1].y - mockNodes[0].y, 2)
+        Math.pow(mockNodes[1].x - mockNodes[0].x, 2) + Math.pow(mockNodes[1].y - mockNodes[0].y, 2)
       );
       expect(distance).toBeGreaterThan(1);
     });
@@ -134,12 +136,11 @@ describe('Graph Layout', () => {
 
       // Connected nodes should move closer due to spring force
       const distance = Math.sqrt(
-        Math.pow(mockNodes[1].x - mockNodes[0].x, 2) +
-        Math.pow(mockNodes[1].y - mockNodes[0].y, 2)
+        Math.pow(mockNodes[1].x - mockNodes[0].x, 2) + Math.pow(mockNodes[1].y - mockNodes[0].y, 2)
       );
       expect(distance).toBeLessThan(500);
     });
-    
+
     it('should constrain nodes to bounds', () => {
       // Place node outside bounds
       mockNodes[0].x = 1000;

@@ -1,4 +1,4 @@
-import VectorPage from "@/page/vectors/VectorPage";
+import VectorPage from '@/page/vectors/VectorPage';
 import { Metadata } from 'next';
 import React from 'react';
 

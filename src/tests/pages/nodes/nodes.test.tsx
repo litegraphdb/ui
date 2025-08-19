@@ -42,14 +42,27 @@ describe('NodesPage', () => {
 
   it('should create a node and should be visible in the table', async () => {
     const initialState = createMockInitialState();
-    const { container } = renderWithRedux(<AddEditNode isAddEditNodeVisible={true} setIsAddEditNodeVisible={() => {}} node={null} selectedGraph={mockGraphGUID} />, initialState, undefined, true);
+    const { container } = renderWithRedux(
+      <AddEditNode
+        isAddEditNodeVisible={true}
+        setIsAddEditNodeVisible={() => {}}
+        node={null}
+        selectedGraph={mockGraphGUID}
+      />,
+      initialState,
+      undefined,
+      true
+    );
 
     const modal = await screen.findByTestId('add-edit-node-modal');
     expect(modal).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
 
     const nameInput = screen.getByPlaceholderText(/enter node name/i);
     fireEvent.change(nameInput, { target: { value: mockNodeData[0].Name } });
@@ -66,14 +79,28 @@ describe('NodesPage', () => {
 
   it('should update a node successfully', async () => {
     const initialState = createMockInitialState();
-    const { container } = renderWithRedux(<AddEditNode isAddEditNodeVisible={true} setIsAddEditNodeVisible={() => {}} node={mockNodeData[0]} selectedGraph={mockGraphGUID} readonly={false}/>, initialState, undefined, true);
+    const { container } = renderWithRedux(
+      <AddEditNode
+        isAddEditNodeVisible={true}
+        setIsAddEditNodeVisible={() => {}}
+        node={mockNodeData[0]}
+        selectedGraph={mockGraphGUID}
+        readonly={false}
+      />,
+      initialState,
+      undefined,
+      true
+    );
 
     const modal = await screen.findByTestId('add-edit-node-modal');
     expect(modal).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 10000 }
+    );
 
     const nameInput = screen.getByPlaceholderText(/enter node name/i);
     fireEvent.change(nameInput, { target: { value: 'My updated test node' } });
@@ -86,11 +113,23 @@ describe('NodesPage', () => {
     fireEvent.click(createButton);
 
     expect(container).toMatchSnapshot('final table state after update');
-  }); 
+  });
 
   it('should delete a node successfully', async () => {
     const initialState = createMockInitialState();
-    const { container } = renderWithRedux(<DeleteNode isDeleteModelVisible={true} setIsDeleteModelVisible={() => {}} selectedNode={mockNodeData[0]} setSelectedNode={() => {}} title={`Are you sure you want to delete "${mockNodeData[0].Name}" node?`} paragraphText={'This action will delete node.'}/>, initialState, undefined, true);
+    const { container } = renderWithRedux(
+      <DeleteNode
+        isDeleteModelVisible={true}
+        setIsDeleteModelVisible={() => {}}
+        selectedNode={mockNodeData[0]}
+        setSelectedNode={() => {}}
+        title={`Are you sure you want to delete "${mockNodeData[0].Name}" node?`}
+        paragraphText={'This action will delete node.'}
+      />,
+      initialState,
+      undefined,
+      true
+    );
 
     const modal = await screen.findByTestId('delete-node-modal');
     expect(modal).toBeInTheDocument();
@@ -99,5 +138,5 @@ describe('NodesPage', () => {
     fireEvent.click(deleteButton);
 
     expect(container).toMatchSnapshot('final table state after deletion');
-  }); 
-}); 
+  });
+});

@@ -65,13 +65,13 @@ const CredentialPage = () => {
       pageTitle={
         <LitegraphFlex align="center" gap={10}>
           <LitegraphText>Credentials</LitegraphText>
-        {isCredentialsLoading ? (
-          <LoadingOutlined className="loading-icon" />
-        ) : (
+          {isCredentialsLoading ? (
+            <LoadingOutlined className="loading-icon" />
+          ) : (
             <LitegraphTooltip title="Refresh Data" placement="right">
               <RedoOutlined className="cursor-pointer" onClick={fetchCredentialsList} />
             </LitegraphTooltip>
-        )}
+          )}
         </LitegraphFlex>
       }
       pageTitleRightContent={

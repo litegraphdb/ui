@@ -224,7 +224,7 @@ export const useLazyLoadEdgesAndNodes = (
   const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
   const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
-  const [renderNodesRandomly, setRenderNodesRandomly] = useState<boolean>(true);
+  const [renderNodesRandomly, setRenderNodesRandomly] = useState<boolean>(false);
 
   const {
     nodes,
@@ -236,6 +236,7 @@ export const useLazyLoadEdgesAndNodes = (
   } = useLazyLoadNodes(graphId, () => {
     setDoNotFetchEdgesOnRender(false);
     setRenderNodesRandomly(false);
+    // Keep circular layout until edges finish loading
   });
 
   const {
@@ -247,10 +248,76 @@ export const useLazyLoadEdgesAndNodes = (
   } = useLazyLoadEdges(
     graphId,
     () => {
+      // Edges finished loading; switch to topological layout
       setDoNotFetchEdgesOnRender(true);
     },
     doNotFetchEdgesOnRender
   );
+
+  // Local state update functions for nodes and edges
+  const updateLocalNode = (updatedNode: NodeData) => {
+    setNodesForGraph((prevNodes) =>
+      prevNodes.map((node) => (node.id === updatedNode.id ? updatedNode : node))
+    );
+  };
+
+  const addLocalNode = (newNode: NodeData) => {
+    setNodesForGraph((prevNodes) => [...prevNodes, newNode]);
+  };
+
+  const removeLocalNode = (nodeId: string) => {
+    setNodesForGraph((prevNodes) => prevNodes.filter((node) => node.id !== nodeId));
+    // Also remove edges connected to this node
+    setEdgesForGraph((prevEdges) =>
+      prevEdges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+    );
+  };
+
+  const updateLocalEdge = (updatedEdge: EdgeData) => {
+    // Don't update edges when in random rendering mode (edges not loaded yet)
+    if (renderNodesRandomly) {
+      console.warn(
+        `Cannot update edge ${updatedEdge.id}: graph is in random rendering mode, edges not loaded yet`
+      );
+      return;
+    }
+
+    // Validate that the updated edge references existing nodes
+    const nodeIds = nodesForGraph.map((node) => node.id);
+    if (nodeIds.includes(updatedEdge.source) && nodeIds.includes(updatedEdge.target)) {
+      setEdgesForGraph((prevEdges) =>
+        prevEdges.map((edge) => (edge.id === updatedEdge.id ? updatedEdge : edge))
+      );
+    } else {
+      console.warn(
+        `Cannot update edge ${updatedEdge.id}: source node ${updatedEdge.source} or target node ${updatedEdge.target} not found in graph`
+      );
+    }
+  };
+
+  const addLocalEdge = (newEdge: EdgeData) => {
+    // Don't add edges when in random rendering mode (edges not loaded yet)
+    if (renderNodesRandomly) {
+      console.warn(
+        `Cannot add edge ${newEdge.id}: graph is in random rendering mode, edges not loaded yet`
+      );
+      return;
+    }
+
+    // Validate that the edge references existing nodes
+    const nodeIds = nodesForGraph.map((node) => node.id);
+    if (nodeIds.includes(newEdge.source) && nodeIds.includes(newEdge.target)) {
+      setEdgesForGraph((prevEdges) => [...prevEdges, newEdge]);
+    } else {
+      console.warn(
+        `Cannot add edge ${newEdge.id}: source node ${newEdge.source} or target node ${newEdge.target} not found in graph`
+      );
+    }
+  };
+
+  const removeLocalEdge = (edgeId: string) => {
+    setEdgesForGraph((prevEdges) => prevEdges.filter((edge) => edge.id !== edgeId));
+  };
 
   useEffect(() => {
     if (!nodes.length) return;
@@ -260,7 +327,7 @@ export const useLazyLoadEdgesAndNodes = (
       setNodesForGraph(processedNodes);
       setEdgesForGraph([]); // No edges while loading
     } else {
-      // Use topological layout once edges are fetched
+      // Use topological layout once edges are fetched (or even if edges are not yet available)
       const adjList = buildAdjacencyList(
         nodes,
         edges.map((edge) => ({ from: edge.From, to: edge.To }))
@@ -284,11 +351,29 @@ export const useLazyLoadEdgesAndNodes = (
 
       setNodesForGraph(uniqueNodes);
       const nodeIds = uniqueNodes.map((node) => node.id);
-      setEdgesForGraph(
-        parseEdge(
-          edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
-        )
+
+      // Parse API edges and preserve locally added edges
+      const apiEdges = parseEdge(
+        edges?.filter((edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)) || []
       );
+
+      // Get existing locally added edges (edges with temporary UUIDs that don't exist in API)
+      // Only include edges whose source and target nodes exist in the current graph
+      const existingLocalEdges =
+        edgesForGraph.length > 0
+          ? edgesForGraph.filter((edge) => {
+              // Check if this is a locally added edge (temporary UUID format)
+              const isLocalEdge = edge.id.length === 36 && edge.id.includes('-');
+              // Check if this edge is not in the API response
+              const isNotInApi = !apiEdges.some((apiEdge) => apiEdge.id === edge.id);
+              // Check if both source and target nodes exist in the current graph
+              const hasValidNodes = nodeIds.includes(edge.source) && nodeIds.includes(edge.target);
+              return isLocalEdge && isNotInApi && hasValidNodes;
+            })
+          : [];
+
+      // Combine API edges with locally added edges
+      setEdgesForGraph([...apiEdges, ...existingLocalEdges]);
     }
   }, [
     nodes,
@@ -299,9 +384,11 @@ export const useLazyLoadEdgesAndNodes = (
     topologicalSortNodes,
   ]);
 
-  // Reset edgesFetched when graphId changes
+  // On graph change, start with circular layout and fetch fresh edges
   useEffect(() => {
     setRenderNodesRandomly(false);
+    setNodesForGraph([]);
+    setEdgesForGraph([]);
   }, [graphId]);
 
   return {
@@ -323,5 +410,12 @@ export const useLazyLoadEdgesAndNodes = (
     refetchEdges,
     isError: isNodesError || isEdgesError,
     renderNodesRandomly,
+    // Local state update functions
+    updateLocalNode,
+    addLocalNode,
+    removeLocalNode,
+    updateLocalEdge,
+    addLocalEdge,
+    removeLocalEdge,
   };
 };
