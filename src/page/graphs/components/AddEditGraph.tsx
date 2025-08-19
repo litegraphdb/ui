@@ -54,6 +54,7 @@ const AddEditGraph = ({
     data: graph,
     isLoading: isGraphLoading1,
     isFetching: isGraphFetching,
+    refetch: refetchGraph,
   } = useGetGraphByIdQuery(
     {
       graphId: graphWithOldData?.GUID || '',
@@ -94,6 +95,11 @@ const AddEditGraph = ({
         };
         const res = await updateGraphById(data);
         if (res) {
+          // Refetch the graph data to ensure UI reflects the latest changes
+          if (graphWithOldData?.GUID) {
+            await refetchGraph();
+          }
+
           toast.success('Update Graph successfully');
           setIsAddEditGraphVisible(false);
           onDone?.();

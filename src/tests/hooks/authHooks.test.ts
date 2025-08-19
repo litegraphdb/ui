@@ -111,7 +111,7 @@ describe('authHooks', () => {
     });
 
     it('should not store user in Redux when response has no GUID', async () => {
-        const responseWithoutGUID = { ...mockUserData[0], GUID: undefined } as any ;
+      const responseWithoutGUID = { ...mockUserData[0], GUID: undefined } as any;
       mockFetchUser.mockResolvedValue(responseWithoutGUID);
 
       const { result } = renderHook(() => useFetchUserDetails());
@@ -135,7 +135,7 @@ describe('authHooks', () => {
       });
 
       expect(mockFetchUser).toHaveBeenCalledWith(mockUserResponse.GUID);
-      expect(mockStoreUser).not.toHaveBeenCalled(); 
+      expect(mockStoreUser).not.toHaveBeenCalled();
       expect(mockDispatch).not.toHaveBeenCalled();
     });
 
@@ -145,7 +145,9 @@ describe('authHooks', () => {
       const { result } = renderHook(() => useFetchUserDetails());
 
       await act(async () => {
-            await expect(result.current.fetchUserDetails(mockUserResponse.GUID)).rejects.toThrow('Fetch failed');
+        await expect(result.current.fetchUserDetails(mockUserResponse.GUID)).rejects.toThrow(
+          'Fetch failed'
+        );
       });
 
       expect(mockFetchUser).toHaveBeenCalledWith(mockUserResponse.GUID);
@@ -168,21 +170,21 @@ describe('authHooks', () => {
 
   describe('useCredentialsToLogin', () => {
     const mockToken: Token = {
-     TimestampUtc: new Date().toISOString(),
-     ExpirationUtc: new Date().toISOString(),
-     IsExpired: false,
-     User: {
+      TimestampUtc: new Date().toISOString(),
+      ExpirationUtc: new Date().toISOString(),
+      IsExpired: false,
+      User: {
         GUID: mockUserResponse.GUID,
         FirstName: mockUserResponse.FirstName,
         LastName: mockUserResponse.LastName,
         Email: mockUserResponse.Email,
         CreatedUtc: new Date().toISOString(),
         LastUpdateUtc: new Date().toISOString(),
-     },
-     Valid: true,
-     TenantGUID: mockTenantData[0].GUID,
-     Token: 'test-token',
-     UserGUID: mockUserResponse.GUID
+      },
+      Valid: true,
+      TenantGUID: mockTenantData[0].GUID,
+      Token: 'test-token',
+      UserGUID: mockUserResponse.GUID,
     };
 
     beforeEach(() => {
@@ -207,7 +209,10 @@ describe('authHooks', () => {
       expect(mockStoreToken).toHaveBeenCalledWith(mockToken);
       expect(mockStoreTenant).toHaveBeenCalledWith(mockTenantData[0]);
       expect(mockDispatch).toHaveBeenCalledWith({ type: 'STORE_TOKEN', payload: mockToken });
-      expect(mockDispatch).toHaveBeenCalledWith({ type: 'STORE_TENANT', payload: mockTenantData[0] });
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'STORE_TENANT',
+        payload: mockTenantData[0],
+      });
       expect(mockDispatch).toHaveBeenCalledTimes(2);
     });
 
@@ -242,9 +247,9 @@ describe('authHooks', () => {
     const mockAccessKey = mockCredentialData[0].BearerToken;
 
     beforeEach(() => {
-      mockStoreAdminAccessKey.mockReturnValue({ 
-        type: 'STORE_ADMIN_ACCESS_KEY', 
-        payload: mockAccessKey 
+      mockStoreAdminAccessKey.mockReturnValue({
+        type: 'STORE_ADMIN_ACCESS_KEY',
+        payload: mockAccessKey,
       });
     });
 
@@ -263,16 +268,16 @@ describe('authHooks', () => {
       });
 
       expect(mockStoreAdminAccessKey).toHaveBeenCalledWith(mockAccessKey);
-      expect(mockDispatch).toHaveBeenCalledWith({ 
-        type: 'STORE_ADMIN_ACCESS_KEY', 
-        payload: mockAccessKey 
+      expect(mockDispatch).toHaveBeenCalledWith({
+        type: 'STORE_ADMIN_ACCESS_KEY',
+        payload: mockAccessKey,
       });
       expect(mockDispatch).toHaveBeenCalledTimes(1);
     });
 
     it('should handle empty access key', () => {
       const emptyAccessKey = '';
-            const { result } = renderHook(() => useAdminCredentialsToLogin());
+      const { result } = renderHook(() => useAdminCredentialsToLogin());
 
       act(() => {
         result.current(emptyAccessKey);
@@ -323,7 +328,7 @@ describe('authHooks', () => {
 
     it('should dispatch logOut action without path when called without arguments', () => {
       mockLogOut.mockReturnValue({ type: 'LOG_OUT', payload: undefined });
-      
+
       const { result } = renderHook(() => useLogout());
 
       act(() => {
@@ -338,7 +343,7 @@ describe('authHooks', () => {
     it('should handle empty string path', () => {
       const emptyPath = '';
       mockLogOut.mockReturnValue({ type: 'LOG_OUT', payload: emptyPath });
-      
+
       const { result } = renderHook(() => useLogout());
 
       act(() => {
@@ -353,7 +358,7 @@ describe('authHooks', () => {
     it('should handle null path', () => {
       const nullPath = null as any;
       mockLogOut.mockReturnValue({ type: 'LOG_OUT', payload: nullPath });
-      
+
       const { result } = renderHook(() => useLogout());
 
       act(() => {

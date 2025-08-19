@@ -1,7 +1,7 @@
 'use client';
 import LiteGraphCard from '@/components/base/card/Card';
 import LiteGraphSpace from '@/components/base/space/Space';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { GraphNodeTooltip } from './types';
 import { CloseCircleFilled, CopyOutlined, ExpandOutlined } from '@ant-design/icons';
 import { defaultNodeTooltip } from './constant';
@@ -55,7 +55,6 @@ const NodeToolTip = ({
 
   // Find the current node data from local state first, fallback to API if not found
   const localNodeData = currentNodes?.find((node: any) => node.id === tooltip.nodeId);
-  const isLocalNode = Boolean(localNodeData && (localNodeData as any).isLocal);
 
   // Check if this is for adding a new node
   const isAddingNewNode = tooltip.nodeId === 'new';
@@ -73,35 +72,26 @@ const NodeToolTip = ({
       request: { includeSubordinates: true },
     },
     {
-      skip: !graphId || !tooltip.nodeId || isLocalNode || isAddingNewNode, // Skip API call for local nodes or adding new
+      // Fetch details for existing nodes; skip only when adding new or missing ids
+      skip: !graphId || !tooltip.nodeId || isAddingNewNode,
     }
   );
 
-  // Use local data if available, otherwise use API data
-  const displayNode = isLocalNode
-    ? {
-        GUID: localNodeData.id,
-        Name: localNodeData.label,
-        Labels: [localNodeData.type],
-        Data: (localNodeData as any).Data || {},
-        Tags: (localNodeData as any).Tags || {},
-        Vectors: (localNodeData as any).Vectors || [],
-        TenantGUID: '',
-        GraphGUID: graphId,
-        CreatedUtc: new Date().toISOString(),
-        LastUpdateUtc: new Date().toISOString(),
-        isLocal: true,
-      }
-    : node;
+  // Display API node (shows loader until it arrives)
+  const displayNode = node;
 
   // Fetch tags separately since they are not included in the node response
-  const { data: tagsData, isLoading: isTagsLoading } = useEnumerateAndSearchTagQuery(
+  const {
+    data: tagsData,
+    isLoading: isTagsLoading,
+    refetch: refetchTags,
+  } = useEnumerateAndSearchTagQuery(
     {
       MaxResults: 1000, // Fetch more tags to ensure we get all relevant ones
       GraphGUID: graphId,
     },
     {
-      skip: !graphId || tooltip.nodeId === 'new' || isLocalNode,
+      skip: !graphId || tooltip.nodeId === 'new',
     }
   );
 
@@ -133,10 +123,29 @@ const NodeToolTip = ({
   // Callback for handling node update
   const handleNodeUpdate = async () => {
     if (graphId && tooltip.nodeId) {
-      //Graph re-renders
-      // await fetchGexfByGraphId();
-      // Don't clear the tooltip immediately - let the user see the updated information
-      // The tooltip will be updated with new data from local state
+      try {
+        const refetchPromises = [];
+
+        // Only refetch node if the query is not skipped
+        if (!isAddingNewNode) {
+          refetchPromises.push(refetch());
+        }
+
+        // Only refetch tags if the query is not skipped
+        if (!isAddingNewNode) {
+          refetchPromises.push(refetchTags());
+        }
+
+        if (refetchPromises.length > 0) {
+          await Promise.all(refetchPromises);
+        }
+
+        // Don't clear the tooltip immediately - let the user see the updated information
+        // The tooltip will be updated with new data from the refetch
+      } catch (error) {
+        console.warn('Some queries could not be refetched:', error);
+        // Continue with the update process even if refetch fails
+      }
     }
   };
 
@@ -156,18 +165,19 @@ const NodeToolTip = ({
     setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
   };
 
-  // useEffect(() => {
-  //   const getNode = async () => {
-  //     if (!node && graphId) {
-  //       await fetchGexfByGraphId();
-  //     }
-  //   };
-  //   getNode();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [node, graphId, tooltip]);
+  // Refresh tags when tooltip becomes visible for an existing node
+  useEffect(() => {
+    if (tooltip.visible && tooltip.nodeId && tooltip.nodeId !== 'new' && graphId) {
+      // Only refetch if the query is not skipped
+      if (!isAddingNewNode) {
+        refetchTags();
+      }
+    }
+  }, [tooltip.visible, tooltip.nodeId, graphId, refetchTags, isAddingNewNode]);
   return (
     <>
       <LiteGraphSpace
+        key={`node-tooltip-${tooltip.nodeId}-${nodeWithTags?.LastUpdateUtc || 'new'}`}
         direction="vertical"
         size={16}
         className={classNames(styles.tooltipContainer)}
@@ -188,7 +198,7 @@ const NodeToolTip = ({
                 <ExpandOutlined
                   className="cursor-pointer"
                   onClick={() => {
-                    setSelectedNode({ ...(nodeWithTags as any), isLocal: isLocalNode });
+                    setSelectedNode(nodeWithTags as any);
                     setIsExpanded(true);
                     setIsAddEditNodeVisible(true);
                   }}
@@ -350,7 +360,7 @@ const NodeToolTip = ({
         <AddEditNode
           isAddEditNodeVisible={isAddEditNodeVisible}
           setIsAddEditNodeVisible={setIsAddEditNodeVisible}
-          node={selectedNode}
+          node={selectedNode as any}
           selectedGraph={graphId}
           readonly={isExpanded}
           onNodeUpdated={handleNodeUpdate} // Pass callback to handle updates

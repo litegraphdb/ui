@@ -8,7 +8,6 @@ export interface NodeData {
   vx: number;
   vy: number;
   isDragging?: boolean;
-  isLocal?: boolean;
 }
 
 export interface EdgeData {
@@ -22,7 +21,6 @@ export interface EdgeData {
   targetX: number;
   targetY: number;
   label?: string;
-  isLocal?: boolean;
 }
 
 export type HoveredElement =

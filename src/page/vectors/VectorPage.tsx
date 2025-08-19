@@ -117,9 +117,9 @@ const VectorPage = () => {
           {isVectorsLoading ? (
             <LoadingOutlined className="loading-icon" />
           ) : (
-                  <LitegraphTooltip title="Refresh Data" placement="right">
-                  <RedoOutlined className="cursor-pointer" onClick={fetchVectorsList} />
-                </LitegraphTooltip>
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchVectorsList} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }

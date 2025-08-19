@@ -9,20 +9,18 @@ export const handlers = [
   }),
 
   http.post(`${mockEndpoint}v1.0/token`, async ({ request }) => {
-    const body = await request.json() as { email?: string; password?: string; tenantId?: string };
+    const body = (await request.json()) as { email?: string; password?: string; tenantId?: string };
     if (body.email && body.password && body.tenantId) {
       return HttpResponse.json(mockToken);
     }
     return HttpResponse.error();
   }),
-  
 
   http.post(`${mockEndpoint}v1.0/tenants/email`, async ({ request }) => {
-    const body = await request.json() as { email?: string };
+    const body = (await request.json()) as { email?: string };
     if (body.email) {
       return HttpResponse.json(mockTenantData);
     }
     return HttpResponse.json([]);
   }),
-  
 ];

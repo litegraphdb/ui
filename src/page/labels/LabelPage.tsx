@@ -122,13 +122,13 @@ const LabelPage = () => {
           {isLabelsLoading ? (
             <LoadingOutlined className="loading-icon" />
           ) : (
-              <LitegraphTooltip title="Refresh Data" placement="right">
-                <RedoOutlined className="cursor-pointer" onClick={fetchLabelsList} />
-              </LitegraphTooltip>
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchLabelsList} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }
-      pageTitleRightContent={ 
+      pageTitleRightContent={
         <>
           {selectedGraphRedux && (
             <LitegraphButton

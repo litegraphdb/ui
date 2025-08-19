@@ -1,6 +1,5 @@
 import moment from 'moment';
 
-
 export const dateInMonthWordsTimeFormat = 'Do MMM YYYY, HH:mm';
 
 export const formatDateTime = (dateTime: string, format?: string) => {

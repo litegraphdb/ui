@@ -1,6 +1,6 @@
 import { defaultEdgeTooltip } from './constant';
 import { GraphEdgeTooltip } from './types';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import LiteGraphSpace from '@/components/base/space/Space';
 import LiteGraphCard from '@/components/base/card/Card';
 import {
@@ -60,7 +60,6 @@ const EdgeToolTip = ({
 
   // Find the current edge data from local state first, fallback to API if not found
   const localEdgeData = currentEdges?.find((edge: any) => edge.id === tooltip.edgeId);
-  const isLocalEdge = Boolean(localEdgeData && (localEdgeData as any).isLocal);
 
   // Check if this is for adding a new edge
   const isAddingNewEdge = tooltip.edgeId === 'new';
@@ -78,51 +77,44 @@ const EdgeToolTip = ({
       request: { includeSubordinates: true },
     },
     {
-      skip: !graphId || !tooltip.edgeId || isLocalEdge || isAddingNewEdge, // Skip API call for local edges or adding new
+      // Fetch details for existing edges; skip only when adding new or missing ids
+      skip: !graphId || !tooltip.edgeId || isAddingNewEdge,
     }
   );
 
-  // Use local data if available, otherwise use API data
-  const displayEdge = isLocalEdge
-    ? {
-        GUID: localEdgeData.id,
-        id: localEdgeData.id, // Add id property for consistency
-        Name: localEdgeData.label || '',
-        From: localEdgeData.source,
-        To: localEdgeData.target,
-        Cost: localEdgeData.cost || 0,
-        Data:
-          (localEdgeData as any).Data || (localEdgeData.data ? JSON.parse(localEdgeData.data) : {}),
-        Labels: (localEdgeData as any).Labels || [],
-        Tags: (localEdgeData as any).Tags || {},
-        Vectors: (localEdgeData as any).Vectors || [],
-        TenantGUID: (localEdgeData as any).TenantGUID || '',
-        GraphGUID: graphId,
-        CreatedUtc: (localEdgeData as any).CreatedUtc || new Date().toISOString(),
-        LastUpdateUtc: (localEdgeData as any).LastUpdateUtc || new Date().toISOString(),
-        // Add source and target properties for consistency with local edge structure
-        source: localEdgeData.source,
-        target: localEdgeData.target,
-        label: localEdgeData.label || '',
-        cost: localEdgeData.cost || 0,
-        data: localEdgeData.data || '',
-        isLocal: true,
-      }
-    : edge;
+  // Display API edge (shows loader until it arrives)
+  const displayEdge = edge;
   // const { refetch: fetchGexfByGraphId } = useGetGraphGexfContentQuery(graphId);
   const nodeIds = [displayEdge?.From, displayEdge?.To].filter(Boolean) as string[];
   const {
     data: nodesList,
     isLoading: isNodesLoading,
     isFetching: isNodesFetching,
+    refetch: refetchNodes,
   } = useGetManyNodesQuery({ graphId, nodeIds }, { skip: !nodeIds.length });
   const isNodesLoadingOrFetching = isNodesLoading || isNodesFetching;
   const fromNode = nodesList?.find((node) => node.GUID === displayEdge?.From);
   const toNode = nodesList?.find((node) => node.GUID === displayEdge?.To);
+
   // Callback for handling edge update
   const handleEdgeUpdate = async () => {
     if (graphId && tooltip.edgeId) {
-      // await fetchGexfByGraphId();
+      try {
+        const refetchPromises = [];
+        if (!isAddingNewEdge) {
+          refetchPromises.push(refetch());
+        }
+
+        if (!isAddingNewEdge && nodeIds.length > 0) {
+          refetchPromises.push(refetchNodes());
+        }
+
+        if (refetchPromises.length > 0) {
+          await Promise.all(refetchPromises);
+        }
+      } catch (error) {
+        console.warn('Some queries could not be refetched:', error);
+      }
     }
   };
 
@@ -134,9 +126,35 @@ const EdgeToolTip = ({
     setTooltip(defaultEdgeTooltip);
   };
 
+  // Refresh edge and related data when tooltip becomes visible
+  useEffect(() => {
+    if (tooltip.visible && tooltip.edgeId && tooltip.edgeId !== 'new' && graphId) {
+      try {
+        if (!isAddingNewEdge) {
+          refetch();
+        }
+
+        if (!isAddingNewEdge && nodeIds.length > 0) {
+          refetchNodes();
+        }
+      } catch (error) {
+        console.warn('Some queries could not be refetched:', error);
+      }
+    }
+  }, [
+    tooltip.visible,
+    tooltip.edgeId,
+    graphId,
+    refetch,
+    refetchNodes,
+    nodeIds.length,
+    isAddingNewEdge,
+  ]);
+
   return (
     <>
       <LiteGraphSpace
+        key={`edge-tooltip-${tooltip.edgeId}-${displayEdge?.LastUpdateUtc || 'new'}`}
         direction="vertical"
         size={16}
         className={classNames(styles.tooltipContainer)}
@@ -157,7 +175,7 @@ const EdgeToolTip = ({
                 <ExpandOutlined
                   className="cursor-pointer"
                   onClick={() => {
-                    setSelectedEdge({ ...(displayEdge as any), isLocal: isLocalEdge });
+                    setSelectedEdge(displayEdge as any);
                     setIsExpanded(true);
                     setIsAddEditEdgeVisible(true);
                   }}

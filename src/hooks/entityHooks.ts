@@ -224,7 +224,7 @@ export const useLazyLoadEdgesAndNodes = (
   const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
   const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
-  const [renderNodesRandomly, setRenderNodesRandomly] = useState<boolean>(true);
+  const [renderNodesRandomly, setRenderNodesRandomly] = useState<boolean>(false);
 
   const {
     nodes,
@@ -235,6 +235,7 @@ export const useLazyLoadEdgesAndNodes = (
     isNodesError,
   } = useLazyLoadNodes(graphId, () => {
     setDoNotFetchEdgesOnRender(false);
+    setRenderNodesRandomly(false);
     // Keep circular layout until edges finish loading
   });
 
@@ -249,7 +250,6 @@ export const useLazyLoadEdgesAndNodes = (
     () => {
       // Edges finished loading; switch to topological layout
       setDoNotFetchEdgesOnRender(true);
-      setRenderNodesRandomly(false);
     },
     doNotFetchEdgesOnRender
   );
@@ -386,7 +386,7 @@ export const useLazyLoadEdgesAndNodes = (
 
   // On graph change, start with circular layout and fetch fresh edges
   useEffect(() => {
-    setRenderNodesRandomly(true);
+    setRenderNodesRandomly(false);
     setNodesForGraph([]);
     setEdgesForGraph([]);
   }, [graphId]);

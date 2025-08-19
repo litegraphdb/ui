@@ -57,9 +57,9 @@ const TenantPage = () => {
           {isTenantsLoading ? (
             <LoadingOutlined className="loading-icon" />
           ) : (
-              <LitegraphTooltip title="Refresh Data" placement="right">
-                <RedoOutlined className="cursor-pointer" onClick={fetchTenantsList} />
-              </LitegraphTooltip>
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchTenantsList} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }

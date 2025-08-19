@@ -87,6 +87,7 @@ const AddEditNode = ({
     data: node,
     isLoading: isNodeLoading1,
     isFetching: isNodeFetching,
+    refetch: refetchNode,
   } = useGetNodeByIdQuery(
     {
       graphId: selectedGraph,
@@ -96,7 +97,7 @@ const AddEditNode = ({
         includeSubordinates: true,
       },
     },
-    { skip: !nodeWithOldData?.GUID || !!(nodeWithOldData as any)?.isLocal }
+    { skip: !nodeWithOldData?.GUID }
   );
   const isNodeLoading = isNodeLoading1 || isNodeFetching;
   const [createNodes, { isLoading: isCreateLoading }] = useCreateNodeMutation();
@@ -123,38 +124,18 @@ const AddEditNode = ({
 
       if (nodeWithOldData?.GUID) {
         // Edit Node
-        if ((nodeWithOldData as any)?.isLocal && updateLocalNode) {
-          // Use local state update for graph viewer
-          const updatedNodeData = {
-            id: (nodeWithOldData as any).GUID || (nodeWithOldData as any).id,
-            label: values.name,
-            type:
-              (nodeWithOldData as any).Labels?.[0] ||
-              (nodeWithOldData as any).labels?.[0] ||
-              'default',
-            x: 0, // These will be set by the graph layout
-            y: 0,
-            z: 0,
-            vx: 0,
-            vy: 0,
-            isLocal: true,
-            Data: values.data || {},
-            Labels: values.labels || [],
-            Tags: tags,
-            Vectors: convertVectorsToAPIRecord(values.vectors),
-          };
-          updateLocalNode(updatedNodeData);
-          toast.success('Update Node successfully');
-          setIsAddEditNodeVisible(false);
-          onNodeUpdated && (await onNodeUpdated());
-        } else {
+        {
           // Fallback to API call for other contexts
           const data: Node = {
-            TenantGUID: node.TenantGUID,
-            LastUpdateUtc: node.LastUpdateUtc,
-            GUID: node.GUID,
-            GraphGUID: node.GraphGUID,
-            CreatedUtc: node.CreatedUtc,
+            TenantGUID: node?.TenantGUID || (nodeWithOldData as any)?.TenantGUID || '',
+            LastUpdateUtc:
+              node?.LastUpdateUtc ||
+              (nodeWithOldData as any)?.LastUpdateUtc ||
+              new Date().toISOString(),
+            GUID: node?.GUID || (nodeWithOldData as any)?.GUID || '',
+            GraphGUID: node?.GraphGUID || selectedGraph,
+            CreatedUtc:
+              node?.CreatedUtc || (nodeWithOldData as any)?.CreatedUtc || new Date().toISOString(),
             Name: values.name,
             Data: values.data,
             Labels: values.labels,
@@ -165,7 +146,7 @@ const AddEditNode = ({
           if (res) {
             // Reflect change locally for immediate UI update
             if (updateLocalNode) {
-              const nodeId = node.GUID;
+              const nodeId = data.GUID;
               const existing = (currentNodes || []).find((n: any) => n.id === nodeId);
               const updatedNodeData = {
                 id: nodeId,
@@ -176,10 +157,20 @@ const AddEditNode = ({
                 z: existing?.z ?? 0,
                 vx: existing?.vx ?? 0,
                 vy: existing?.vy ?? 0,
-                isLocal: false,
               };
               updateLocalNode(updatedNodeData);
             }
+
+            // Refetch the node data to ensure UI reflects the latest changes
+            if (nodeWithOldData?.GUID) {
+              try {
+                await refetchNode();
+              } catch (error) {
+                console.warn('Could not refetch node data:', error);
+                // Continue with the update process even if refetch fails
+              }
+            }
+
             toast.success('Update Node successfully');
             setIsAddEditNodeVisible(false);
             onNodeUpdated && (await onNodeUpdated());
@@ -212,7 +203,6 @@ const AddEditNode = ({
               z: 0,
               vx: 0,
               vy: 0,
-              isLocal: false,
               Data: created?.Data ?? values.data ?? {},
               Labels: created?.Labels ?? values.labels ?? [],
               Tags: created?.Tags ?? tags ?? {},
@@ -234,7 +224,7 @@ const AddEditNode = ({
   };
 
   useEffect(() => {
-    if (node && nodeWithOldData?.GUID && !(nodeWithOldData as any)?.isLocal) {
+    if (node && nodeWithOldData?.GUID) {
       // Reset the form and set values for the new node
       form.resetFields();
       // Ensure form values are updated when editing
@@ -247,20 +237,6 @@ const AddEditNode = ({
           value,
         })),
         vectors: node.Vectors || [],
-      });
-      setUniqueKey(v4());
-    } else if ((nodeWithOldData as any)?.isLocal && nodeWithOldData?.GUID) {
-      // Local node - set from local values only
-      form.resetFields();
-      form.setFieldsValue({
-        name: nodeWithOldData?.Name || nodeWithOldData?.label || '',
-        data: (nodeWithOldData as any)?.Data || {},
-        labels: (nodeWithOldData as any)?.Labels || (nodeWithOldData as any)?.labels || [],
-        tags: Object.entries((nodeWithOldData as any)?.Tags || {}).map(([key, value]) => ({
-          key,
-          value,
-        })),
-        vectors: (nodeWithOldData as any)?.Vectors || [],
       });
       setUniqueKey(v4());
     } else if (!nodeWithOldData?.GUID) {

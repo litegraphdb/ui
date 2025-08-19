@@ -13,10 +13,16 @@ export const handlers = [
   http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/tags`, () => {
     return HttpResponse.json(mockTagData.allTags);
   }),
-  http.delete(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/tags/${mockTagData.allTags[0].GUID}`, () => {
-    return HttpResponse.json(mockTagData.allTags);
-  }),
-  http.put(`${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/tags/${mockTagData.allTags[0].GUID}`, () => {
-    return HttpResponse.json(mockTagData.allTags);
-  }),
+  http.delete(
+    `${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/tags/${mockTagData.allTags[0].GUID}`,
+    () => {
+      return HttpResponse.json(mockTagData.allTags);
+    }
+  ),
+  http.put(
+    `${mockEndpoint}v1.0/tenants/${mockTenantGUID}/graphs/${mockGraphGUID}/tags/${mockTagData.allTags[0].GUID}`,
+    () => {
+      return HttpResponse.json(mockTagData.allTags);
+    }
+  ),
 ];

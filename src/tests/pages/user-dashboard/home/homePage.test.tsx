@@ -32,15 +32,20 @@ describe('HomePage', () => {
     renderWithRedux(<PageLoading message="Loading..." />, initialState, undefined, true);
 
     await waitFor(() => {
-        const loadingElement = screen.getByTestId('loading-message'); 
-        expect(loadingElement).toBeInTheDocument();
-      });
+      const loadingElement = screen.getByTestId('loading-message');
+      expect(loadingElement).toBeInTheDocument();
+    });
   });
 
   it('should display error message if graph fails to load', async () => {
     const initialState = createMockInitialState();
-    renderWithRedux(<FallBack retry={() => {}}>Something went wrong.</FallBack>, initialState, undefined, true);
-    
+    renderWithRedux(
+      <FallBack retry={() => {}}>Something went wrong.</FallBack>,
+      initialState,
+      undefined,
+      true
+    );
+
     await waitFor(() => {
       expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
     });

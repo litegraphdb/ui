@@ -61,10 +61,10 @@ const BackupPage = () => {
           <LitegraphText>Backups</LitegraphText>
           {isBackupsLoading ? (
             <LoadingOutlined className="loading-icon" />
-          ) : ( 
-              <LitegraphTooltip title="Refresh Data" placement="right">
-                <RedoOutlined className="cursor-pointer" onClick={fetchBackupsList} />
-              </LitegraphTooltip>
+          ) : (
+            <LitegraphTooltip title="Refresh Data" placement="right">
+              <RedoOutlined className="cursor-pointer" onClick={fetchBackupsList} />
+            </LitegraphTooltip>
           )}
         </LitegraphFlex>
       }

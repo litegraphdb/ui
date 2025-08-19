@@ -352,7 +352,7 @@ describe('Entity Hooks', () => {
       (parseNode as jest.Mock).mockReturnValue([]);
       (parseEdge as jest.Mock).mockReturnValue([]);
     });
-    
+
     it('should return correct structure', () => {
       const { result } = renderHook(() => useLazyLoadEdgesAndNodes('graph-123', false));
 

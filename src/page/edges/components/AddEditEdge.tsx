@@ -83,6 +83,7 @@ const AddEditEdge = ({
     data: edge,
     isLoading: isEdgeLoading1,
     isFetching: isEdgeFetching,
+    refetch: refetchEdge,
   } = useGetEdgeByIdQuery(
     {
       graphId: selectedGraph,
@@ -235,6 +236,12 @@ const AddEditEdge = ({
               };
               updateLocalEdge(updatedEdgeData);
             }
+
+            // Refetch the edge data to ensure UI reflects the latest changes
+            if (edgeWithOldData?.GUID) {
+              await refetchEdge();
+            }
+
             toast.success('Update Edge successfully');
             setIsAddEditEdgeVisible(false);
             onEdgeUpdated && (await onEdgeUpdated());
