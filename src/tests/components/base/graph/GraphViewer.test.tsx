@@ -138,6 +138,12 @@ describe('GraphViewer Component', () => {
       isLoading: false,
       isNodesLoading: false,
       isEdgesLoading: false,
+      updateLocalNode: jest.fn(),
+      addLocalNode: jest.fn(),
+      removeLocalNode: jest.fn(),
+      updateLocalEdge: jest.fn(),
+      addLocalEdge: jest.fn(),
+      removeLocalEdge: jest.fn(),
     });
   });
 
@@ -162,7 +168,7 @@ describe('GraphViewer Component', () => {
   it('renders AddEditNode when selectedGraph exists', () => {
     renderWithRedux(
       <GraphViewer
-        isAddEditNodeVisible={false}
+        isAddEditNodeVisible={true}
         setIsAddEditNodeVisible={mockSetIsAddEditNodeVisible}
         nodeTooltip={mockNodeTooltip}
         edgeTooltip={mockEdgeTooltip}
@@ -186,7 +192,7 @@ describe('GraphViewer Component', () => {
         edgeTooltip={mockEdgeTooltip}
         setNodeTooltip={mockSetNodeTooltip}
         setEdgeTooltip={mockSetEdgeTooltip}
-        isAddEditEdgeVisible={false}
+        isAddEditEdgeVisible={true}
         setIsAddEditEdgeVisible={mockSetIsAddEditEdgeVisible}
       />,
       createMockInitialState()

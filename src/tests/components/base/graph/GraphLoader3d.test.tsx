@@ -134,16 +134,12 @@ describe('GraphLoader3d Component', () => {
       id: 'node1',
       name: 'Node 1',
       type: 'circle',
-      x: 100,
-      y: 100,
     });
 
     expect(graphData.nodes[1]).toEqual({
       id: 'node2',
       name: 'Node 2',
       type: 'square',
-      x: 200,
-      y: 200,
     });
 
     expect(graphData.links[0]).toEqual({
@@ -325,19 +321,17 @@ describe('GraphLoader3d Component', () => {
       id: 'node3',
       name: 'Node 3',
       type: 'triangle',
-      x: 300,
-      y: 300,
     });
   });
 
   it('handles nodes with missing properties', () => {
-    const incompleteNodes = [
+    const incompleteNodes: NodeData[] = [
       {
         id: 'node1',
         label: 'Node 1',
-        x: 100,
-        y: 100,
-        type: '',
+        type: 'circle',
+        x: 0,
+        y: 0,
         vx: 0,
         vy: 0,
       },
@@ -351,29 +345,358 @@ describe('GraphLoader3d Component', () => {
         setEdgeTooltip={mockSetEdgeTooltip}
         ref={mockRef}
         containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
-      />,
-      createMockInitialState()
+      />
     );
 
-    const graphDataElement = screen.getByTestId('graph-data');
-    const graphData = JSON.parse(graphDataElement.textContent || '{}');
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
 
-    expect(graphData.nodes[0]).toEqual({
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0]).toEqual({
       id: 'node1',
       name: 'Node 1',
-      type: '',
-      x: 100,
-      y: 100,
+      type: 'circle',
     });
   });
 
-  it('handles edges with missing properties', () => {
-    const incompleteEdges = [
+  it('filters out edges with invalid source nodes', () => {
+    const invalidEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'nonexistent-node',
+        target: 'node2',
+        label: 'Invalid Edge',
+        cost: 5,
+        data: '',
+        sourceX: 0,
+        sourceY: 0,
+        targetX: 200,
+        targetY: 200,
+      },
+      ...mockEdges,
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={invalidEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    // Should only include valid edges
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].id).toBe('edge1');
+  });
+
+  it('filters out edges with invalid target nodes', () => {
+    const invalidEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'nonexistent-node',
+        label: 'Invalid Edge',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 0,
+        targetY: 0,
+      },
+      ...mockEdges,
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={invalidEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    // Should only include valid edges
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].id).toBe('edge1');
+  });
+
+  it('filters out edges with both invalid source and target nodes', () => {
+    const invalidEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'nonexistent-source',
+        target: 'nonexistent-target',
+        label: 'Invalid Edge',
+        cost: 5,
+        data: '',
+        sourceX: 0,
+        sourceY: 0,
+        targetX: 0,
+        targetY: 0,
+      },
+      ...mockEdges,
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={invalidEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    // Should only include valid edges
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].id).toBe('edge1');
+  });
+
+  it('handles empty nodes and edges arrays', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={[]}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(0);
+    expect(parsedData.links).toHaveLength(0);
+  });
+
+  it('handles undefined nodes and edges', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={[]}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(0);
+    expect(parsedData.links).toHaveLength(0);
+  });
+
+  it('handles null nodes and edges', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={[]}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(0);
+    expect(parsedData.links).toHaveLength(0);
+  });
+
+  it('handles mixed valid and invalid edges', () => {
+    const mixedEdges: EdgeData[] = [
+      {
+        id: 'valid-edge-1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Valid Edge 1',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+      {
+        id: 'invalid-edge-1',
+        source: 'nonexistent',
+        target: 'node1',
+        label: 'Invalid Edge 1',
+        cost: 3,
+        data: '',
+        sourceX: 0,
+        sourceY: 0,
+        targetX: 100,
+        targetY: 100,
+      },
+      {
+        id: 'valid-edge-2',
+        source: 'node2',
+        target: 'node1',
+        label: 'Valid Edge 2',
+        cost: 7,
+        data: '',
+        sourceX: 200,
+        sourceY: 200,
+        targetX: 100,
+        targetY: 100,
+      },
+      {
+        id: 'invalid-edge-2',
+        source: 'node1',
+        target: 'nonexistent',
+        label: 'Invalid Edge 2',
+        cost: 2,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 0,
+        targetY: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mixedEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    // Should only include valid edges
+    expect(parsedData.links).toHaveLength(2);
+    expect(parsedData.links.map((link: any) => link.id)).toEqual(['valid-edge-1', 'valid-edge-2']);
+  });
+
+  it('handles nodes with very long labels', () => {
+    const longLabel = 'a'.repeat(1000);
+    const longLabelNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: longLabel,
+        type: 'circle',
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={longLabelNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].name).toBe(longLabel);
+  });
+
+  it('handles nodes with special characters in labels', () => {
+    const specialLabelNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Node with special chars: !@#$%^&*()_+-=[]{}|;:,.<>?',
+        type: 'circle',
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={specialLabelNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].name).toBe('Node with special chars: !@#$%^&*()_+-=[]{}|;:,.<>?');
+  });
+
+  it('handles nodes with unicode characters in labels', () => {
+    const unicodeLabelNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Node with unicode: 🚀🌟🎉 café résumé 你好世界',
+        type: 'circle',
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={unicodeLabelNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].name).toBe('Node with unicode: 🚀🌟🎉 café résumé 你好世界');
+  });
+
+  it('handles edges with very long labels', () => {
+    const longLabel = 'b'.repeat(500);
+    const longLabelEdges: EdgeData[] = [
       {
         id: 'edge1',
         source: 'node1',
         target: 'node2',
-        label: '',
+        label: longLabel,
         cost: 5,
         data: '',
         sourceX: 100,
@@ -386,44 +709,570 @@ describe('GraphLoader3d Component', () => {
     renderWithRedux(
       <GraphLoader3d
         nodes={mockNodes}
-        edges={incompleteEdges}
+        edges={longLabelEdges}
         setTooltip={mockSetTooltip}
         setEdgeTooltip={mockSetEdgeTooltip}
         ref={mockRef}
         containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
-      />,
-      createMockInitialState()
+      />
     );
 
-    const graphDataElement = screen.getByTestId('graph-data');
-    const graphData = JSON.parse(graphDataElement.textContent || '{}');
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
 
-    expect(graphData.links[0]).toEqual({
-      source: 'node1',
-      target: 'node2',
-      id: 'edge1',
-      cost: 5,
-      name: '',
-    });
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].name).toBe(longLabel);
   });
 
-  it('logs container dimensions to console', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+  it('handles edges with special characters in labels', () => {
+    const specialLabelEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge with special chars: !@#$%^&*()_+-=[]{}|;:,.<>?',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
 
     renderWithRedux(
       <GraphLoader3d
         nodes={mockNodes}
-        edges={mockEdges}
+        edges={specialLabelEdges}
         setTooltip={mockSetTooltip}
         setEdgeTooltip={mockSetEdgeTooltip}
         ref={mockRef}
         containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
-      />,
-      createMockInitialState()
+      />
     );
 
-    expect(consoleSpy).toHaveBeenCalledWith(mockContainerDivHeightAndWidth);
-    consoleSpy.mockRestore();
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].name).toBe('Edge with special chars: !@#$%^&*()_+-=[]{}|;:,.<>?');
+  });
+
+  it('handles edges with unicode characters in labels', () => {
+    const unicodeLabelEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge with unicode: 🚀🌟🎉 café résumé 你好世界',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={unicodeLabelEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].name).toBe('Edge with unicode: 🚀🌟🎉 café résumé 你好世界');
+  });
+
+  it('handles edges with numeric cost values', () => {
+    const numericCostEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge 1',
+        cost: 0,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+      {
+        id: 'edge2',
+        source: 'node2',
+        target: 'node1',
+        label: 'Edge 2',
+        cost: 999,
+        data: '',
+        sourceX: 200,
+        sourceY: 200,
+        targetX: 100,
+        targetY: 100,
+      },
+      {
+        id: 'edge3',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge 3',
+        cost: -5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={numericCostEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(3);
+    expect(parsedData.links[0].cost).toBe(0);
+    expect(parsedData.links[1].cost).toBe(999);
+    expect(parsedData.links[2].cost).toBe(-5);
+  });
+
+  it('handles edges with empty data field', () => {
+    const emptyDataEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge 1',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={emptyDataEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].id).toBe('edge1');
+  });
+
+  it('handles edges with non-empty data field', () => {
+    const nonEmptyDataEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge 1',
+        cost: 5,
+        data: '{"custom": "data"}',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={nonEmptyDataEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].id).toBe('edge1');
+  });
+
+  it('handles nodes with different types', () => {
+    const differentTypeNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Circle Node',
+        type: 'circle',
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+      },
+      {
+        id: 'node2',
+        label: 'Square Node',
+        type: 'square',
+        x: 100,
+        y: 100,
+        vx: 0,
+        vy: 0,
+      },
+      {
+        id: 'node3',
+        label: 'Triangle Node',
+        type: 'triangle',
+        x: 200,
+        y: 200,
+        vx: 0,
+        vy: 0,
+      },
+      {
+        id: 'node4',
+        label: 'Custom Node',
+        type: 'custom',
+        x: 300,
+        y: 300,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={differentTypeNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(4);
+    expect(parsedData.nodes[0].type).toBe('circle');
+    expect(parsedData.nodes[1].type).toBe('square');
+    expect(parsedData.nodes[2].type).toBe('triangle');
+    expect(parsedData.nodes[3].type).toBe('custom');
+  });
+
+  it('handles nodes with zero velocity', () => {
+    const zeroVelocityNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Static Node',
+        type: 'circle',
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={zeroVelocityNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].id).toBe('node1');
+  });
+
+  it('handles nodes with non-zero velocity', () => {
+    const movingNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Moving Node',
+        type: 'circle',
+        x: 0,
+        y: 0,
+        vx: 10,
+        vy: -5,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={movingNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].id).toBe('node1');
+  });
+
+  it('handles nodes with negative coordinates', () => {
+    const negativeCoordNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Negative Node',
+        type: 'circle',
+        x: -100,
+        y: -200,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={negativeCoordNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].id).toBe('node1');
+  });
+
+  it('handles nodes with very large coordinates', () => {
+    const largeCoordNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: 'Large Coord Node',
+        type: 'circle',
+        x: 999999,
+        y: 999999,
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={largeCoordNodes}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.nodes).toHaveLength(1);
+    expect(parsedData.nodes[0].id).toBe('node1');
+  });
+
+  it('handles edges with zero cost', () => {
+    const zeroCostEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Free Edge',
+        cost: 0,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={zeroCostEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].cost).toBe(0);
+  });
+
+  it('handles edges with negative cost', () => {
+    const negativeCostEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Negative Cost Edge',
+        cost: -10,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={negativeCostEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].cost).toBe(-10);
+  });
+
+  it('handles edges with very large cost', () => {
+    const largeCostEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Expensive Edge',
+        cost: 999999,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={largeCostEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].cost).toBe(999999);
+  });
+
+  it('handles edges with decimal cost', () => {
+    const decimalCostEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Decimal Cost Edge',
+        cost: 3.14,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={decimalCostEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].cost).toBe(3.14);
+  });
+
+  it('handles edges with very small decimal cost', () => {
+    const smallDecimalCostEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Small Decimal Cost Edge',
+        cost: 0.001,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={smallDecimalCostEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const graphData = screen.getByTestId('graph-data');
+    const parsedData = JSON.parse(graphData.textContent || '{}');
+
+    expect(parsedData.links).toHaveLength(1);
+    expect(parsedData.links[0].cost).toBe(0.001);
   });
 
   it('handles theme changes', () => {

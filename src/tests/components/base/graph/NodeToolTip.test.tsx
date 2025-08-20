@@ -19,6 +19,7 @@ jest.mock('@/lib/store/slice/slice', () => ({
   useUpdateEdgeMutation: jest.fn(),
   useGetEdgeByIdQuery: jest.fn(),
   useSearchNodesMutation: jest.fn(),
+  useEnumerateAndSearchTagQuery: jest.fn(),
 }));
 
 // Mock the JsonEditor component
@@ -58,6 +59,7 @@ describe('NodeToolTip Component', () => {
       useUpdateEdgeMutation,
       useGetEdgeByIdQuery,
       useSearchNodesMutation,
+      useEnumerateAndSearchTagQuery,
     } = require('@/lib/store/slice/slice');
 
     useDeleteNodeMutation.mockReturnValue([jest.fn(), { isLoading: false }]);
@@ -85,6 +87,14 @@ describe('NodeToolTip Component', () => {
     });
 
     useSearchNodesMutation.mockReturnValue([jest.fn(), { isLoading: false }]);
+
+    useEnumerateAndSearchTagQuery.mockReturnValue({
+      data: { Objects: [] },
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      refetch: jest.fn(),
+    });
   });
 
   it('renders error state when API fails', () => {
@@ -106,9 +116,25 @@ describe('NodeToolTip Component', () => {
   });
 
   it('displays tags in JsonEditor when tags exist', () => {
-    const { useGetNodeByIdQuery } = require('@/lib/store/slice/slice');
+    const {
+      useGetNodeByIdQuery,
+      useEnumerateAndSearchTagQuery,
+    } = require('@/lib/store/slice/slice');
     useGetNodeByIdQuery.mockReturnValue({
       data: mockNode,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    useEnumerateAndSearchTagQuery.mockReturnValue({
+      data: {
+        Objects: [
+          { NodeGUID: 'test-node-id', Key: 'category', Value: 'test' },
+          { NodeGUID: 'test-node-id', Key: 'priority', Value: 'high' },
+        ],
+      },
       isLoading: false,
       isFetching: false,
       error: null,
@@ -125,9 +151,25 @@ describe('NodeToolTip Component', () => {
   });
 
   it('displays node GUID in gray text', () => {
-    const { useGetNodeByIdQuery } = require('@/lib/store/slice/slice');
+    const {
+      useGetNodeByIdQuery,
+      useEnumerateAndSearchTagQuery,
+    } = require('@/lib/store/slice/slice');
     useGetNodeByIdQuery.mockReturnValue({
       data: mockNode,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    useEnumerateAndSearchTagQuery.mockReturnValue({
+      data: {
+        Objects: [
+          { NodeGUID: 'test-node-id', Key: 'category', Value: 'test' },
+          { NodeGUID: 'test-node-id', Key: 'priority', Value: 'high' },
+        ],
+      },
       isLoading: false,
       isFetching: false,
       error: null,
@@ -154,9 +196,28 @@ describe('NodeToolTip Component', () => {
       },
     };
 
-    const { useGetNodeByIdQuery } = require('@/lib/store/slice/slice');
+    const {
+      useGetNodeByIdQuery,
+      useEnumerateAndSearchTagQuery,
+    } = require('@/lib/store/slice/slice');
     useGetNodeByIdQuery.mockReturnValue({
       data: nodeWithComplexTags,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    useEnumerateAndSearchTagQuery.mockReturnValue({
+      data: {
+        Objects: [
+          { NodeGUID: 'test-node-id', Key: 'simple', Value: 'value' },
+          { NodeGUID: 'test-node-id', Key: 'nested', Value: JSON.stringify({ inner: 'data' }) },
+          { NodeGUID: 'test-node-id', Key: 'array', Value: JSON.stringify([1, 2, 3]) },
+          { NodeGUID: 'test-node-id', Key: 'boolean', Value: 'true' },
+          { NodeGUID: 'test-node-id', Key: 'number', Value: '42' },
+        ],
+      },
       isLoading: false,
       isFetching: false,
       error: null,
@@ -169,10 +230,12 @@ describe('NodeToolTip Component', () => {
     );
 
     expect(screen.getByTestId('json-editor')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        '{"simple":"value","nested":{"inner":"data"},"array":[1,2,3],"boolean":true,"number":42}'
-      )
-    ).toBeInTheDocument();
+    const jsonEditor = screen.getByTestId('json-editor');
+    const jsonText = jsonEditor.textContent || '';
+    expect(jsonText).toContain('"simple":"value"');
+    expect(jsonText).toContain('"nested"');
+    expect(jsonText).toContain('"array":"[1,2,3]"');
+    expect(jsonText).toContain('"boolean":"true"');
+    expect(jsonText).toContain('"number":"42"');
   });
 });
