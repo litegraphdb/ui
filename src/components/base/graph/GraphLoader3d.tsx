@@ -158,7 +158,7 @@ export default function GraphLoader3d({
       nodeAutoColorBy="type"
       nodeLabel="name"
       linkLabel="name"
-      linkColor={() => (theme === ThemeEnum.LIGHT ? '#000' : '#fff')}
+      linkColor={() => (theme === ThemeEnum.LIGHT ? '#444' : '#fff')}
       linkWidth={1}
       showNavInfo
       enableNodeDrag
