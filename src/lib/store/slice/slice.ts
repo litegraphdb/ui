@@ -29,6 +29,8 @@ import {
   IncludeDataAndSubordinates,
   NodeEdgeSearchRequest,
   SearchResult,
+  VectorIndexEnableRequest,
+  VectorIndexEnableResponse,
 } from 'litegraphdb/dist/types/types';
 import { sdk } from '@/lib/sdk/litegraph.service';
 
@@ -105,6 +107,20 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       invalidatesTags: [SliceTags.GRAPH],
     }),
+    enableVectorIndex: build.mutation<boolean, { graphId: string; request: VectorIndexEnableRequest }>({
+      query: ({ graphId, request }: { graphId: string; request: VectorIndexEnableRequest }) => ({
+        callback: () => sdk.Graph.enableVectorIndex(graphId, request),
+      }),
+      invalidatesTags: [SliceTags.GRAPH],
+    }),
+    readVectorIndexConfiguration: build.query<VectorIndexEnableResponse, string>({
+      query: (graphId: string) => ({
+        callback: () => sdk.Graph.readVectorIndexConfig(graphId),
+      }),
+      providesTags: [SliceTags.GRAPH],
+    }),
+
+
     //endregion
 
     //region Node
@@ -640,4 +656,6 @@ export const {
   useGetManyEdgesQuery,
   useSearchNodesMutation,
   useSearchEdgesMutation,
+  useEnableVectorIndexMutation,
+  useReadVectorIndexConfigurationQuery,
 } = graphSlice;
