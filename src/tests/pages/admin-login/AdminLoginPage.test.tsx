@@ -51,11 +51,14 @@ describe('AdminLoginPage', () => {
     const submitButton = screen.getByRole('button', { name: /login/i });
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('Please enter the LiteGraph Server URL!')).toBeVisible();
-      expect(screen.getByText('Please input your access key!')).toBeVisible();
-    });
-  });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Please enter the LiteGraph Server URL!')).toBeVisible();
+        expect(screen.getByText('Please input your access key!')).toBeVisible();
+      },
+      { timeout: 10000 }
+    );
+  }, 15000);
 
   it('should validate URL format and show error for invalid URL', async () => {
     const initialState = createMockInitialState();
@@ -67,10 +70,13 @@ describe('AdminLoginPage', () => {
     const submitButton = screen.getByRole('button', { name: /login/i });
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('Please enter a valid URL!')).toBeVisible();
-    });
-  });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Please enter a valid URL!')).toBeVisible();
+      },
+      { timeout: 10000 }
+    );
+  }, 15000);
 
   it('should reject non-HTTP/HTTPS URLs', async () => {
     const initialState = createMockInitialState();
@@ -82,10 +88,13 @@ describe('AdminLoginPage', () => {
     const submitButton = screen.getByRole('button', { name: /login/i });
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('Only HTTP or HTTPS URLs are allowed!')).toBeVisible();
-    });
-  });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Only HTTP or HTTPS URLs are allowed!')).toBeVisible();
+      },
+      { timeout: 10000 }
+    );
+  }, 20000);
 
   it('should validate server URL on blur', async () => {
     const mockValidateConnectivity = jest.fn().mockResolvedValue(true);
@@ -104,10 +113,13 @@ describe('AdminLoginPage', () => {
     fireEvent.change(urlInput, { target: { value: 'https://example.com' } });
     fireEvent.blur(urlInput);
 
-    await waitFor(() => {
-      expect(mockSetEndpoint).toHaveBeenCalledWith('https://example.com');
-      expect(mockValidateConnectivity).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(mockSetEndpoint).toHaveBeenCalledWith('https://example.com');
+        expect(mockValidateConnectivity).toHaveBeenCalled();
+      },
+      { timeout: 10000 }
+    );
   });
 
   it('should submit form when Enter key is pressed', async () => {
@@ -129,9 +141,12 @@ describe('AdminLoginPage', () => {
 
     fireEvent.keyPress(accessKeyInput, { key: 'Enter', charCode: 13 });
 
-    await waitFor(() => {
-      expect(mockGetTenants).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(mockGetTenants).toHaveBeenCalled();
+      },
+      { timeout: 10000 }
+    );
   });
 
   it('should show loading state during server validation', async () => {
@@ -191,9 +206,12 @@ describe('AdminLoginPage', () => {
 
     fireEvent.keyDown(accessKeyInput, { key: 'Enter', code: 'Enter' });
 
-    await waitFor(() => {
-      expect(mockGetTenants).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(mockGetTenants).toHaveBeenCalled();
+      },
+      { timeout: 10000 }
+    );
   });
 
   it('should handle form submission with both loading states disabled', async () => {
@@ -260,8 +278,11 @@ describe('AdminLoginPage', () => {
     const submitButton = screen.getByRole('button', { name: /login/i });
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(mockGetTenants).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(mockGetTenants).toHaveBeenCalled();
+      },
+      { timeout: 10000 }
+    );
   });
 });

@@ -107,7 +107,10 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       invalidatesTags: [SliceTags.GRAPH],
     }),
-    enableVectorIndex: build.mutation<boolean, { graphId: string; request: VectorIndexEnableRequest }>({
+    enableVectorIndex: build.mutation<
+      boolean,
+      { graphId: string; request: VectorIndexEnableRequest }
+    >({
       query: ({ graphId, request }: { graphId: string; request: VectorIndexEnableRequest }) => ({
         callback: () => sdk.Graph.enableVectorIndex(graphId, request),
       }),
@@ -119,7 +122,24 @@ const graphSlice = enhancedSdk.injectEndpoints({
       }),
       providesTags: [SliceTags.GRAPH],
     }),
-
+    readVectorIndexStatistics: build.query<any, string>({
+      query: (graphId: string) => ({
+        callback: () => sdk.Graph.readVectorIndexStats(graphId),
+      }),
+      providesTags: [SliceTags.GRAPH],
+    }),
+    rebuildVectorIndex: build.mutation<boolean, string>({
+      query: (graphId: string) => ({
+        callback: () => sdk.Graph.rebuildVectorIndex(graphId),
+      }),
+      invalidatesTags: [SliceTags.GRAPH],
+    }),
+    deleteVectorIndex: build.mutation<boolean, string>({
+      query: (graphId: string) => ({
+        callback: () => sdk.Graph.deleteVectorIndex(graphId),
+      }),
+      invalidatesTags: [SliceTags.GRAPH],
+    }),
 
     //endregion
 
@@ -658,4 +678,7 @@ export const {
   useSearchEdgesMutation,
   useEnableVectorIndexMutation,
   useReadVectorIndexConfigurationQuery,
+  useReadVectorIndexStatisticsQuery,
+  useRebuildVectorIndexMutation,
+  useDeleteVectorIndexMutation,
 } = graphSlice;

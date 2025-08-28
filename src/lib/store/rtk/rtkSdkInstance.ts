@@ -16,7 +16,11 @@ export const sdkBaseQuery: BaseQueryFn<SdkBaseQueryArgs, unknown, unknown> = asy
     const result = await callback();
     return { data: result };
   } catch (error) {
-    console.error(error, 'chk error');
+    console.error('RTK SDK Base Query Error:', error);
+
+    // Log the full error object for debugging
+    console.log('Full error object:', JSON.stringify(error, null, 2));
+
     return { error };
   }
 };

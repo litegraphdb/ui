@@ -32,6 +32,9 @@ import AddEditGraph from './components/AddEditGraph';
 import AppliedFilter from '@/components/table-filter/AppliedFilter';
 import LitegraphTooltip from '@/components/base/tooltip/Tooltip';
 import EnableVectorIndexModal from './components/EnableVectorIndexModal';
+import VectorIndexStatsModal from './components/VectorIndexStatsModal';
+import RebuildVectorIndexModal from './components/RebuildVectorIndexModal';
+import DeleteVectorIndexModal from './components/DeleteVectorIndexModal';
 
 const GraphPage = () => {
   const { page, pageSize, skip, handlePageChange } = usePagination();
@@ -53,8 +56,15 @@ const GraphPage = () => {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isAddEditGraphVisible, setIsAddEditGraphVisible] = useState<boolean>(false);
   const [isDeleteModelVisisble, setIsDeleteModelVisisble] = useState<boolean>(false);
-  const [isEnableVectorIndexModalVisible, setIsEnableVectorIndexModalVisible] = useState<boolean>(false);
-  const [viewVectorIndexConfigModalVisible, setViewVectorIndexConfigModalVisible] = useState<boolean>(false);
+  const [isEnableVectorIndexModalVisible, setIsEnableVectorIndexModalVisible] =
+    useState<boolean>(false);
+  const [viewVectorIndexConfigModalVisible, setViewVectorIndexConfigModalVisible] =
+    useState<boolean>(false);
+  const [vectorIndexStatsModalVisible, setVectorIndexStatsModalVisible] = useState<boolean>(false);
+  const [rebuildVectorIndexModalVisible, setRebuildVectorIndexModalVisible] =
+    useState<boolean>(false);
+  const [deleteVectorIndexModalVisible, setDeleteVectorIndexModalVisible] =
+    useState<boolean>(false);
   const [selectedGraph, setSelectedGraph] = useState<GraphData | null>(null);
   const [fetchGexfByGraphId, { isLoading: isFetchGexfByGraphIdLoading }] =
     useGetGraphGexfContentByIdMutation();
@@ -109,6 +119,21 @@ const GraphPage = () => {
   const handleReadVectorIndexConfig = async (graph: GraphData) => {
     setSelectedGraph(graph);
     setViewVectorIndexConfigModalVisible(true);
+  };
+
+  const handleReadVectorIndexStats = async (graph: GraphData) => {
+    setSelectedGraph(graph);
+    setVectorIndexStatsModalVisible(true);
+  };
+
+  const handleRebuildVectorIndex = async (graph: GraphData) => {
+    setSelectedGraph(graph);
+    setRebuildVectorIndexModalVisible(true);
+  };
+
+  const handleDeleteVectorIndex = async (graph: GraphData) => {
+    setSelectedGraph(graph);
+    setDeleteVectorIndexModalVisible(true);
   };
 
   const handleDeleteGraph = async () => {
@@ -181,7 +206,17 @@ const GraphPage = () => {
           )}
         </LitegraphFlex>
         <LitegraphTable
-          columns={tableColumns(handleEdit, handleDelete, handleExportGexf, handleEnableVectorIndex, handleReadVectorIndexConfig, hasScoreOrDistance)}
+          columns={tableColumns(
+            handleEdit,
+            handleDelete,
+            handleExportGexf,
+            handleEnableVectorIndex,
+            handleReadVectorIndexConfig,
+            handleReadVectorIndexStats,
+            handleRebuildVectorIndex,
+            handleDeleteVectorIndex,
+            hasScoreOrDistance
+          )}
           dataSource={graphDataSource}
           loading={isGraphsLoading || isFetchGexfByGraphIdLoading}
           rowKey={'GUID'}
@@ -230,6 +265,7 @@ const GraphPage = () => {
         isEnableVectorIndexModalVisible={isEnableVectorIndexModalVisible}
         setIsEnableVectorIndexModalVisible={setIsEnableVectorIndexModalVisible}
         graphId={selectedGraph?.GUID || ''}
+        viewMode={false}
         onSuccess={() => {
           setIsEnableVectorIndexModalVisible(false);
           setSelectedGraph(null);
@@ -242,6 +278,29 @@ const GraphPage = () => {
         viewMode={true}
         onSuccess={() => {
           setViewVectorIndexConfigModalVisible(false);
+          setSelectedGraph(null);
+        }}
+      />
+      <VectorIndexStatsModal
+        isVisible={vectorIndexStatsModalVisible}
+        setIsVisible={setVectorIndexStatsModalVisible}
+        graphId={selectedGraph?.GUID || ''}
+      />
+      <RebuildVectorIndexModal
+        isVisible={rebuildVectorIndexModalVisible}
+        setIsVisible={setRebuildVectorIndexModalVisible}
+        graphId={selectedGraph?.GUID || ''}
+        onSuccess={() => {
+          setRebuildVectorIndexModalVisible(false);
+          setSelectedGraph(null);
+        }}
+      />
+      <DeleteVectorIndexModal
+        isVisible={deleteVectorIndexModalVisible}
+        setIsVisible={setDeleteVectorIndexModalVisible}
+        graphId={selectedGraph?.GUID || ''}
+        onSuccess={() => {
+          setDeleteVectorIndexModalVisible(false);
           setSelectedGraph(null);
         }}
       />
