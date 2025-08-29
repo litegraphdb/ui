@@ -132,7 +132,7 @@ const VectorIndexStatsModal: React.FC<VectorIndexStatsModalProps> = ({
       open={isVisible}
       onCancel={handleCancel}
       footer={null}
-      width={700}
+      width={900}
     >
       {isStatsLoading ? (
         <PageLoading />
@@ -157,7 +157,7 @@ const VectorIndexStatsModal: React.FC<VectorIndexStatsModalProps> = ({
             column={2}
             bordered
             size="small"
-            labelStyle={{ fontWeight: 600, width: '140px' }}
+            labelStyle={{ fontWeight: 600, width: '200px' }}
             contentStyle={{ padding: '8px 12px' }}
           >
             {(() => {

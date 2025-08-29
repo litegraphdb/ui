@@ -271,7 +271,7 @@ const GraphPage = () => {
           setSelectedGraph(null);
         }}
       />
-      <EnableVectorIndexModal
+      {viewVectorIndexConfigModalVisible && <EnableVectorIndexModal
         isEnableVectorIndexModalVisible={viewVectorIndexConfigModalVisible}
         setIsEnableVectorIndexModalVisible={setViewVectorIndexConfigModalVisible}
         graphId={selectedGraph?.GUID || ''}
@@ -280,7 +280,7 @@ const GraphPage = () => {
           setViewVectorIndexConfigModalVisible(false);
           setSelectedGraph(null);
         }}
-      />
+      />}
       <VectorIndexStatsModal
         isVisible={vectorIndexStatsModalVisible}
         setIsVisible={setVectorIndexStatsModalVisible}
