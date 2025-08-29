@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { MoreOutlined } from '@ant-design/icons';
+import { EditOutlined, MoreOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
+import { ExportOutlined } from '@ant-design/icons';
+import { SettingOutlined } from '@ant-design/icons';
 import { GraphData } from '@/types/types';
 import { TableProps, Dropdown, Button, Menu, Input } from 'antd';
 import { formatDateTime } from '@/utils/dateUtils';
@@ -14,6 +17,11 @@ export const tableColumns = (
   handleEdit: (record: GraphData) => void,
   handleDelete: (record: GraphData) => void,
   handleExportGexf: (record: GraphData) => void,
+  handleEnableVectorIndex: (record: GraphData) => void,
+  handleReadVectorIndexConfig: (record: GraphData) => void,
+  handleReadVectorIndexStats: (record: GraphData) => void,
+  handleRebuildVectorIndex: (record: GraphData) => void,
+  handleDeleteVectorIndex: (record: GraphData) => void,
   hasScoreOrDistance: boolean
 ): TableProps<GraphData>['columns'] => [
   {
@@ -137,19 +145,52 @@ export const tableColumns = (
     render: (_: any, record: GraphData) => {
       const items = [
         {
+          icon: <EditOutlined />,
           key: 'edit',
           label: 'Edit',
           onClick: () => handleEdit(record),
         },
         {
+          icon: <DeleteOutlined />,
           key: 'delete',
           label: 'Delete',
           onClick: () => handleDelete(record),
         },
         {
+          icon: <ExportOutlined />,
           key: 'export',
           label: 'Export to GEXF',
           onClick: () => handleExportGexf(record),
+        },
+        {
+          icon: <SettingOutlined />,
+          key: 'enable-vector-index',
+          label: 'Enable Vector Index',
+          onClick: () => handleEnableVectorIndex(record),
+        },
+        {
+          icon: <SettingOutlined />,
+          key: 'read-vector-index-configuration',
+          label: 'Read Vector Index Configuration',
+          onClick: () => handleReadVectorIndexConfig(record),
+        },
+        {
+          icon: <SettingOutlined />,
+          key: 'read-vector-index-statistics',
+          label: 'Read Vector Index Statistics',
+          onClick: () => handleReadVectorIndexStats(record),
+        },
+        {
+          icon: <SettingOutlined />,
+          key: 'rebuild-vector-index',
+          label: 'Rebuild Vector Index',
+          onClick: () => handleRebuildVectorIndex(record),
+        },
+        {
+          icon: <SettingOutlined />,
+          key: 'delete-vector-index',
+          label: 'Delete Vector Index',
+          onClick: () => handleDeleteVectorIndex(record),
         },
       ];
 

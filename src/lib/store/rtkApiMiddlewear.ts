@@ -8,6 +8,10 @@ export const errorHandler = (er: any) => {
   const error = er?.payload || {};
   const endpointName = er?.meta?.arg?.endpointName;
   const serverErrorMessage = error?.data?.message || error?.data?.detail;
+
+  // Log the full error object for debugging
+  console.log('Full error object:', JSON.stringify(error, null, 2));
+
   if (isNumber(error?.status) || isNumber(error?.StatusCode)) {
     switch (error.status || error.StatusCode) {
       case 401:
@@ -20,7 +24,10 @@ export const errorHandler = (er: any) => {
           break;
         }
       default:
-        toast.error(serverErrorMessage ? serverErrorMessage : 'Something went wrong.', {
+        // Prioritize Description field from API response, then fallback to other error messages
+        const errorMessage =
+          error?.Description || error?.Message || serverErrorMessage || 'Something went wrong.';
+        toast.error(errorMessage, {
           id: globalToastId,
         });
     }

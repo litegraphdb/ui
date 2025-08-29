@@ -10,12 +10,15 @@ import { logOut } from '../litegraph/actions';
 
 export const errorHandler = (err: any, dispatch: Dispatch<UnknownAction>) => {
   const error = err?.payload || {};
-  //eslint-disable-next-line no-console
-  console.log(error, 'chk errorHandler error');
-  if (error?.Message) {
-    message.error(error?.Message);
-  } else if (error?.Description) {
+
+  // Log the full error object for debugging
+  console.log('Full error object:', JSON.stringify(error, null, 2));
+
+  // Prioritize Description field from API response, then fallback to other error messages
+  if (error?.Description) {
     message.error(error?.Description);
+  } else if (error?.Message) {
+    message.error(error?.Message);
   } else if (error?.message) {
     message.error(error?.message);
   } else if (error?.data == 'Network Error') {
@@ -23,6 +26,7 @@ export const errorHandler = (err: any, dispatch: Dispatch<UnknownAction>) => {
   } else {
     message.error('Something went wrong.');
   }
+
   if (error.Error === 'NotAuthorized') {
     message.error('Session expired. Redirecting to login page...');
     setTimeout(() => {
