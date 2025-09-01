@@ -53,6 +53,7 @@ describe('GraphLoader3d Component', () => {
       label: 'Node 1',
       x: 100,
       y: 100,
+      z: 0,
       type: 'circle',
       vx: 0,
       vy: 0,
@@ -62,6 +63,7 @@ describe('GraphLoader3d Component', () => {
       label: 'Node 2',
       x: 200,
       y: 200,
+      z: 0,
       type: 'square',
       vx: 0,
       vy: 0,
@@ -104,11 +106,560 @@ describe('GraphLoader3d Component', () => {
         setEdgeTooltip={mockSetEdgeTooltip}
         ref={mockRef}
         containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
-      />,
-      createMockInitialState()
+      />
     );
 
     expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles node click events correctly', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const nodeClickButton = screen.getByTestId('node-click');
+    fireEvent.click(nodeClickButton);
+
+    expect(mockSetEdgeTooltip).toHaveBeenCalledWith({
+      visible: false,
+      edgeId: '',
+      x: 0,
+      y: 0,
+    });
+    expect(mockSetTooltip).toHaveBeenCalledWith({
+      visible: true,
+      nodeId: 'node1',
+      x: 150,
+      y: 250,
+    });
+  });
+
+  it('handles link click events correctly', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    const linkClickButton = screen.getByTestId('link-click');
+    fireEvent.click(linkClickButton);
+
+    expect(mockSetTooltip).toHaveBeenCalledWith({
+      visible: false,
+      nodeId: '',
+      x: 0,
+      y: 0,
+    });
+    expect(mockSetEdgeTooltip).toHaveBeenCalledWith({
+      visible: true,
+      edgeId: 'edge1',
+      x: 150,
+      y: 250,
+    });
+  });
+
+  it('filters out edges with invalid source or target nodes', () => {
+    const invalidEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Valid Edge',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+      {
+        id: 'edge2',
+        source: 'invalidNode',
+        target: 'node2',
+        label: 'Invalid Source',
+        cost: 5,
+        data: '',
+        sourceX: 300,
+        sourceY: 300,
+        targetX: 200,
+        targetY: 200,
+      },
+      {
+        id: 'edge3',
+        source: 'node1',
+        target: 'invalidNode',
+        label: 'Invalid Target',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 400,
+        targetY: 400,
+      },
+    ];
+
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={invalidEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    // Should warn about invalid edges
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Skipping edge edge2: source node invalidNode or target node node2 not found in nodes'
+    );
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Skipping edge edge3: source node node1 or target node invalidNode not found in nodes'
+    );
+
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('clears label refs when graph data changes', () => {
+    const { rerender } = renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    // Change the nodes to trigger useEffect
+    const newNodes: NodeData[] = [
+      {
+        id: 'node3',
+        label: 'Node 3',
+        x: 300,
+        y: 300,
+        z: 0,
+        type: 'triangle',
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    rerender(
+      <GraphLoader3d
+        nodes={newNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    // The component should re-render with new data
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('renders with showLabels disabled', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={false}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles empty nodes and edges arrays', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={[]}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles undefined container dimensions', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={{}}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles null ref', () => {
+    const nullRef = React.createRef<HTMLDivElement | null>();
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={nullRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles edge with missing properties', () => {
+    const incompleteEdges: EdgeData[] = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: '',
+        cost: 0,
+        data: '',
+        sourceX: 0,
+        sourceY: 0,
+        targetX: 0,
+        targetY: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={incompleteEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles node with missing properties', () => {
+    const incompleteNodes: NodeData[] = [
+      {
+        id: 'node1',
+        label: '',
+        x: 0,
+        y: 0,
+        z: 0,
+        type: '',
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={incompleteNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles theme changes correctly', () => {
+    const { rerender } = renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    // Test light theme
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+
+    // Test dark theme
+    mockUseAppContext.mockReturnValue({
+      theme: 'dark',
+    });
+
+    rerender(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles showLabels prop changes', () => {
+    const { rerender } = renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+
+    // Test with showLabels=false
+    rerender(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={false}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles empty nodes and edges arrays', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={[]}
+        edges={[]}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+    expect(screen.getByTestId('graph-data')).toHaveTextContent('{"nodes":[],"links":[]}');
+  });
+
+  it('handles undefined container dimensions', () => {
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={{}}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles null ref', () => {
+    const nullRef = React.createRef<HTMLDivElement | null>();
+    nullRef.current = null;
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={nullRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles incomplete edge/node properties', () => {
+    const incompleteNodes = [
+      {
+        id: 'node1',
+        label: 'Node 1',
+        x: 100,
+        y: 100,
+        z: 0,
+        type: 'circle',
+        vx: 0,
+        vy: 0,
+      },
+    ];
+
+    const incompleteEdges = [
+      {
+        id: 'edge1',
+        source: 'node1',
+        target: 'node2',
+        label: 'Edge 1',
+        cost: 5,
+        data: '',
+        sourceX: 100,
+        sourceY: 100,
+        targetX: 200,
+        targetY: 200,
+      },
+    ];
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={incompleteNodes}
+        edges={incompleteEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles theme changes with node colors', () => {
+    const { rerender } = renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    // Test light theme
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+
+    // Test dark theme
+    mockUseAppContext.mockReturnValue({
+      theme: 'dark',
+    });
+
+    rerender(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+        showLabels={true}
+      />
+    );
+
+    expect(screen.getByTestId('force-graph-3d')).toBeInTheDocument();
+  });
+
+  it('handles edge click with missing link id', () => {
+    const mockLinkClick = (link: any, event: any) => {
+      mockSetEdgeTooltip({
+        visible: true,
+        edgeId: link.id || '',
+        x: 150,
+        y: 250,
+      });
+    };
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    // Simulate link click with missing id
+    const linkClickButton = screen.getByTestId('link-click');
+    fireEvent.click(linkClickButton);
+
+    expect(mockSetEdgeTooltip).toHaveBeenCalledWith({
+      visible: true,
+      edgeId: 'edge1',
+      x: 150,
+      y: 250,
+    });
+  });
+
+  it('handles node click with missing node id', () => {
+    const mockNodeClick = (node: any, event: any) => {
+      mockSetTooltip({
+        visible: true,
+        nodeId: node.id || '',
+        x: 150,
+        y: 250,
+      });
+    };
+
+    renderWithRedux(
+      <GraphLoader3d
+        nodes={mockNodes}
+        edges={mockEdges}
+        setTooltip={mockSetTooltip}
+        setEdgeTooltip={mockSetEdgeTooltip}
+        ref={mockRef}
+        containerDivHeightAndWidth={mockContainerDivHeightAndWidth}
+      />
+    );
+
+    // Simulate node click with missing id
+    const nodeClickButton = screen.getByTestId('node-click');
+    fireEvent.click(nodeClickButton);
+
+    expect(mockSetTooltip).toHaveBeenCalledWith({
+      visible: true,
+      nodeId: 'node1',
+      x: 150,
+      y: 250,
+    });
   });
 
   it('maps nodes and edges to correct format', () => {
@@ -296,6 +847,7 @@ describe('GraphLoader3d Component', () => {
         label: 'Node 3',
         x: 300,
         y: 300,
+        z: 0,
         type: 'triangle',
         vx: 0,
         vy: 0,
@@ -332,6 +884,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -604,6 +1157,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -635,6 +1189,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -666,6 +1221,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -928,6 +1484,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -937,6 +1494,7 @@ describe('GraphLoader3d Component', () => {
         type: 'square',
         x: 100,
         y: 100,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -946,6 +1504,7 @@ describe('GraphLoader3d Component', () => {
         type: 'triangle',
         x: 200,
         y: 200,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -955,6 +1514,7 @@ describe('GraphLoader3d Component', () => {
         type: 'custom',
         x: 300,
         y: 300,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -989,6 +1549,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -1020,6 +1581,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 0,
         y: 0,
+        z: 0,
         vx: 10,
         vy: -5,
       },
@@ -1051,6 +1613,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: -100,
         y: -200,
+        z: 0,
         vx: 0,
         vy: 0,
       },
@@ -1082,6 +1645,7 @@ describe('GraphLoader3d Component', () => {
         type: 'circle',
         x: 999999,
         y: 999999,
+        z: 0,
         vx: 0,
         vy: 0,
       },

@@ -19,6 +19,40 @@ import { mockEndpoint } from '@/tests/config';
 import { SearchData } from '@/components/search/type';
 import { MenuItemProps } from '@/components/menu-item/types';
 
+// Mock RTK Query hooks
+jest.mock('@/lib/store/slice/slice', () => ({
+  useCreateGraphMutation: () => [
+    jest.fn().mockResolvedValue({ data: { GUID: 'new-graph-123' } }),
+    { isLoading: false },
+  ],
+  useUpdateGraphMutation: () => [
+    jest.fn().mockResolvedValue({ data: { GUID: 'updated-graph-123' } }),
+    { isLoading: false },
+  ],
+  useGetGraphByIdQuery: () => ({
+    data: {
+      GUID: 'graph-123',
+      Name: 'Test Graph',
+      Description: 'Test Description',
+      Tags: { tag1: 'value1' },
+      Vectors: ['vector1'],
+      CreatedUtc: '2024-01-01T00:00:00Z',
+      LastUpdateUtc: '2024-01-01T12:00:00Z',
+      Data: { graph: {} },
+      Labels: ['label1'],
+    },
+    isLoading: false,
+    isFetching: false,
+    refetch: jest.fn(),
+  }),
+}));
+
+// Mock react-hot-toast
+jest.mock('react-hot-toast', () => ({
+  success: jest.fn(),
+  error: jest.fn(),
+}));
+
 const server = setupServer(...graphHandlers, ...commonHandlers);
 
 describe('GraphPage', () => {

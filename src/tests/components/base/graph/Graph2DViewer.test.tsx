@@ -411,4 +411,147 @@ describe('Graph2DViewer', () => {
     expect(screen.getByTestId('nodes-count')).toHaveTextContent('Nodes: 1');
     expect(screen.getByTestId('edges-count')).toHaveTextContent('Edges: 1');
   });
+
+  it('renders with showLabel enabled', () => {
+    render(<Graph2DViewer {...defaultProps} showLabel={true} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('renders with showLabel disabled', () => {
+    render(<Graph2DViewer {...defaultProps} showLabel={false} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles topological sort changes', () => {
+    const { rerender } = render(<Graph2DViewer {...defaultProps} topologicalSortNodes={false} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+
+    // Change topological sort setting
+    rerender(<Graph2DViewer {...defaultProps} topologicalSortNodes={true} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles showGraphHorizontal changes', () => {
+    const { rerender } = render(<Graph2DViewer {...defaultProps} showGraphHorizontal={false} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+
+    // Change horizontal setting
+    rerender(<Graph2DViewer {...defaultProps} showGraphHorizontal={true} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles theme changes', () => {
+    const { rerender } = render(<Graph2DViewer {...defaultProps} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+
+    // Change theme (this would trigger useEffect)
+    rerender(<Graph2DViewer {...defaultProps} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles nodes and edges changes', () => {
+    const { rerender } = render(<Graph2DViewer {...defaultProps} />);
+
+    const newNodes = [...defaultProps.nodes, { id: 'node3', label: 'Node 3', x: 300, y: 300 }];
+    const newEdges = [
+      ...defaultProps.edges,
+      { id: 'edge2', source: 'node2', target: 'node3', label: 'Edge 2' },
+    ];
+
+    rerender(<Graph2DViewer {...defaultProps} nodes={newNodes} edges={newEdges} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles empty nodes and edges', () => {
+    render(<Graph2DViewer {...defaultProps} nodes={[]} edges={[]} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles undefined nodes and edges', () => {
+    render(<Graph2DViewer {...defaultProps} nodes={undefined as any} edges={undefined as any} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles missing gexfContent', () => {
+    render(<Graph2DViewer {...defaultProps} gexfContent="" />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles missing selectedGraphRedux', () => {
+    render(<Graph2DViewer {...defaultProps} selectedGraphRedux={undefined as any} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles missing setTooltip and setEdgeTooltip', () => {
+    render(
+      <Graph2DViewer
+        {...defaultProps}
+        setTooltip={undefined as any}
+        setEdgeTooltip={undefined as any}
+      />
+    );
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles missing nodeTooltip and edgeTooltip', () => {
+    render(
+      <Graph2DViewer
+        {...defaultProps}
+        nodeTooltip={undefined as any}
+        edgeTooltip={undefined as any}
+      />
+    );
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles show3d prop changes', () => {
+    const { rerender } = render(<Graph2DViewer {...defaultProps} show3d={false} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+
+    // Change show3d
+    rerender(<Graph2DViewer {...defaultProps} show3d={true} />);
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
+
+  it('handles all props changing simultaneously', () => {
+    const { rerender } = render(
+      <Graph2DViewer
+        {...defaultProps}
+        showLabel={false}
+        topologicalSortNodes={false}
+        showGraphHorizontal={false}
+      />
+    );
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+
+    // Change all props
+    rerender(
+      <Graph2DViewer
+        {...defaultProps}
+        showLabel={true}
+        topologicalSortNodes={true}
+        showGraphHorizontal={true}
+      />
+    );
+
+    expect(screen.getByTestId('sigma-container')).toBeInTheDocument();
+  });
 });

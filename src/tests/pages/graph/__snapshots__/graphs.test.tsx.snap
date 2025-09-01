@@ -1,140 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GraphPage creates a new graph and calls API: after graph creation form submission 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`GraphPage creates a new graph and calls API: after graph creation form submission 1`] = `<div />`;
 
-exports[`GraphPage creates a new graph and calls API: create graph modal open 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`GraphPage creates a new graph and calls API: create graph modal open 1`] = `<div />`;
 
-exports[`GraphPage deletes a graph successfully: after graph deletion 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  >
-    <div
-      class="go4109123758"
-      style="left: 0px; right: 0px; display: flex; position: absolute; transition: all 230ms cubic-bezier(.21,1.02,.73,1); transform: translateY(0px); top: 0px; justify-content: center;"
-    >
-      <div
-        class="go2072408551"
-        style="opacity: 0;"
-      >
-        <div
-          class="go685806154"
-        >
-          <div
-            class="go1858758034"
-          />
-          <div
-            class="go1579819456"
-          >
-            <div
-              class="go2344853693"
-            />
-          </div>
-        </div>
-        <div
-          aria-live="polite"
-          class="go3958317564"
-          role="status"
-        >
-          Add Graph successfully
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
+exports[`GraphPage deletes a graph successfully: after graph deletion 1`] = `<div />`;
 
-exports[`GraphPage deletes a graph successfully: delete graph modal open 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  >
-    <div
-      class="go4109123758"
-      style="left: 0px; right: 0px; display: flex; position: absolute; transition: all 230ms cubic-bezier(.21,1.02,.73,1); transform: translateY(0px); top: 0px; justify-content: center;"
-    >
-      <div
-        class="go2072408551"
-        style="opacity: 0;"
-      >
-        <div
-          class="go685806154"
-        >
-          <div
-            class="go1858758034"
-          />
-          <div
-            class="go1579819456"
-          >
-            <div
-              class="go2344853693"
-            />
-          </div>
-        </div>
-        <div
-          aria-live="polite"
-          class="go3958317564"
-          role="status"
-        >
-          Add Graph successfully
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
+exports[`GraphPage deletes a graph successfully: delete graph modal open 1`] = `<div />`;
 
-exports[`GraphPage edits an existing graph: after graph update 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  >
-    <div
-      class="go4109123758"
-      style="left: 0px; right: 0px; display: flex; position: absolute; transition: all 230ms cubic-bezier(.21,1.02,.73,1); transform: translateY(0px); top: 0px; justify-content: center;"
-    >
-      <div
-        class="go2072408551"
-        style="opacity: 0;"
-      >
-        <div
-          class="go685806154"
-        >
-          <div
-            class="go1858758034"
-          />
-          <div
-            class="go1579819456"
-          >
-            <div
-              class="go2344853693"
-            />
-          </div>
-        </div>
-        <div
-          aria-live="polite"
-          class="go3958317564"
-          role="status"
-        >
-          Add Graph successfully
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
+exports[`GraphPage edits an existing graph: after graph update 1`] = `<div />`;
 
 exports[`GraphPage renders fallback on API failure: graph page fallback 1`] = `
 <div>
@@ -171,41 +45,6 @@ exports[`GraphPage renders fallback on API failure: graph page fallback 1`] = `
     >
       Retry
     </span>
-  </div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  >
-    <div
-      class="go4109123758"
-      style="left: 0px; right: 0px; display: flex; position: absolute; transition: all 230ms cubic-bezier(.21,1.02,.73,1); transform: translateY(0px); top: 0px; justify-content: center;"
-    >
-      <div
-        class="go2072408551"
-        style="opacity: 0;"
-      >
-        <div
-          class="go685806154"
-        >
-          <div
-            class="go1858758034"
-          />
-          <div
-            class="go1579819456"
-          >
-            <div
-              class="go2344853693"
-            />
-          </div>
-        </div>
-        <div
-          aria-live="polite"
-          class="go3958317564"
-          role="status"
-        >
-          Add Graph successfully
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 `;
@@ -445,9 +284,6 @@ exports[`GraphPage renders the graph page with title and create button: graph pa
       </div>
     </div>
   </main>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
 </div>
 `;
 
@@ -655,41 +491,6 @@ exports[`GraphPage sorts graph list by name column: after name column sort 1`] =
             </button>
           </li>
         </ul>
-      </div>
-    </div>
-  </div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  >
-    <div
-      class="go4109123758"
-      style="left: 0px; right: 0px; display: flex; position: absolute; transition: all 230ms cubic-bezier(.21,1.02,.73,1); transform: translateY(0px); top: 0px; justify-content: center;"
-    >
-      <div
-        class="go2072408551"
-        style="opacity: 0;"
-      >
-        <div
-          class="go685806154"
-        >
-          <div
-            class="go1858758034"
-          />
-          <div
-            class="go1579819456"
-          >
-            <div
-              class="go2344853693"
-            />
-          </div>
-        </div>
-        <div
-          aria-live="polite"
-          class="go3958317564"
-          role="status"
-        >
-          Add Graph successfully
-        </div>
       </div>
     </div>
   </div>

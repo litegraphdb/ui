@@ -558,27 +558,12 @@ exports[`NodesPage renders the nodes page: initial table state 1`] = `
       </div>
     </div>
   </main>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
 </div>
 `;
 
-exports[`NodesPage should create a node and should be visible in the table: final table state after creation 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`NodesPage should create a node and should be visible in the table: final table state after creation 1`] = `<div />`;
 
-exports[`NodesPage should delete a node successfully: final table state after deletion 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`NodesPage should delete a node successfully: final table state after deletion 1`] = `<div />`;
 
 exports[`NodesPage should display Create Node button 1`] = `
 <button
@@ -618,10 +603,4 @@ exports[`NodesPage should display Create Node button 1`] = `
 </button>
 `;
 
-exports[`NodesPage should update a node successfully: final table state after update 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`NodesPage should update a node successfully: final table state after update 1`] = `<div />`;

@@ -1,5 +1,11 @@
+export enum VectorIndexType {
+  None = 'None',
+  HnswRam = 'HnswRam',
+  HnswSqlite = 'HnswSqlite',
+}
+
 export interface VectorIndexData {
-  VectorIndexType: string;
+  VectorIndexType: VectorIndexType;
   VectorIndexFile: string;
   VectorIndexThreshold: number | null;
   VectorDimensionality: number;

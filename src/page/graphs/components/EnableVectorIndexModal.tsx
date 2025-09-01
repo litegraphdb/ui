@@ -9,7 +9,7 @@ import {
   useReadVectorIndexConfigurationQuery,
 } from '@/lib/store/slice/slice';
 import { validateVectorIndexFile } from './constant';
-import { VectorIndexData, EnableVectorIndexModalProps } from './types';
+import { VectorIndexData, EnableVectorIndexModalProps, VectorIndexType } from './types';
 import PageLoading from '@/components/base/loading/PageLoading';
 import LitegraphSelect from '@/components/base/select/Select';
 
@@ -31,7 +31,7 @@ const EnableVectorIndexModal = ({
     isError: isConfigError,
   } = useReadVectorIndexConfigurationQuery(graphId, { skip: !viewMode });
   const isVectorIndexConfigLoading = isL1 || isFetching;
-  console.log('viewMode', viewMode);
+  // console.log('viewMode', viewMode);
   // Add form validation watcher
   const [formValues, setFormValues] = useState({});
   useEffect(() => {
@@ -45,7 +45,7 @@ const EnableVectorIndexModal = ({
     if (isEnableVectorIndexModalVisible && !viewMode) {
       form.resetFields();
       form.setFieldsValue({
-        VectorIndexType: 'HnswSqlite',
+        VectorIndexType: VectorIndexType.HnswSqlite,
         VectorIndexThreshold: null,
         VectorDimensionality: 1536,
         VectorIndexM: 16,
@@ -53,7 +53,12 @@ const EnableVectorIndexModal = ({
         VectorIndexEfConstruction: 200,
       });
     } else if (isEnableVectorIndexModalVisible && viewMode && vectorIndexConfig) {
-      form.setFieldsValue(vectorIndexConfig);
+      // Convert the API response to match our form types
+      const convertedConfig = {
+        ...vectorIndexConfig,
+        VectorIndexType: vectorIndexConfig.VectorIndexType as VectorIndexType,
+      };
+      form.setFieldsValue(convertedConfig);
     }
   }, [isEnableVectorIndexModalVisible, form, viewMode, vectorIndexConfig]);
 
@@ -131,10 +136,9 @@ const EnableVectorIndexModal = ({
               <LitegraphSelect
                 placeholder="Select Vector Index Type"
                 options={[
-                  { label: 'HnswSqlite', value: 'HnswSqlite' },
-                  { label: 'HnswMemory', value: 'HnswMemory' },
-                  { label: 'IvfFlat', value: 'IvfFlat' },
-                  { label: 'IvfSq', value: 'IvfSq' },
+                  { label: 'HNSW (Sqlite)', value: VectorIndexType.HnswSqlite },
+                  { label: 'HNSW (RAM)', value: VectorIndexType.HnswRam },
+                  { label: 'None', value: VectorIndexType.None },
                 ]}
                 variant="outlined"
               />
@@ -228,10 +232,9 @@ const EnableVectorIndexModal = ({
                 readonly
                 placeholder="Select Vector Index Type"
                 options={[
-                  { label: 'HnswSqlite', value: 'HnswSqlite' },
-                  { label: 'HnswMemory', value: 'HnswMemory' },
-                  { label: 'IvfFlat', value: 'IvfFlat' },
-                  { label: 'IvfSq', value: 'IvfSq' },
+                  { label: 'HNSW (Sqlite)', value: VectorIndexType.HnswSqlite },
+                  { label: 'HNSW (RAM)', value: VectorIndexType.HnswRam },
+                  { label: 'None', value: VectorIndexType.None },
                 ]}
                 variant="borderless"
               />

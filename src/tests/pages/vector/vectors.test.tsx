@@ -15,6 +15,12 @@ import { VectorType } from '@/types/types';
 import { http, HttpResponse } from 'msw';
 import { mockEndpoint } from '@/tests/config';
 
+// Mock react-hot-toast
+jest.mock('react-hot-toast', () => ({
+  success: jest.fn(),
+  error: jest.fn(),
+}));
+
 const server = setupServer(...handlers, ...commonHandlers);
 
 describe('Vectors Page', () => {
@@ -517,7 +523,9 @@ describe('AddEditVector Component', () => {
 
       await waitFor(
         () => {
-          expect(screen.getByText('Vector updated successfully')).toBeInTheDocument();
+          // Check that the toast.success was called instead of looking for the text in DOM
+          const { success } = require('react-hot-toast');
+          expect(success).toHaveBeenCalledWith('Vector updated successfully');
           expect(mockSetIsAddEditVectorVisible).toHaveBeenCalledWith(false);
           expect(mockOnVectorUpdated).toHaveBeenCalled();
         },
