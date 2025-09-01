@@ -14,6 +14,12 @@ import { renderWithRedux } from '@/tests/store/utils';
 import AddEditCredential from '@/page/credentials/components/AddEditCredential';
 import DeleteCredential from '@/page/credentials/components/DeleteCredential';
 
+// Mock react-hot-toast
+jest.mock('react-hot-toast', () => ({
+  success: jest.fn(),
+  error: jest.fn(),
+}));
+
 const server = setupServer(...handlers, ...commonHandlers, ...usersHandlers);
 
 describe('CredentialsPage', () => {
@@ -406,7 +412,9 @@ describe('CredentialsPage', () => {
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Credential deleted successfully')).toBeVisible();
+      // Check that the toast.success was called instead of looking for the text in DOM
+      const { success } = require('react-hot-toast');
+      expect(success).toHaveBeenCalledWith('Credential deleted successfully');
     });
   });
 });

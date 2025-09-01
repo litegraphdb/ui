@@ -1,28 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EdgePage with Mock API creates a new edge: final form state 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`EdgePage with Mock API creates a new edge: final form state 1`] = `<div />`;
 
-exports[`EdgePage with Mock API creates a new edge: form filled with test data 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`EdgePage with Mock API creates a new edge: form filled with test data 1`] = `<div />`;
 
-exports[`EdgePage with Mock API creates a new edge: initial modal state 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`EdgePage with Mock API creates a new edge: initial modal state 1`] = `<div />`;
 
 exports[`EdgePage with Mock API renders fallback on error: fallback message 1`] = `
 <div>
@@ -164,9 +146,6 @@ exports[`EdgePage with Mock API renders fallback on error: fallback message 1`] 
       </div>
     </div>
   </main>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
 </div>
 `;
 
@@ -671,32 +650,11 @@ exports[`EdgePage with Mock API renders the edge page title 1`] = `
       </div>
     </div>
   </main>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
 </div>
 `;
 
-exports[`EdgePage with Mock API updates an edge: final state after update simulation 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`EdgePage with Mock API updates an edge: final state after update simulation 1`] = `<div />`;
 
-exports[`EdgePage with Mock API updates an edge: form updated with new values 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`EdgePage with Mock API updates an edge: form updated with new values 1`] = `<div />`;
 
-exports[`EdgePage with Mock API updates an edge: initial modal state for update test 1`] = `
-<div>
-  <div
-    style="position: fixed; z-index: 9999; top: 16px; left: 16px; right: 16px; bottom: 16px; pointer-events: none;"
-  />
-</div>
-`;
+exports[`EdgePage with Mock API updates an edge: initial modal state for update test 1`] = `<div />`;

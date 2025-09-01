@@ -12,6 +12,12 @@ import AddEditLabel from '@/page/labels/components/AddEditLabel';
 import DeleteLabel from '@/page/labels/components/DeleteLabel';
 import { LabelMetadataForTable } from '@/page/labels/types';
 
+// Mock react-hot-toast
+jest.mock('react-hot-toast', () => ({
+  success: jest.fn(),
+  error: jest.fn(),
+}));
+
 const server = setupServer(...handlers, ...commonHandlers);
 
 describe('LabelsPage', () => {
@@ -140,7 +146,9 @@ describe('LabelsPage', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Label updated successfully')).toBeInTheDocument();
+      // Check that the toast.success was called instead of looking for the text in DOM
+      const { success } = require('react-hot-toast');
+      expect(success).toHaveBeenCalledWith('Label updated successfully');
     });
 
     expect(container).toMatchSnapshot('final state after label update');
@@ -186,7 +194,9 @@ describe('LabelsPage', () => {
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Label deleted successfully')).toBeInTheDocument();
+      // Check that the toast.success was called instead of looking for the text in DOM
+      const { success } = require('react-hot-toast');
+      expect(success).toHaveBeenCalledWith('Label deleted successfully');
     });
 
     expect(mockSetIsDeleteModelVisible).toHaveBeenCalledWith(false);
