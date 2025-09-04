@@ -10,7 +10,7 @@ const PageLoading = ({
   withoutWhiteBG = false,
   className,
 }: {
-  message?: string;
+  message?: string | JSX.Element;
   withoutWhiteBG?: boolean;
   className?: string;
 }) => {

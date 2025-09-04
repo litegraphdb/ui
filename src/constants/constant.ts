@@ -12,6 +12,7 @@ export const dynamicSlugs = {
 };
 export const paths = {
   login: `/login`,
+  sso: `/sso`,
   dashboardHome: `/dashboard/${dynamicSlugs.tenantId}`,
   graphs: `/dashboard/${dynamicSlugs.tenantId}/graphs`,
   nodes: `/dashboard/${dynamicSlugs.tenantId}/nodes`,
