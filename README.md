@@ -4,6 +4,10 @@
 
 A web interface for visualizing and managing network graphs, built with Next.js and React.
 
+## Documentation 
+
+Full documentation is available at [https://litegraph.readme.io/](https://litegraph.readme.io/).
+
 ## Features
 
 Tenant Dashboard
