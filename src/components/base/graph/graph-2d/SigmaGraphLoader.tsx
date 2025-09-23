@@ -19,6 +19,7 @@ interface GraphLoaderProps {
   edgeTooltip: GraphEdgeTooltip;
   nodes: NodeData[];
   edges: EdgeData[];
+  groupDragging: boolean;
 }
 
 const GraphLoader = ({
@@ -29,6 +30,7 @@ const GraphLoader = ({
   edgeTooltip,
   nodes,
   edges,
+  groupDragging,
 }: GraphLoaderProps) => {
   const { theme } = useAppContext();
   const loadGraph = useLoadGraph();
@@ -38,6 +40,11 @@ const GraphLoader = ({
   const registerEvents = useRegisterEvents();
   const [draggedNode, setDraggedNode] = useState<string | null>(null);
   const [draggedEdge, setDraggedEdge] = useState<string | null>(null);
+  // NEW refs for group dragging
+  const draggedNodeRef = useRef<string | null>(null);
+  const draggedSetRef = useRef<Set<string>>(new Set()); // node + siblings
+  const startPosRef = useRef<Map<string, { x: number; y: number }>>(new Map());
+  const dragStartGraphPosRef = useRef<{ x: number; y: number } | null>(null);
 
   const isDraggingRef = useRef(false);
 
@@ -113,127 +120,157 @@ const GraphLoader = ({
   }, [gexfContent, loadGraph, sigma, nodes?.length, edges?.length]);
 
   useEffect(() => {
-    // Register the events
+    const graph = sigma.getGraph();
+
     registerEvents({
       downNode: (e) => {
+        // highlight as you already do
         setDraggedNode(e.node);
         isDraggingRef.current = false;
-        sigma.getGraph().setNodeAttribute(e.node, 'highlighted', true);
+        graph.setNodeAttribute(e.node, 'highlighted', true);
+        // ---- NEW: prepare group-drag state
+        e.preventSigmaDefault?.();
+        const startPointer = sigma.viewportToGraph({ x: e.event.x, y: e.event.y });
+        dragStartGraphPosRef.current = startPointer;
+        const selectedNode = nodes.find((node) => node.id === e.node);
+        // Define "siblings": here we use graph neighbors; adjust if your domain differs
+        const siblings =
+          groupDragging && selectedNode?.type
+            ? nodes.filter((node) => node.type === selectedNode?.type)
+            : [];
+        const draggedSet = new Set<string>([e.node, ...siblings.map((node) => node.id)]);
+
+        draggedNodeRef.current = e.node;
+        draggedSetRef.current = draggedSet;
+
+        // Snapshot starting positions
+        const starts = new Map<string, { x: number; y: number }>();
+        draggedSet.forEach((id) => {
+          const attrs = graph.getNodeAttributes(id);
+          starts.set(id, { x: attrs.x, y: attrs.y });
+        });
+        startPosRef.current = starts;
       },
-      // On mouse move, if the drag mode is enabled, we change the position of the draggedNode
+
       mousemovebody: (e) => {
-        if (nodeTooltip?.visible) {
-          setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+        // your tooltip hiding logic
+        const isDraggingSomething = !!draggedNodeRef.current || !!draggedEdge;
+        if (isDraggingSomething) {
+          if (nodeTooltip?.visible) {
+            setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
+          }
+          if (edgeTooltip?.visible) {
+            setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
+          }
         }
-        if (edgeTooltip?.visible) {
-          setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
-        }
-        if (draggedNode) {
+
+        // ---- NEW: apply delta to the dragged set
+        if (draggedNodeRef.current && dragStartGraphPosRef.current) {
           isDraggingRef.current = true;
-          // Get new position of node
-          const pos = sigma.viewportToGraph(e);
-          sigma.getGraph().setNodeAttribute(draggedNode, 'x', pos.x);
-          sigma.getGraph().setNodeAttribute(draggedNode, 'y', pos.y);
+          const nowGraph = sigma.viewportToGraph({ x: e.x, y: e.y });
+          const dx = nowGraph.x - dragStartGraphPosRef.current.x;
+          const dy = nowGraph.y - dragStartGraphPosRef.current.y;
 
-          // Prevent sigma to move camera:
+          const graph = sigma.getGraph();
+          const starts = startPosRef.current;
+          const draggedSet = draggedSetRef.current;
+
+          // Update all nodes in one paint cycle
+          draggedSet.forEach((id) => {
+            const s = starts.get(id);
+            if (!s) return;
+            graph.setNodeAttribute(id, 'x', s.x + dx);
+            graph.setNodeAttribute(id, 'y', s.y + dy);
+          });
+
+          // stop camera panning
           e.preventSigmaDefault();
-          e.original.preventDefault();
-          e.original.stopPropagation();
+          e.original?.preventDefault?.();
+          e.original?.stopPropagation?.();
         }
 
+        // If you later add edge dragging, keep your existing branch:
         if (draggedEdge) {
-          // Optionally handle edge dragging logic here
           e.preventSigmaDefault();
-          e.original.preventDefault();
-          e.original.stopPropagation();
+          e.original?.preventDefault?.();
+          e.original?.stopPropagation?.();
         }
-        return;
       },
-      // On mouse up, we reset the autoscale and the dragging mode
+
       mouseup: () => {
+        // clear old highlighting
         if (draggedNode) {
-          setDraggedNode(null);
           sigma.getGraph().removeNodeAttribute(draggedNode, 'highlighted');
         }
+
+        // ---- NEW: clear group-drag state
+        draggedNodeRef.current = null;
+        draggedSetRef.current.clear();
+        startPosRef.current.clear();
+        dragStartGraphPosRef.current = null;
+
+        // your existing state clears
+        if (draggedNode) setDraggedNode(null);
         if (draggedEdge) {
-          setDraggedEdge(null);
           sigma.getGraph().removeEdgeAttribute(draggedEdge, 'highlighted');
+          setDraggedEdge(null);
         }
       },
-      // Disable the autoscale at the first down interaction
+
       mousedown: () => {
         if (!sigma.getCustomBBox()) sigma.setCustomBBox(sigma.getBBox());
       },
+
+      // clickNode / enterEdge / clickEdge / leaveEdge unchanged...
       clickNode: (event) => {
         if (isDraggingRef.current) {
-          isDraggingRef.current = false; // Reset for next interaction
+          isDraggingRef.current = false;
           return;
         }
-        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 }; // Screen coordinates of the pointer event
-        const node = event.node; // Node ID
-        // const graph = event.event.graph;
-        // const nodeAttributes = graph.getNodeAttributes(node); // Fetch node attributes
-
+        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 };
+        const node = event.node;
         const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y);
-
-        setTooltip({
-          visible: true,
-          nodeId: node,
-          x: tooltipX,
-          y: tooltipY,
-        });
-
-        // Clear edge tooltip
+        setTooltip({ visible: true, nodeId: node, x: tooltipX, y: tooltipY });
         setEdgeTooltip({ visible: false, edgeId: '', x: 0, y: 0 });
       },
+
+      // ...rest of your handlers unchanged
       enterEdge: (event) => {
         const { edge } = event;
         sigma.getGraph().updateEdgeAttributes(edge, (attrs) => ({
           ...attrs,
-          color: '#ff9900', // Highlight color for hover effect
-          size: attrs.size * 2, // Optional: increase edge size
+          color: '#ff9900',
+          size: attrs.size * 2,
         }));
-
-        sigma.refresh(); // Force re-render
+        sigma.refresh();
       },
       clickEdge: (event) => {
-        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 }; // Screen coordinates of the pointer event
+        const { clientX: x, clientY: y } = event.event?.original || { clientX: 0, clientY: 0 };
         const edgeId = event.edge;
-        // const graph = sigma.getGraph();
-        // const edgeAttributes = graph.getEdgeAttributes(edgeId);
-
         const { x: tooltipX, y: tooltipY } = calculateTooltipPosition(x, y);
-
-        setEdgeTooltip({
-          visible: true,
-          edgeId,
-          x: tooltipX,
-          y: tooltipY,
-        });
-
-        // Clear node tooltip
+        setEdgeTooltip({ visible: true, edgeId, x: tooltipX, y: tooltipY });
         setTooltip({ visible: false, nodeId: '', x: 0, y: 0 });
       },
       leaveEdge: (event) => {
         const { edge } = event;
-
         sigma.getGraph().updateEdgeAttributes(edge, (attrs) => ({
           ...attrs,
           color: theme === ThemeEnum.LIGHT ? '#aaa' : '#555',
-          size: 5, // Reset to default size
+          size: 5,
         }));
-
-        sigma.refresh(); // Force re-render
+        sigma.refresh();
       },
-      // leaveEdge: () => {
-      //   setEdgeTooltip({ visible: false, content: '', x: 0, y: 0 });
-      // },
-      // leaveNode: () => {
-      //   setTooltip({ visible: false, content: '', x: 0, y: 0 });
-      // },
     });
-  }, [registerEvents, sigma, draggedNode, draggedEdge, gexfContent, nodes?.length, edges?.length]);
-
+  }, [
+    registerEvents,
+    sigma,
+    nodeTooltip?.visible,
+    edgeTooltip?.visible,
+    draggedNode,
+    draggedEdge,
+    theme,
+    groupDragging,
+  ]);
   return null;
 };
 

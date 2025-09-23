@@ -14,7 +14,8 @@ export const initializeAuthFromLocalStorage = () => {
     user: null,
     adminAccessKey: null,
   };
-  if (typeof window !== 'undefined') {
+  try{
+    if (typeof window !== 'undefined') {
     const token = localStorage.getItem(localStorageKeys.token);
 
     const tenant = localStorage.getItem(localStorageKeys.tenant);
@@ -35,6 +36,9 @@ export const initializeAuthFromLocalStorage = () => {
       setEndpoint(url);
     }
     return auth;
+  }
+  }catch(error){
+    console.error(error);
   }
   return null;
 };

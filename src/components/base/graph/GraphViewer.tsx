@@ -22,6 +22,7 @@ import LitegraphTooltip from '../tooltip/Tooltip';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
 import { nodeLightColorByType } from './constant';
 import LitegraphButton from '../button/Button';
+import LitegraphDivider from '../divider/Divider';
 
 const GraphViewer = ({
   nodeTooltip,
@@ -55,6 +56,7 @@ const GraphViewer = ({
   const [showGraphHorizontal, setShowGraphHorizontal] = useState(false);
   const [showGraphLegend, setShowGraphLegend] = useState(true);
   const [showLabel, setShowLabel] = useState(false);
+  const [groupDragging, setGroupDragging] = useState(false);
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const ref = useRef<HTMLDivElement>(null);
   const {
@@ -140,6 +142,7 @@ const GraphViewer = ({
                     onChange={(checked) => setShowGraphHorizontal(checked)}
                   />
                 </LitegraphFormItem>
+                <LitegraphDivider type="vertical" />
                 <LitegraphFormItem className="mb-0" label={'Sort nodes topologically'}>
                   <Switch
                     size="small"
@@ -147,6 +150,15 @@ const GraphViewer = ({
                     onChange={(checked) => setTopologicalSortNodes(checked)}
                   />
                 </LitegraphFormItem>
+                <LitegraphDivider type="vertical" />
+                <LitegraphFormItem className="mb-0" label={'Grouped dragging'}>
+                  <Switch
+                    size="small"
+                    checked={groupDragging}
+                    onChange={(checked) => setGroupDragging(checked)}
+                  />
+                </LitegraphFormItem>
+                <LitegraphDivider type="vertical" />
               </>
             )}
             <LitegraphFormItem className="mb-0" label={'Show graph legend'}>
@@ -156,6 +168,7 @@ const GraphViewer = ({
                 onChange={(checked) => setShowGraphLegend(checked)}
               />
             </LitegraphFormItem>
+            <LitegraphDivider type="vertical" />
             <LitegraphFormItem className="mb-0" label={'Show node name'}>
               <Switch
                 size="small"
@@ -239,6 +252,7 @@ const GraphViewer = ({
                     nodeTooltip={nodeTooltip}
                     edgeTooltip={edgeTooltip}
                     showLabel={showLabel}
+                    groupDragging={groupDragging}
                   />
                 )}
               </>

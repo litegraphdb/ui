@@ -97,7 +97,7 @@ const AddEditNode = ({
         includeSubordinates: true,
       },
     },
-    { skip: !nodeWithOldData?.GUID }
+    { skip: !nodeWithOldData?.GUID || !isAddEditNodeVisible }
   );
   const isNodeLoading = isNodeLoading1 || isNodeFetching;
   const [createNodes, { isLoading: isCreateLoading }] = useCreateNodeMutation();

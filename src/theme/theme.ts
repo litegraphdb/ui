@@ -3,6 +3,7 @@ import { theme, ThemeConfig } from 'antd';
 export const LightGraphTheme = {
   primary: '#558f42', //95DB7B
   primaryLight: '#86d96a',
+  primaryLight2: '#e4ffdb',
   primaryRed: '#d9383a',
   secondaryBlue: '#b1e5ff',
   secondaryYellow: '#ffe362',
@@ -38,7 +39,7 @@ export const primaryTheme: ThemeConfig = {
       fontFamily: LightGraphTheme.fontFamily,
     },
     Menu: {
-      itemSelectedBg: '#fff',
+      itemSelectedBg: LightGraphTheme.primaryLight2,
     },
     Button: {
       borderRadius: 4,

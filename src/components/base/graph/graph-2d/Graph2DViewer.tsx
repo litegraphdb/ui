@@ -22,6 +22,7 @@ interface Graph2DViewerProps {
   showGraphHorizontal: boolean;
   topologicalSortNodes: boolean;
   showLabel: boolean;
+  groupDragging: boolean;
 }
 const Graph2DViewer = ({
   show3d,
@@ -36,6 +37,7 @@ const Graph2DViewer = ({
   showGraphHorizontal,
   topologicalSortNodes,
   showLabel,
+  groupDragging,
 }: Graph2DViewerProps) => {
   const [refId, setRefId] = useState<string>(uuid());
   const { theme } = useAppContext();
@@ -105,6 +107,7 @@ const Graph2DViewer = ({
         edgeTooltip={edgeTooltip}
         nodes={nodes}
         edges={edges}
+        groupDragging={groupDragging}
       />
     </SigmaContainer>
   );
