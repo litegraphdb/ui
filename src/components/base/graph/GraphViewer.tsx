@@ -151,7 +151,7 @@ const GraphViewer = ({
                   />
                 </LitegraphFormItem>
                 <LitegraphDivider type="vertical" />
-                <LitegraphFormItem className="mb-0" label={'Grouped dragging'}>
+                <LitegraphFormItem className="mb-0" label={'Drag by label'}>
                   <Switch
                     size="small"
                     checked={groupDragging}
