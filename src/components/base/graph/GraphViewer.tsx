@@ -23,6 +23,7 @@ import ErrorBoundary from '@/hoc/ErrorBoundary';
 import { nodeLightColorByType } from './constant';
 import LitegraphButton from '../button/Button';
 import LitegraphDivider from '../divider/Divider';
+import { getLegendsForNodes } from './utils';
 
 const GraphViewer = ({
   nodeTooltip,
@@ -78,21 +79,11 @@ const GraphViewer = ({
     removeLocalEdge,
   } = useLazyLoadEdgesAndNodes(selectedGraphRedux, showGraphHorizontal, topologicalSortNodes);
 
+  const legends = getLegendsForNodes(nodes);
+
   useEffect(() => {
     setShow3d(false);
   }, [selectedGraphRedux]);
-
-  // Callback for handling node update - now uses local state updates
-  const handleNodeUpdate = async () => {
-    // No API call needed - changes are handled locally
-    // The AddEditNode component will call this after successful update
-  };
-
-  // Callback for handling edge update - now uses local state updates
-  const handleEdgeUpdate = async () => {
-    // No API call needed - changes are handled locally
-    // The AddEditEdge component will call this after successful update
-  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -217,13 +208,13 @@ const GraphViewer = ({
               <>
                 {showGraphLegend && (
                   <LitegraphFlex className={styles.legendContainer} gap={15}>
-                    {Object.keys(nodeLightColorByType).map((key) => (
-                      <LitegraphFlex key={key} align="center" gap={5}>
+                    {legends.map((legend) => (
+                      <LitegraphFlex key={legend} align="center" gap={5}>
                         <div
                           className={styles.legendColor}
-                          style={{ backgroundColor: nodeLightColorByType[key] }}
+                          style={{ backgroundColor: nodeLightColorByType[legend] }}
                         />
-                        <span>{key}</span>
+                        <span>{legend}</span>
                       </LitegraphFlex>
                     ))}
                   </LitegraphFlex>
