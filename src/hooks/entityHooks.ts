@@ -19,6 +19,10 @@ import {
   parseNodeGroupedByLabel,
 } from '@/lib/graph/parser';
 import { EdgeData, NodeData } from '@/lib/graph/types';
+import {
+  MAX_NODES_AND_EDGES_TO_FETCH_IN_SINGLE_REQUEST,
+  MAX_NODES_TO_FETCH,
+} from '@/constants/constant';
 
 export const useCurrentTenant = () => {
   const tenantFromRedux = useAppSelector((state: RootState) => state.liteGraph.tenant);
@@ -68,7 +72,12 @@ export const useNodeAndEdge = (graphId: string) => {
   };
 };
 
-export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => {
+export const useLazyLoadNodes = (
+  graphId: string,
+  maxNodesToFetch: number = MAX_NODES_TO_FETCH,
+  onDataLoaded?: () => void
+) => {
+  const [hasMoreThanSupportedNodes, setHasMoreThanSupportedNodes] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [firstResult, setFirstResult] = useState<EnumerateResponse<Node> | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -84,7 +93,11 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
   } = useEnumerateAndSearchNodeQuery(
     {
       graphId,
-      request: { MaxResults: 50, ContinuationToken: continuationToken, IncludeSubordinates: true },
+      request: {
+        MaxResults: MAX_NODES_AND_EDGES_TO_FETCH_IN_SINGLE_REQUEST,
+        ContinuationToken: continuationToken,
+        IncludeSubordinates: true,
+      },
     },
     { skip: !graphId }
   );
@@ -92,12 +105,15 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
 
   useEffect(() => {
     setLoading(true);
+    let updatedNodes: Node[] = [];
     if (nodesList?.Objects?.length) {
       if (nodes.length === nodesList.TotalRecords) {
-        console.log('clearing nodes');
         setNodes([]);
       }
-      const updatedNodes = [...nodes, ...nodesList.Objects];
+      if (nodesList.TotalRecords > MAX_NODES_TO_FETCH) {
+        setHasMoreThanSupportedNodes(true);
+      }
+      updatedNodes = [...nodes, ...nodesList.Objects];
       setNodes(updatedNodes);
 
       // Only process new nodes to avoid shuffling existing ones
@@ -117,10 +133,10 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
       setLoading(false);
       setFirstResult(nodesList);
     }
-    if (nodesList?.ContinuationToken) {
+    if (nodesList?.ContinuationToken && updatedNodes.length < maxNodesToFetch) {
       setContinuationToken(nodesList.ContinuationToken);
     }
-    if (nodesList?.RecordsRemaining === 0) {
+    if (nodesList?.RecordsRemaining === 0 || updatedNodes.length >= maxNodesToFetch) {
       setLoading(false);
       onDataLoaded?.();
     }
@@ -150,6 +166,7 @@ export const useLazyLoadNodes = (graphId: string, onDataLoaded?: () => void) => 
     firstResult,
     isNodesError,
     isNodesLoading: isLoadingOrFetching || loading,
+    hasMoreThanSupportedNodes,
   };
 };
 
@@ -171,7 +188,10 @@ export const useLazyLoadEdges = (
   } = useEnumerateAndSearchEdgeQuery(
     {
       graphId,
-      request: { MaxResults: 50, ContinuationToken: continuationToken },
+      request: {
+        MaxResults: MAX_NODES_AND_EDGES_TO_FETCH_IN_SINGLE_REQUEST,
+        ContinuationToken: continuationToken,
+      },
     },
     { skip: doNotFetchOnRender || !graphId }
   );
@@ -219,7 +239,8 @@ export const useLazyLoadEdges = (
 export const useLazyLoadEdgesAndNodes = (
   graphId: string,
   showGraphHorizontal: boolean,
-  topologicalSortNodes: boolean
+  topologicalSortNodes: boolean,
+  maxNodesToFetch: number = MAX_NODES_TO_FETCH
 ) => {
   const [nodesForGraph, setNodesForGraph] = useState<NodeData[]>([]);
   const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
@@ -233,7 +254,8 @@ export const useLazyLoadEdgesAndNodes = (
     refetchNodes,
     firstResult: nodesFirstResult,
     isNodesError,
-  } = useLazyLoadNodes(graphId, () => {
+    hasMoreThanSupportedNodes,
+  } = useLazyLoadNodes(graphId, maxNodesToFetch, () => {
     setDoNotFetchEdgesOnRender(false);
     setRenderNodesRandomly(false);
     // Keep circular layout until edges finish loading
@@ -332,9 +354,7 @@ export const useLazyLoadEdgesAndNodes = (
         nodes,
         edges.map((edge) => ({ from: edge.From, to: edge.To }))
       );
-      console.log(adjList);
       const topologicalOrder = topologicalSortKahn(adjList);
-      console.log(topologicalOrder);
       let uniqueNodes: NodeData[] = [];
 
       if (topologicalSortNodes) {
@@ -417,5 +437,6 @@ export const useLazyLoadEdgesAndNodes = (
     updateLocalEdge,
     addLocalEdge,
     removeLocalEdge,
+    hasMoreThanSupportedNodes,
   };
 };

@@ -29,3 +29,6 @@ export const paths = {
 };
 
 export const keepUnusedDataFor = 900; //15mins
+
+export const MAX_NODES_TO_FETCH = 500;
+export const MAX_NODES_AND_EDGES_TO_FETCH_IN_SINGLE_REQUEST = 50;

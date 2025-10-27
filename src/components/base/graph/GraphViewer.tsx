@@ -15,7 +15,7 @@ import styles from './graph.module.scss';
 import { useLazyLoadEdgesAndNodes } from '@/hooks/entityHooks';
 import GraphLoader3d from './GraphLoader3d';
 import LitegraphFlex from '../flex/Flex';
-import { Switch } from 'antd';
+import { Alert, Switch } from 'antd';
 import LitegraphFormItem from '../form/FormItem';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
@@ -24,6 +24,8 @@ import { nodeLightColorByType } from './constant';
 import LitegraphButton from '../button/Button';
 import LitegraphDivider from '../divider/Divider';
 import { getLegendsForNodes } from './utils';
+import { MAX_NODES_TO_FETCH } from '@/constants/constant';
+import { CloseCircleOutlined } from '@ant-design/icons';
 
 const GraphViewer = ({
   nodeTooltip,
@@ -56,6 +58,7 @@ const GraphViewer = ({
   const [topologicalSortNodes, setTopologicalSortNodes] = useState(false);
   const [showGraphHorizontal, setShowGraphHorizontal] = useState(false);
   const [showGraphLegend, setShowGraphLegend] = useState(true);
+  const [showMoreThanSupportedNodesWarning, setShowMoreThanSupportedNodesWarning] = useState(true);
   const [showLabel, setShowLabel] = useState(false);
   const [groupDragging, setGroupDragging] = useState(false);
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
@@ -77,7 +80,13 @@ const GraphViewer = ({
     updateLocalEdge,
     addLocalEdge,
     removeLocalEdge,
-  } = useLazyLoadEdgesAndNodes(selectedGraphRedux, showGraphHorizontal, topologicalSortNodes);
+    hasMoreThanSupportedNodes,
+  } = useLazyLoadEdgesAndNodes(
+    selectedGraphRedux,
+    showGraphHorizontal,
+    topologicalSortNodes,
+    MAX_NODES_TO_FETCH
+  );
 
   const legends = getLegendsForNodes(nodes);
 
@@ -113,7 +122,7 @@ const GraphViewer = ({
         {isNodesLoading ? (
           <ProgressBar
             loaded={nodes.length}
-            total={nodesFirstResult?.TotalRecords || 0}
+            total={Math.min(nodesFirstResult?.TotalRecords || 0, MAX_NODES_TO_FETCH)}
             label="Loading nodes..."
           />
         ) : isEdgesLoading ? (
@@ -218,6 +227,22 @@ const GraphViewer = ({
                       </LitegraphFlex>
                     ))}
                   </LitegraphFlex>
+                )}
+                {showMoreThanSupportedNodesWarning && hasMoreThanSupportedNodes && (
+                  <Alert
+                    type="warning"
+                    closable
+                    onClose={() => {
+                      setShowMoreThanSupportedNodesWarning(false);
+                    }}
+                    className={styles.moreThanSupportedNodes}
+                    description={
+                      <>
+                        Too many nodes exist to properly render the graph. Showing the first{' '}
+                        {MAX_NODES_TO_FETCH} nodes.
+                      </>
+                    }
+                  />
                 )}
                 {show3d ? (
                   <GraphLoader3d
