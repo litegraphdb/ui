@@ -316,6 +316,9 @@ export function parseNodeGroupedByLabel(
     TenantMetadata: 1,
     VectorRepository: 2,
     Collection: 2,
+    ObjectMetadata: 3,
+    EmbeddingsDocument: 4,
+    SourceDocument: 5,
   };
 
   const labelLevelMap: Record<string, number> = {};

@@ -20,12 +20,9 @@ import LitegraphFormItem from '../form/FormItem';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
 import ErrorBoundary from '@/hoc/ErrorBoundary';
-import { nodeLightColorByType } from './constant';
-import LitegraphButton from '../button/Button';
 import LitegraphDivider from '../divider/Divider';
 import { getLegendsForNodes } from './utils';
 import { MAX_NODES_TO_FETCH } from '@/constants/constant';
-import { CloseCircleOutlined } from '@ant-design/icons';
 
 const GraphViewer = ({
   nodeTooltip,
@@ -110,7 +107,7 @@ const GraphViewer = ({
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-
+  console.log('legends on graph viewer', legends);
   return (
     <div className="space-y-2">
       <LitegraphFlex
@@ -217,13 +214,13 @@ const GraphViewer = ({
               <>
                 {showGraphLegend && (
                   <LitegraphFlex className={styles.legendContainer} gap={15}>
-                    {legends.map((legend) => (
-                      <LitegraphFlex key={legend} align="center" gap={5}>
+                    {Object.values(legends).map((legend) => (
+                      <LitegraphFlex key={legend.legend} align="center" gap={5}>
                         <div
                           className={styles.legendColor}
-                          style={{ backgroundColor: nodeLightColorByType[legend] }}
+                          style={{ backgroundColor: legend.color }}
                         />
-                        <span>{legend}</span>
+                        <span>{legend.legend}</span>
                       </LitegraphFlex>
                     ))}
                   </LitegraphFlex>
@@ -256,6 +253,7 @@ const GraphViewer = ({
                   />
                 ) : (
                   <Graph2DViewer
+                    legends={legends}
                     show3d={show3d}
                     selectedGraphRedux={selectedGraphRedux}
                     nodes={nodes}

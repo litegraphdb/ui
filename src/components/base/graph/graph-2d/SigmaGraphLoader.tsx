@@ -9,7 +9,7 @@ import { EdgeData, NodeData } from '@/lib/graph/types';
 import { LightGraphTheme } from '@/theme/theme';
 import { useAppContext } from '@/hooks/appHooks';
 import { ThemeEnum } from '@/types/types';
-import { defaultNodeColor, nodeLightColorByType } from '../constant';
+import { defaultNodeColor } from '../constant';
 
 interface GraphLoaderProps {
   gexfContent: string;
@@ -20,6 +20,7 @@ interface GraphLoaderProps {
   nodes: NodeData[];
   edges: EdgeData[];
   groupDragging: boolean;
+  legends: Record<string, { legend: string; color: string }>;
 }
 
 const GraphLoader = ({
@@ -31,6 +32,7 @@ const GraphLoader = ({
   nodes,
   edges,
   groupDragging,
+  legends,
 }: GraphLoaderProps) => {
   const { theme } = useAppContext();
   const loadGraph = useLoadGraph();
@@ -76,8 +78,8 @@ const GraphLoader = ({
         label: node.label,
         color:
           theme === ThemeEnum.LIGHT
-            ? nodeLightColorByType[node.type] || defaultNodeColor
-            : nodeLightColorByType[node.type] || defaultNodeColor,
+            ? legends[node.type]?.color || defaultNodeColor
+            : legends[node.type]?.color || defaultNodeColor,
         type: 'circle',
         vx: 0,
         vy: 0,

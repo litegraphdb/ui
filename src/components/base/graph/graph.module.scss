@@ -17,14 +17,19 @@
 .legendContainer {
   position: absolute;
   top: 10px;
-  right: 50%;
-  transform: translateX(50%);
+  right: 10px;
+  left: 10px;
+  width: fit-content !important;
+  margin: auto;
+  // transform: translateX(50%);
   z-index: 1000;
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   font-size: var(--ant-font-size);
   // background-color: var(--ant-color-bg-base);
   border-radius: var(--ant-border-radius-lg);
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--ant-color-border-secondary);
   padding: var(--ant-padding-xs) var(--ant-padding-sm);
   box-shadow: var(--ant-box-shadow-secondary);
@@ -55,7 +60,8 @@
     left: 10px;
     width: fit-content;
     flex-direction: column;
-    // justify-content: center;
+    justify-content: unset;
+    margin: unset;
     align-items: flex-start;
     flex-wrap: wrap;
   }
