@@ -1,6 +1,7 @@
 import { tablePaginationConfig } from '@/constants/pagination';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { ThemeEnum } from '@/types/types';
+import { url } from 'inspector';
 
 export const usePagination = () => {
   const [page, setPage] = useState(1);
@@ -23,4 +24,15 @@ export const AppContext = createContext({
 
 export const useAppContext = () => {
   return useContext(AppContext);
+};
+
+export const useCurrentlyHostedDomainAsServerUrl = () => {
+  const [serverUrl, setServerUrl] = useState<string>('');
+  useEffect(() => {
+    const currentlyHostedDomain = window.location.origin;
+    const url = new URL(currentlyHostedDomain);
+    url.port = '8701';
+    setServerUrl(url.toString());
+  }, []);
+  return serverUrl || '';
 };

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input } from 'antd';
 import { localStorageKeys } from '@/constants/constant';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ import { useAppDispatch } from '@/lib/store/hooks';
 import { storeTenant } from '@/lib/store/litegraph/actions';
 import LitegraphButton from '@/components/base/button/Button';
 import LoginLayout from '@/components/layout/LoginLayout';
+import { useCurrentlyHostedDomainAsServerUrl } from '@/hooks/appHooks';
 
 interface AdminLoginFormData {
   url: string;
@@ -27,6 +28,7 @@ const AdminLoginPage = () => {
   const { getTenants, isLoading } = useGetTenants();
   const loginWithAdminCredentials = useAdminCredentialsToLogin();
   const { validateConnectivity, isLoading: isValidating } = useValidateConnectivity();
+  const serverUrl = useCurrentlyHostedDomainAsServerUrl();
 
   const handleValidateServerUrl = async () => {
     const url = form.getFieldValue('url');
@@ -50,6 +52,11 @@ const AdminLoginPage = () => {
       toast.error('Login failed. Please try again.');
     }
   };
+  useEffect(() => {
+    if (!serverUrl) return;
+    form.setFieldValue('url', serverUrl);
+    handleValidateServerUrl();
+  }, [serverUrl]);
 
   return (
     <LoginLayout isAdmin>

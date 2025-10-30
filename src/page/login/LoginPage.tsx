@@ -14,6 +14,7 @@ import { localStorageKeys } from '@/constants/constant';
 import LitegraphFlex from '@/components/base/flex/Flex';
 import { useGenerateTokenMutation, useGetTenantsForEmailMutation } from '@/lib/store/slice/slice';
 import LoginLayout from '@/components/layout/LoginLayout';
+import { useCurrentlyHostedDomainAsServerUrl } from '@/hooks/appHooks';
 interface LoginFormData {
   url: string;
   email: string;
@@ -33,6 +34,7 @@ const LoginPage = () => {
   const [getTenantsForEmail, { isLoading: isLoadingTenant }] = useGetTenantsForEmailMutation();
   const [tenants, setTenants] = useState<TenantMetaData[]>([]);
   const { validateConnectivity, isLoading: isValidatingConnectivity } = useValidateConnectivity();
+  const serverUrl = useCurrentlyHostedDomainAsServerUrl();
 
   const tenantOptions =
     tenants?.map((tenant) => ({
@@ -208,6 +210,11 @@ const LoginPage = () => {
         return null;
     }
   };
+
+  useEffect(() => {
+    if (!serverUrl) return;
+    form.setFieldValue('url', serverUrl);
+  }, [serverUrl]);
 
   useEffect(() => {
     if (emailInputRef.current) {
