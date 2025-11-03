@@ -116,9 +116,10 @@ const DashboardLayout = ({
                     options={graphOptions}
                     value={selectedGraphRedux || undefined}
                     onChange={handleGraphSelect}
-                    style={{ width: 200 }}
+                    style={{ width: 250 }}
                     loading={isGraphsLoading}
                     data-testid="litegraph-select"
+                    tooltip={true}
                   />
                 </LitegraphFlex>
               )}
@@ -141,9 +142,10 @@ const DashboardLayout = ({
                       options={tenantOptions}
                       value={selectedTenantRedux?.GUID || undefined}
                       onChange={handleTenantSelect}
-                      style={{ width: 200 }}
+                      style={{ width: 250 }}
                       disabled={!useTenantSelector}
                       data-testid="tenant-select"
+                      tooltip={true}
                     />
                   )}
                 </LitegraphFlex>
