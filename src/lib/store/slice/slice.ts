@@ -262,7 +262,7 @@ const graphSlice = enhancedSdk.injectEndpoints({
         callback: () => sdk.Edge.create(edge),
       }),
       // Do not invalidate to avoid batch re-fetch after create
-      invalidatesTags: [],
+      invalidatesTags: [SliceTags.EDGE],
     }),
     //update edge
     updateEdge: build.mutation<Edge, Edge>({
@@ -270,7 +270,7 @@ const graphSlice = enhancedSdk.injectEndpoints({
         callback: () => sdk.Edge.update(edge),
       }),
       // Do not invalidate to avoid batch re-fetch after update
-      invalidatesTags: [],
+      invalidatesTags: [SliceTags.EDGE],
     }),
     //delete edge
     deleteEdge: build.mutation<boolean, { graphId: string; edgeId: string }>({

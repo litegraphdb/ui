@@ -2,81 +2,81 @@ import { DOMParser } from '@xmldom/xmldom';
 import type { NodeData, EdgeData } from './types';
 import { Edge, Node } from 'litegraphdb/dist/types/types';
 
-export function parseGexf(gexfContent: string) {
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(gexfContent, 'text/xml');
+// export function parseGexf(gexfContent: string) {
+//   const parser = new DOMParser();
+//   const xmlDoc = parser.parseFromString(gexfContent, 'text/xml');
 
-  const parsedNodes: NodeData[] = [];
-  const parsedEdges: EdgeData[] = [];
+//   const parsedNodes: NodeData[] = [];
+//   const parsedEdges: EdgeData[] = [];
 
-  // Parse nodes
-  const nodeElements = xmlDoc.getElementsByTagName('node');
-  for (let i = 0; i < nodeElements.length; i++) {
-    const node = nodeElements[i];
-    const nodeId = node.getAttribute('id') || '';
-    const label = node.getAttribute('label') || nodeId;
+//   // Parse nodes
+//   const nodeElements = xmlDoc.getElementsByTagName('node');
+//   for (let i = 0; i < nodeElements.length; i++) {
+//     const node = nodeElements[i];
+//     const nodeId = node.getAttribute('id') || '';
+//     const label = node.getAttribute('label') || nodeId;
 
-    let type = 'server';
-    const attvalues = node.getElementsByTagName('attvalue');
-    for (let j = 0; j < attvalues.length; j++) {
-      const attvalue = attvalues[j];
-      if (attvalue.getAttribute('for') === 'type') {
-        type = attvalue.getAttribute('value') || type;
-        break;
-      }
-    }
+//     let type = 'server';
+//     const attvalues = node.getElementsByTagName('attvalue');
+//     for (let j = 0; j < attvalues.length; j++) {
+//       const attvalue = attvalues[j];
+//       if (attvalue.getAttribute('for') === 'type') {
+//         type = attvalue.getAttribute('value') || type;
+//         break;
+//       }
+//     }
 
-    parsedNodes.push({
-      id: nodeId,
-      label,
-      type,
-      x: Math.random() * 800,
-      y: Math.random() * 600,
-      z: 0,
-      vx: 0,
-      vy: 0,
-      isDragging: false,
-    });
-  }
+//     parsedNodes.push({
+//       id: nodeId,
+//       label,
+//       type,
+//       x: Math.random() * 800,
+//       y: Math.random() * 600,
+//       z: 0,
+//       vx: 0,
+//       vy: 0,
+//       isDragging: false,
+//     });
+//   }
 
-  // Parse edges
-  const edgeElements = xmlDoc.getElementsByTagName('edge');
-  for (let i = 0; i < edgeElements.length; i++) {
-    const edge = edgeElements[i];
-    const edgeId = edge.getAttribute('id') || `e${i}`;
-    const source = edge.getAttribute('source') || '';
-    const target = edge.getAttribute('target') || '';
+//   // Parse edges
+//   const edgeElements = xmlDoc.getElementsByTagName('edge');
+//   for (let i = 0; i < edgeElements.length; i++) {
+//     const edge = edgeElements[i];
+//     const edgeId = edge.getAttribute('id') || `e${i}`;
+//     const source = edge.getAttribute('source') || '';
+//     const target = edge.getAttribute('target') || '';
 
-    let cost = 1;
-    let data = '';
-    const attvalues = edge.getElementsByTagName('attvalue');
-    for (let j = 0; j < attvalues.length; j++) {
-      const attvalue = attvalues[j];
-      if (attvalue.getAttribute('for') === 'cost') {
-        cost = Number(attvalue.getAttribute('value')) || cost;
-      } else if (attvalue.getAttribute('for') === 'data') {
-        data = attvalue.getAttribute('value') || '';
-      }
-    }
+//     let cost = 1;
+//     let data = '';
+//     const attvalues = edge.getElementsByTagName('attvalue');
+//     for (let j = 0; j < attvalues.length; j++) {
+//       const attvalue = attvalues[j];
+//       if (attvalue.getAttribute('for') === 'cost') {
+//         cost = Number(attvalue.getAttribute('value')) || cost;
+//       } else if (attvalue.getAttribute('for') === 'data') {
+//         data = attvalue.getAttribute('value') || '';
+//       }
+//     }
 
-    const sourceNode = parsedNodes.find((n) => n.id === source);
-    const targetNode = parsedNodes.find((n) => n.id === target);
+//     const sourceNode = parsedNodes.find((n) => n.id === source);
+//     const targetNode = parsedNodes.find((n) => n.id === target);
 
-    parsedEdges.push({
-      id: edgeId,
-      source,
-      target,
-      cost,
-      data,
-      sourceX: sourceNode?.x || 0,
-      sourceY: sourceNode?.y || 0,
-      targetX: targetNode?.x || 0,
-      targetY: targetNode?.y || 0,
-    });
-  }
+//     parsedEdges.push({
+//       id: edgeId,
+//       source,
+//       target,
+//       cost,
+//       data,
+//       sourceX: sourceNode?.x || 0,
+//       sourceY: sourceNode?.y || 0,
+//       targetX: targetNode?.x || 0,
+//       targetY: targetNode?.y || 0,
+//     });
+//   }
 
-  return { nodes: parsedNodes, edges: parsedEdges };
-}
+//   return { nodes: parsedNodes, edges: parsedEdges };
+// }
 
 // Function to build the adjacency list based on dependencies
 export const buildAdjacencyList = (nodes: Node[], dependencies: { from: string; to: string }[]) => {
@@ -98,7 +98,7 @@ export const buildAdjacencyList = (nodes: Node[], dependencies: { from: string; 
 // Topological Sort using Kahn's Algorithm
 export const topologicalSortKahn = (
   adjList: Record<string, string[]>
-): { id: string; x: number; y: number; z: number }[] => {
+): { topologicalOrder: { id: string; x: number; y: number; z: number }[]; isCyclic: boolean } => {
   const inDegree: Record<string, number> = {}; // In-degree for each node
   const queue: { id: string; x: number; y: number; z: number }[] = []; // Queue for nodes with in-degree 0
   const topologicalOrder: { id: string; x: number; y: number; z: number }[] = [];
@@ -143,13 +143,13 @@ export const topologicalSortKahn = (
   if (node) {
     processNode(node);
   }
-
+  let isCyclic = false;
   // Check if there was a cycle (not all nodes were processed)
   if (topologicalOrder.length !== Object.keys(adjList).length) {
-    throw new Error('The graph has a cycle and cannot be topologically sorted');
+    isCyclic = true;
   }
 
-  return topologicalOrder;
+  return { topologicalOrder, isCyclic };
 };
 
 // Parse nodes and assign positions based on topological sort and calculated depths
@@ -196,7 +196,6 @@ export function parseNode(
       calculateDepth(node.id);
     }
   });
-  console.log(nodeDepthMap, 'chk nodeDepthMap');
   const nodesInEachDepth = Object.entries(nodeDepthMap).reduce(
     (acc, [nodeId, depth]) => {
       acc[depth] = [...(acc[depth] || []), nodeId];
@@ -204,13 +203,12 @@ export function parseNode(
     },
     {} as Record<number, string[]>
   );
-  console.log(nodesInEachDepth, 'chk nodesInEachDepth');
   // 2. Assign x, y, z positions based on topological order and calculated depths
   return nodes.map((node, i) => {
     // Get the topological position of the node in the sorted list
     const depth = nodeDepthMap[node.GUID] ?? 0; // Depth of the current
-    const nodesInDepth = nodesInEachDepth[depth] ?? 0;
-    const nodeIndexMap = nodesInDepth.reduce(
+    const nodesInDepth = nodesInEachDepth[depth] ?? [];
+    const nodeIndexMap = nodesInDepth?.reduce(
       (acc, nodeId, index) => {
         acc[nodeId] = index;
         return acc;

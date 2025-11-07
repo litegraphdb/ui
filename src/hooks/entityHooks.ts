@@ -246,6 +246,7 @@ export const useLazyLoadEdgesAndNodes = (
   const [edgesForGraph, setEdgesForGraph] = useState<EdgeData[]>([]);
   const [doNotFetchEdgesOnRender, setDoNotFetchEdgesOnRender] = useState(true);
   const [renderNodesRandomly, setRenderNodesRandomly] = useState<boolean>(false);
+  const [isCyclic, setIsCyclic] = useState<boolean>(false);
 
   const {
     nodes,
@@ -354,7 +355,8 @@ export const useLazyLoadEdgesAndNodes = (
         nodes,
         edges.map((edge) => ({ from: edge.From, to: edge.To }))
       );
-      const topologicalOrder = topologicalSortKahn(adjList);
+      const { topologicalOrder, isCyclic: isCyclicResult } = topologicalSortKahn(adjList);
+      setIsCyclic(isCyclicResult);
       let uniqueNodes: NodeData[] = [];
 
       if (topologicalSortNodes) {
@@ -438,5 +440,6 @@ export const useLazyLoadEdgesAndNodes = (
     addLocalEdge,
     removeLocalEdge,
     hasMoreThanSupportedNodes,
+    isCyclic,
   };
 };

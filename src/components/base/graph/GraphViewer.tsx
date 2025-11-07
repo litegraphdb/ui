@@ -78,6 +78,7 @@ const GraphViewer = ({
     addLocalEdge,
     removeLocalEdge,
     hasMoreThanSupportedNodes,
+    isCyclic,
   } = useLazyLoadEdgesAndNodes(
     selectedGraphRedux,
     showGraphHorizontal,
@@ -107,7 +108,7 @@ const GraphViewer = ({
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-  console.log('legends on graph viewer', legends);
+
   return (
     <div className="space-y-2">
       <LitegraphFlex
@@ -140,13 +141,18 @@ const GraphViewer = ({
                   />
                 </LitegraphFormItem>
                 <LitegraphDivider type="vertical" />
-                <LitegraphFormItem className="mb-0" label={'Sort nodes topologically'}>
-                  <Switch
-                    size="small"
-                    checked={topologicalSortNodes}
-                    onChange={(checked) => setTopologicalSortNodes(checked)}
-                  />
-                </LitegraphFormItem>
+                <LitegraphTooltip
+                  title={isCyclic ? 'The graph is cyclic. Topological sort is not possible.' : ''}
+                >
+                  <LitegraphFormItem className="mb-0" label={'Sort nodes topologically'}>
+                    <Switch
+                      disabled={isCyclic}
+                      size="small"
+                      checked={topologicalSortNodes}
+                      onChange={(checked) => setTopologicalSortNodes(checked)}
+                    />
+                  </LitegraphFormItem>
+                </LitegraphTooltip>
                 <LitegraphDivider type="vertical" />
                 <LitegraphFormItem className="mb-0" label={'Drag by label'}>
                   <Switch
