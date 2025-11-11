@@ -67,11 +67,8 @@ export const withAdminAuth = (WrappedComponent: React.ElementType) => {
         setAccessKey(adminAccessKey);
         getTenants()
           .then((res: TenantMetaData[] | null) => {
-            if (Boolean(res?.length)) {
+            if (res) {
               setHasValidAuth(true);
-            } else if (res?.length === 0) {
-              setLogoutMessage('No Tenant Found.');
-              setHasValidAuth(false);
             } else {
               logout();
             }

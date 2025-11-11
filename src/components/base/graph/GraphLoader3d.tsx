@@ -72,6 +72,7 @@ export default function GraphLoader3d({
   ref,
   containerDivHeightAndWidth,
   showLabels = true,
+  legends,
 }: {
   nodes: NodeData[];
   edges: EdgeData[];
@@ -81,6 +82,7 @@ export default function GraphLoader3d({
   ref: React.RefObject<HTMLDivElement | null>;
   containerDivHeightAndWidth: { height?: number; width?: number };
   showLabels?: boolean;
+  legends: Record<string, { legend: string; color: string }>;
 }) {
   const { theme } = useAppContext();
   const [_, token] = useToken();
@@ -164,11 +166,7 @@ export default function GraphLoader3d({
       enableNodeDrag
       onNodeClick={(node, event) => handleNodeClick(node as NodeObject<NodeType>, event)}
       onLinkClick={(link, event) => handleLinkClick(link as LinkObject<NodeData, EdgeData>, event)}
-      nodeColor={(node) =>
-        theme === ThemeEnum.LIGHT
-          ? nodeLightColorByType[node.type] || defaultNodeColor
-          : nodeLightColorByType[node.type] || defaultNodeColor
-      }
+      nodeColor={(node) => legends[node.type]?.color || defaultNodeColor}
       nodeThreeObject={
         showLabels
           ? (node: any) => {

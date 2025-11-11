@@ -7,6 +7,7 @@ import {
   useGetAllEdgesQuery,
   useEnumerateAndSearchNodeQuery,
   useEnumerateAndSearchEdgeQuery,
+  useGetSubGraphsMutation,
 } from '@/lib/store/slice/slice';
 import { useEffect, useRef, useState } from 'react';
 import { Edge, EnumerateResponse, Node } from 'litegraphdb/dist/types/types';
@@ -442,4 +443,50 @@ export const useLazyLoadEdgesAndNodes = (
     hasMoreThanSupportedNodes,
     isCyclic,
   };
+};
+
+export const useGetSubGraphs = (topologicalSortNodes: boolean, showGraphHorizontal: boolean) => {
+  const graphGuid = useSelectedGraph();
+  const [getSubGraphs, { isLoading, isError }] = useGetSubGraphsMutation();
+  const loadSubGraph = async (nodeGuid: string) => {
+    const response = await getSubGraphs({
+      graphGuid,
+      nodeGuid,
+      options: { maxDepth: 1, maxNodes: 100, maxEdges: 100, incldata: true, inclsub: true },
+    }).unwrap();
+    const data = response;
+    if (data) {
+      const adjList = buildAdjacencyList(
+        data.Nodes,
+        data.Edges.map((edge: Edge) => ({ from: edge.From, to: edge.To }))
+      );
+      const { topologicalOrder, isCyclic: isCyclicResult } = topologicalSortKahn(adjList);
+      //  setIsCyclic(isCyclicResult);
+      let uniqueNodes: NodeData[] = [];
+
+      if (topologicalSortNodes) {
+        uniqueNodes = parseNode(
+          data.Nodes,
+          data.Nodes.length,
+          adjList,
+          topologicalOrder,
+          showGraphHorizontal
+        );
+      } else {
+        uniqueNodes = parseNodeGroupedByLabel(data.Nodes, showGraphHorizontal);
+      }
+      const nodeIds = uniqueNodes.map((node) => node.id);
+
+      // Parse API edges and preserve locally added edges
+      const edges = parseEdge(
+        data.Edges?.filter(
+          (edge: Edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)
+        ) || []
+      );
+      return { nodes: uniqueNodes, edges };
+    } else {
+      return null;
+    }
+  };
+  return { isSubGraphLoading: isLoading, isError, loadSubGraph };
 };

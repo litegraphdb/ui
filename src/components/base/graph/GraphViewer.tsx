@@ -12,10 +12,10 @@ import AddEditNode from '@/page/nodes/components/AddEditNode';
 import AddEditEdge from '@/page/edges/components/AddEditEdge';
 import FallBack, { FallBackEnums } from '../fallback/FallBack';
 import styles from './graph.module.scss';
-import { useLazyLoadEdgesAndNodes } from '@/hooks/entityHooks';
+import { useGetSubGraphs, useLazyLoadEdgesAndNodes } from '@/hooks/entityHooks';
 import GraphLoader3d from './GraphLoader3d';
 import LitegraphFlex from '../flex/Flex';
-import { Alert, Switch } from 'antd';
+import { Alert, message, Switch } from 'antd';
 import LitegraphFormItem from '../form/FormItem';
 import ProgressBar from './ProgressBar';
 import LitegraphTooltip from '../tooltip/Tooltip';
@@ -23,6 +23,12 @@ import ErrorBoundary from '@/hoc/ErrorBoundary';
 import LitegraphDivider from '../divider/Divider';
 import { getLegendsForNodes } from './utils';
 import { MAX_NODES_TO_FETCH } from '@/constants/constant';
+import { CloseCircleOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons';
+import LitegraphButton from '../button/Button';
+import NodeSearchModal from './NodeSearchModal';
+import { Node } from 'litegraphdb/dist/types/types';
+import { EdgeData } from '@/lib/graph/types';
+import { NodeData } from '@/lib/graph/types';
 
 const GraphViewer = ({
   nodeTooltip,
@@ -51,6 +57,8 @@ const GraphViewer = ({
     height: undefined,
     width: undefined,
   });
+  const [subGraphNodes, setSubGraphNodes] = useState<NodeData[] | null>(null);
+  const [subGraphEdges, setSubGraphEdges] = useState<EdgeData[] | null>(null);
   const [show3d, setShow3d] = useState(false);
   const [topologicalSortNodes, setTopologicalSortNodes] = useState(false);
   const [showGraphHorizontal, setShowGraphHorizontal] = useState(false);
@@ -58,6 +66,7 @@ const GraphViewer = ({
   const [showMoreThanSupportedNodesWarning, setShowMoreThanSupportedNodesWarning] = useState(true);
   const [showLabel, setShowLabel] = useState(false);
   const [groupDragging, setGroupDragging] = useState(false);
+  const [isNodeSearchModalVisible, setIsNodeSearchModalVisible] = useState(false);
   const selectedGraphRedux = useAppSelector((state: RootState) => state.liteGraph.selectedGraph);
   const ref = useRef<HTMLDivElement>(null);
   const {
@@ -68,7 +77,7 @@ const GraphViewer = ({
     isError,
     nodesFirstResult,
     edgesFirstResult,
-    isLoading,
+    isLoading: isGraphLoading,
     isNodesLoading,
     isEdgesLoading,
     updateLocalNode,
@@ -85,8 +94,13 @@ const GraphViewer = ({
     topologicalSortNodes,
     MAX_NODES_TO_FETCH
   );
-
-  const legends = getLegendsForNodes(nodes);
+  const { loadSubGraph, isSubGraphLoading } = useGetSubGraphs(
+    topologicalSortNodes,
+    showGraphHorizontal
+  );
+  console.log('isSubGraphLoading', isSubGraphLoading);
+  const isLoading = isGraphLoading || isSubGraphLoading;
+  const legends = getLegendsForNodes(subGraphNodes ? subGraphNodes : nodes);
 
   useEffect(() => {
     setShow3d(false);
@@ -108,6 +122,20 @@ const GraphViewer = ({
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  const handleNodeSelect = async (node: Node) => {
+    // Handle node selection - you can add custom logic here
+    // For example, focus on the node in the graph, show tooltip, etc.
+    console.log('Selected node:', node);
+    const data = await loadSubGraph(node.GUID);
+    console.log('Response:', data);
+    if (data && data?.nodes?.length) {
+      setSubGraphNodes(data.nodes);
+      setSubGraphEdges(data.edges);
+    } else {
+      message.warning('Unable to find subgraph.');
+    }
+  };
 
   return (
     <div className="space-y-2">
@@ -131,6 +159,43 @@ const GraphViewer = ({
           />
         ) : (
           <LitegraphFlex gap={10} align="center">
+            <LitegraphFlex gap={10} align="center">
+              {selectedGraphRedux && (
+                <>
+                  {subGraphNodes ? (
+                    <>
+                      <LitegraphTooltip title="Clear subgraph">
+                        <LitegraphFlex
+                          align="center"
+                          gap={5}
+                          onClick={() => {
+                            setSubGraphNodes(null);
+                            setSubGraphEdges(null);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          Clear Sub Graph
+                          <RedoOutlined />
+                        </LitegraphFlex>
+                      </LitegraphTooltip>
+                    </>
+                  ) : (
+                    <LitegraphTooltip title="Search nodes and load subgraph">
+                      <LitegraphFlex align="center" gap={5} className="cursor-pointer">
+                        Search Sub Graph
+                        <LitegraphButton
+                          type="text"
+                          icon={<SearchOutlined />}
+                          onClick={() => setIsNodeSearchModalVisible(true)}
+                          size="small"
+                        />
+                      </LitegraphFlex>
+                    </LitegraphTooltip>
+                  )}
+                  <LitegraphDivider type="vertical" />
+                </>
+              )}
+            </LitegraphFlex>
             {!show3d && (
               <>
                 <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
@@ -164,6 +229,7 @@ const GraphViewer = ({
                 <LitegraphDivider type="vertical" />
               </>
             )}
+
             <LitegraphFormItem className="mb-0" label={'Show graph legend'}>
               <Switch
                 size="small"
@@ -210,7 +276,7 @@ const GraphViewer = ({
               <FallBack className="mt-lg" type={FallBackEnums.ERROR} retry={refetch}>
                 Error loading graph
               </FallBack>
-            ) : isLoading && nodes.length === 0 ? (
+            ) : (isLoading && nodes.length === 0) || isSubGraphLoading ? (
               <PageLoading />
             ) : !nodes.length && !isLoading ? (
               <FallBack className="mt-lg" type={FallBackEnums.WARNING}>
@@ -249,8 +315,9 @@ const GraphViewer = ({
                 )}
                 {show3d ? (
                   <GraphLoader3d
-                    nodes={nodes}
-                    edges={edges}
+                    legends={legends}
+                    nodes={subGraphNodes ? subGraphNodes : nodes}
+                    edges={subGraphEdges ? subGraphEdges : edges}
                     setTooltip={setNodeTooltip}
                     setEdgeTooltip={setEdgeTooltip}
                     ref={ref}
@@ -262,8 +329,8 @@ const GraphViewer = ({
                     legends={legends}
                     show3d={show3d}
                     selectedGraphRedux={selectedGraphRedux}
-                    nodes={nodes}
-                    edges={edges}
+                    nodes={subGraphNodes ? subGraphNodes : nodes}
+                    edges={subGraphEdges ? subGraphEdges : edges}
                     gexfContent={''}
                     showGraphHorizontal={showGraphHorizontal}
                     topologicalSortNodes={topologicalSortNodes}
@@ -345,6 +412,16 @@ const GraphViewer = ({
           removeLocalEdge={removeLocalEdge}
           currentNodes={nodes}
           currentEdges={edges}
+        />
+      )}
+
+      {/* Node Search Modal */}
+      {selectedGraphRedux && (
+        <NodeSearchModal
+          isVisible={isNodeSearchModalVisible}
+          setIsVisible={setIsNodeSearchModalVisible}
+          graphId={selectedGraphRedux}
+          onNodeSelect={handleNodeSelect}
         />
       )}
     </div>

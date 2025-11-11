@@ -31,6 +31,7 @@ import {
   SearchResult,
   VectorIndexEnableRequest,
   VectorIndexEnableResponse,
+  ReadSubGraphResponse,
 } from 'litegraphdb/dist/types/types';
 import { sdk } from '@/lib/sdk/litegraph.service';
 
@@ -604,7 +605,24 @@ const graphSlice = enhancedSdk.injectEndpoints({
         callback: () => sdk.Authentication.getTokenDetails(token),
       }),
     }),
-    //endregion
+    getSubGraphs: build.mutation<
+      ReadSubGraphResponse,
+      {
+        graphGuid: string;
+        nodeGuid: string;
+        options?: {
+          maxDepth?: number;
+          maxNodes?: number;
+          maxEdges?: number;
+          incldata?: boolean;
+          inclsub?: boolean;
+        };
+      }
+    >({
+      query: ({ graphGuid, nodeGuid, options }) => ({
+        callback: () => sdk.Graph.readSubGraph(graphGuid, nodeGuid, options),
+      }),
+    }),
   }),
 });
 
@@ -681,4 +699,5 @@ export const {
   useReadVectorIndexStatisticsQuery,
   useRebuildVectorIndexMutation,
   useDeleteVectorIndexMutation,
+  useGetSubGraphsMutation,
 } = graphSlice;
