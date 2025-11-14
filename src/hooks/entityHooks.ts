@@ -10,7 +10,7 @@ import {
   useGetSubGraphsMutation,
 } from '@/lib/store/slice/slice';
 import { useEffect, useRef, useState } from 'react';
-import { Edge, EnumerateResponse, Node } from 'litegraphdb/dist/types/types';
+import { Edge, EnumerateResponse, Node, ReadSubGraphResponse } from 'litegraphdb/dist/types/types';
 import {
   buildAdjacencyList,
   topologicalSortKahn,
@@ -114,7 +114,10 @@ export const useLazyLoadNodes = (
       if (nodesList.TotalRecords > MAX_NODES_TO_FETCH) {
         setHasMoreThanSupportedNodes(true);
       }
-      updatedNodes = [...nodes, ...nodesList.Objects];
+      updatedNodes = [
+        ...nodes,
+        ...nodesList.Objects.filter((node) => !nodes.some((n) => n.GUID === node.GUID)),
+      ];
       setNodes(updatedNodes);
 
       // Only process new nodes to avoid shuffling existing ones
@@ -200,7 +203,10 @@ export const useLazyLoadEdges = (
   useEffect(() => {
     setLoading(true);
     if (edgesList?.Objects?.length) {
-      const updatedEdges = [...edges, ...edgesList.Objects];
+      const updatedEdges = [
+        ...edges,
+        ...edgesList.Objects.filter((edge) => !edges.some((e) => e.GUID === edge.GUID)),
+      ];
       setEdges(updatedEdges);
     } else {
       setLoading(false);
@@ -445,16 +451,34 @@ export const useLazyLoadEdgesAndNodes = (
   };
 };
 
-export const useGetSubGraphs = (topologicalSortNodes: boolean, showGraphHorizontal: boolean) => {
+export const useGetSubGraphs = (
+  selectedNodeGuid: string | null,
+  topologicalSortNodes: boolean,
+  showGraphHorizontal: boolean
+) => {
   const graphGuid = useSelectedGraph();
   const [getSubGraphs, { isLoading, isError }] = useGetSubGraphsMutation();
-  const loadSubGraph = async (nodeGuid: string) => {
+  const [subGraphNodes, setSubGraphNodes] = useState<NodeData[] | null>(null);
+  const [subGraphEdges, setSubGraphEdges] = useState<EdgeData[] | null>(null);
+  const [subGraphResponse, setSubGraphResponse] = useState<ReadSubGraphResponse | null>(null);
+
+  const loadSubGraph = async () => {
+    if (!selectedNodeGuid) return;
     const response = await getSubGraphs({
       graphGuid,
-      nodeGuid,
-      options: { maxDepth: 1, maxNodes: 100, maxEdges: 100, incldata: true, inclsub: true },
+      nodeGuid: selectedNodeGuid,
+      options: { maxDepth: 2, maxNodes: 100, maxEdges: 100, incldata: true, inclsub: true },
     }).unwrap();
-    const data = response;
+    setSubGraphResponse(response);
+  };
+  useEffect(() => {
+    if (selectedNodeGuid) {
+      loadSubGraph();
+    }
+  }, [selectedNodeGuid]);
+
+  useEffect(() => {
+    const data = subGraphResponse;
     if (data) {
       const adjList = buildAdjacencyList(
         data.Nodes,
@@ -483,10 +507,20 @@ export const useGetSubGraphs = (topologicalSortNodes: boolean, showGraphHorizont
           (edge: Edge) => nodeIds.includes(edge.From) && nodeIds.includes(edge.To)
         ) || []
       );
-      return { nodes: uniqueNodes, edges };
+      setSubGraphNodes(uniqueNodes);
+      setSubGraphEdges(edges);
     } else {
-      return null;
+      setSubGraphNodes([]);
+      setSubGraphEdges([]);
     }
+  }, [subGraphResponse, topologicalSortNodes, showGraphHorizontal]);
+
+  return {
+    isSubGraphLoading: isLoading,
+    isError,
+    loadSubGraph,
+    subGraphNodes,
+    subGraphEdges,
+    subGraphResponse,
   };
-  return { isSubGraphLoading: isLoading, isError, loadSubGraph };
 };

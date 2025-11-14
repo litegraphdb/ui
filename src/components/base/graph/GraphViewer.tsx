@@ -57,9 +57,8 @@ const GraphViewer = ({
     height: undefined,
     width: undefined,
   });
-  const [subGraphNodes, setSubGraphNodes] = useState<NodeData[] | null>(null);
-  const [subGraphEdges, setSubGraphEdges] = useState<EdgeData[] | null>(null);
   const [show3d, setShow3d] = useState(false);
+  const [selectedNodeGuid, setSelectedNodeGuid] = useState<string | null>(null);
   const [topologicalSortNodes, setTopologicalSortNodes] = useState(false);
   const [showGraphHorizontal, setShowGraphHorizontal] = useState(false);
   const [showGraphLegend, setShowGraphLegend] = useState(true);
@@ -94,13 +93,14 @@ const GraphViewer = ({
     topologicalSortNodes,
     MAX_NODES_TO_FETCH
   );
-  const { loadSubGraph, isSubGraphLoading } = useGetSubGraphs(
+  const { loadSubGraph, isSubGraphLoading, subGraphNodes, subGraphEdges } = useGetSubGraphs(
+    selectedNodeGuid,
     topologicalSortNodes,
     showGraphHorizontal
   );
   console.log('isSubGraphLoading', isSubGraphLoading);
   const isLoading = isGraphLoading || isSubGraphLoading;
-  const legends = getLegendsForNodes(subGraphNodes ? subGraphNodes : nodes);
+  const legends = getLegendsForNodes(selectedNodeGuid ? subGraphNodes || [] : nodes);
 
   useEffect(() => {
     setShow3d(false);
@@ -127,14 +127,7 @@ const GraphViewer = ({
     // Handle node selection - you can add custom logic here
     // For example, focus on the node in the graph, show tooltip, etc.
     console.log('Selected node:', node);
-    const data = await loadSubGraph(node.GUID);
-    console.log('Response:', data);
-    if (data && data?.nodes?.length) {
-      setSubGraphNodes(data.nodes);
-      setSubGraphEdges(data.edges);
-    } else {
-      message.warning('Unable to find subgraph.');
-    }
+    setSelectedNodeGuid(node.GUID);
   };
 
   return (
@@ -162,15 +155,14 @@ const GraphViewer = ({
             <LitegraphFlex gap={10} align="center">
               {selectedGraphRedux && (
                 <>
-                  {subGraphNodes ? (
+                  {selectedNodeGuid ? (
                     <>
                       <LitegraphTooltip title="Clear subgraph">
                         <LitegraphFlex
                           align="center"
                           gap={5}
                           onClick={() => {
-                            setSubGraphNodes(null);
-                            setSubGraphEdges(null);
+                            setSelectedNodeGuid(null);
                           }}
                           className="cursor-pointer"
                         >
@@ -181,14 +173,14 @@ const GraphViewer = ({
                     </>
                   ) : (
                     <LitegraphTooltip title="Search nodes and load subgraph">
-                      <LitegraphFlex align="center" gap={5} className="cursor-pointer">
+                      <LitegraphFlex
+                        align="center"
+                        gap={5}
+                        className="cursor-pointer"
+                        onClick={() => setIsNodeSearchModalVisible(true)}
+                      >
                         Search Sub Graph
-                        <LitegraphButton
-                          type="text"
-                          icon={<SearchOutlined />}
-                          onClick={() => setIsNodeSearchModalVisible(true)}
-                          size="small"
-                        />
+                        <LitegraphButton type="text" icon={<SearchOutlined />} size="small" />
                       </LitegraphFlex>
                     </LitegraphTooltip>
                   )}
@@ -198,7 +190,7 @@ const GraphViewer = ({
             </LitegraphFlex>
             {!show3d && (
               <>
-                <LitegraphFormItem className="mb-0" label={'Horizontal view'}>
+                <LitegraphFormItem className="mb-0" label={'Rotate graph'}>
                   <Switch
                     size="small"
                     checked={showGraphHorizontal}
@@ -316,8 +308,8 @@ const GraphViewer = ({
                 {show3d ? (
                   <GraphLoader3d
                     legends={legends}
-                    nodes={subGraphNodes ? subGraphNodes : nodes}
-                    edges={subGraphEdges ? subGraphEdges : edges}
+                    nodes={selectedNodeGuid ? subGraphNodes || [] : nodes}
+                    edges={selectedNodeGuid ? subGraphEdges || [] : edges}
                     setTooltip={setNodeTooltip}
                     setEdgeTooltip={setEdgeTooltip}
                     ref={ref}
@@ -329,8 +321,8 @@ const GraphViewer = ({
                     legends={legends}
                     show3d={show3d}
                     selectedGraphRedux={selectedGraphRedux}
-                    nodes={subGraphNodes ? subGraphNodes : nodes}
-                    edges={subGraphEdges ? subGraphEdges : edges}
+                    nodes={selectedNodeGuid ? subGraphNodes || [] : nodes}
+                    edges={selectedNodeGuid ? subGraphEdges || [] : edges}
                     gexfContent={''}
                     showGraphHorizontal={showGraphHorizontal}
                     topologicalSortNodes={topologicalSortNodes}

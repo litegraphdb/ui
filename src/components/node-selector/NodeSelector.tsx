@@ -140,7 +140,7 @@ const NodeSelector: React.FC<NodeSelectorProps> = ({
 
         // Combine API search results with local nodes
         const apiNodes = response?.data?.Nodes || [];
-        const allOptions = [...localNodeOptions, ...apiNodes];
+        const allOptions = [...apiNodes, ...localNodeOptions];
 
         // Remove duplicates based on GUID
         const uniqueOptions = allOptions.filter(
