@@ -171,7 +171,7 @@ exports[`AdminLoginPage should render the AdminLoginPage with form fields: initi
                     id="url"
                     placeholder="https://your-litegraph-server.com"
                     type="text"
-                    value=""
+                    value="http://localhost:8701/"
                   />
                 </div>
               </div>
