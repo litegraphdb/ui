@@ -467,7 +467,7 @@ export const useGetSubGraphs = (
     const response = await getSubGraphs({
       graphGuid,
       nodeGuid: selectedNodeGuid,
-      options: { maxDepth: 2, maxNodes: 100, maxEdges: 100, incldata: true, inclsub: true },
+      options: { maxDepth: 2, maxNodes: 100, maxEdges: 100, incldata: false, inclsub: true },
     }).unwrap();
     setSubGraphResponse(response);
   };

@@ -157,14 +157,14 @@ const GraphViewer = ({
                 <>
                   {selectedNodeGuid ? (
                     <>
-                      <LitegraphTooltip title="Clear subgraph">
+                      <LitegraphTooltip title="Clear sub graph">
                         <LitegraphFlex
                           align="center"
                           gap={5}
                           onClick={() => {
                             setSelectedNodeGuid(null);
                           }}
-                          className="cursor-pointer"
+                          className="cursor-pointer  text-error"
                         >
                           Clear Sub Graph
                           <RedoOutlined />

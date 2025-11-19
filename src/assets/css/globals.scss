@@ -187,6 +187,9 @@
   text-decoration: underline;
   cursor: pointer;
 }
+.text-error {
+  color: var(--ant-color-error);
+}
 .w-100 {
   width: 100%;
 }
